@@ -39,7 +39,7 @@
     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 mb-30">
         <div class="card-box height-100-p overflow-hidden">
 
-            @livewire('admin-profile-tabs')
+            @livewire('admin-profile-tabs') 
 
         </div>
     </div>
@@ -48,8 +48,8 @@
 @push('scripts')
     <script>
         window.addEventListener('updateAdminInfo', function(event){
-            $('#adminProfileName').html(event.detail.adminName);
-            $('#adminProfileEmail').html(event.detail.adminEmail);
+            $('#adminProfileName').html(event.detail[0].adminName);
+            $('#adminProfileEmail').html(event.detail[0].adminEmail);
         });
         $('input[type="file"][name="adminProfilePictureFile"][id="adminProfilePictureFile"]').ijaboCropTool({
         preview : '#adminProfilePicture',

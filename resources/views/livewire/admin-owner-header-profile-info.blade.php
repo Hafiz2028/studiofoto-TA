@@ -20,7 +20,7 @@
 							<a class="dropdown-item" href="{{ route('admin.profile')}}"
 								><i class="dw dw-user1"></i> Profile</a
 							>
-							<a class="dropdown-item" href="{{ route('admin.settings')}}"
+							<a class="dropdown-item" href=""
 								><i class="dw dw-settings2"></i> Setting</a
 							>
 							<a class="dropdown-item" href="faq.html"
@@ -34,7 +34,7 @@
 						</div>
 					</div>
 				</div>
-                @elseif(Auth::guard('owner')->check())
+    @elseif(Auth::guard('owner')->check())
                 <div class="user-info-dropdown">
 					<div class="dropdown">
 						<a
@@ -43,10 +43,10 @@
 							role="button"
 							data-toggle="dropdown"
 						>
-							<span class="user-icon">
-								<img src="/back/vendors/images/photo1.jpg" alt="" />
+                        <span class="user-icon">
+                            <img src="{{ $owner->picture }}" alt="" />
 							</span>
-							<span class="user-name">Ross C. Lopez</span>
+							<span class="user-name">{{ $owner->name}}</span>
 						</a>
 						<div
 							class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
@@ -54,15 +54,17 @@
 							<a class="dropdown-item" href="{{ route('owner.profile')}}"
 								><i class="dw dw-user1"></i> Profile</a
 							>
-							<a class="dropdown-item" href="profile.html"
+							<a class="dropdown-item" href=""
 								><i class="dw dw-settings2"></i> Setting</a
 							>
 							<a class="dropdown-item" href="faq.html"
 								><i class="dw dw-help"></i> Help</a
 							>
-							<a class="dropdown-item" href="login.html"
-								><i class="dw dw-logout"></i> Log Out</a
+							<a class="dropdown-item" href="{{ route('owner.logout_handler') }}"
+								onclick="event.preventDefault();document.getElementById('ownerLogoutForm').submit
+                                ();"><i class="dw dw-logout"></i> Log Out</a
 							>
+                            <form action="{{ route('owner.logout_handler') }}" id="ownerLogoutForm" method="POST">@csrf</form>
 						</div>
 					</div>
 				</div>

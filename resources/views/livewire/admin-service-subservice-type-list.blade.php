@@ -4,7 +4,7 @@
             <div class="pd-20 card-box mb-30">
                 <div class="clearfix">
                     <div class="pull-left">
-                        <h4 class="h4 text">Tipe Layanan Foto Studio</h4>
+                        <h4 class="h4 text">Service Type Foto Studio</h4>
                     </div>
                     <div class="pull-right">
                         <a href="{{ route('admin.service.add-service') }}" class="btn btn-primary btn-sm" type="button">
@@ -41,25 +41,21 @@
                                                     <div class="modal-dialog" role="document">
                                                       <div class="modal-content">
                                                         <div class="modal-header">
-                                                          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                                          <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
                                                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                           </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                          ...
+                                                            Are you sure to delete this user?
                                                         </div>
                                                         <div class="modal-footer">
-                                                          <button type="submit" class="btn btn-danger">Hapus</button>
+                                                          <button type="submit" class="btn btn-danger">Delete</button>
                                                         </div>
                                                       </div>
                                                     </div>
                                                   </div>
                                             </div>
-
-                                                {{-- <button type="submit" class="text-danger deleteServiceBtn" onclick="confirmDelete(event)">
-                                                    <i class="dw dw-delete-3"></i>
-                                                </button> --}}
                                             </form>
                                             {{-- <a href="javascript:;" class="text-danger deleteServiceBtn">
                                             <i class="dw dw-delete-3"></i>

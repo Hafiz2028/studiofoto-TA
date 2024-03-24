@@ -51,4 +51,21 @@ class Owner extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'=> 'hashed',
     ];
+    public function getPictureAttribute($value){
+        if($value){
+            return asset('/images/users/owners/'.$value);
+        }else{
+            return asset('/images/users/default-avatar.png');
+        }
+    }
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, 'owner_id', 'id');
+    }
+
+    public function venues()
+    {
+        return $this->hasMany(Venue::class, 'owner_id', 'id');
+    }
+
 }

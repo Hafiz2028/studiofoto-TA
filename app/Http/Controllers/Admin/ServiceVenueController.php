@@ -76,8 +76,10 @@ class ServiceVenueController extends Controller
     public function deleteService(Request $request){
         $service_id = $request->id;
         $service = ServiceType::findOrFail($service_id);
+        $service_name = $service->service_name;
+
         $service -> delete();
-        return redirect()->route('admin.service.venueServiceList')->with('success','Service Type deleted successfully');
+        return redirect()->route('admin.service.venueServiceList')->with('success','<b>'.ucfirst($service_name).'</b> Type of Service has deleted successfully');
     }
 
 }

@@ -25,4 +25,7 @@ class ServiceType extends Model
             ]
         ];
     }
+    public function serviceEvents(){
+        return $this->hasMany(ServiceEvent::class, 'service_type_id', 'id');
+    }
 }

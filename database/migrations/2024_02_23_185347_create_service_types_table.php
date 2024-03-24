@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service_types', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedInteger('id')->autoIncrement();
             $table->string('service_name');
             $table->string('service_slug')->unique();
             // $table->integer('ordering')->default(10000);

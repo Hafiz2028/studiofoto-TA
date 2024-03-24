@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Admin;
+use App\Models\Owner;
 use Illuminate\Support\Facades\Auth;
 
 class AdminOwnerHeaderProfileInfo extends Component
@@ -19,6 +20,9 @@ class AdminOwnerHeaderProfileInfo extends Component
     public function mount(){
         if (Auth::guard('admin')->check()){
             $this->admin = Admin::findOrFail(auth()->id());
+        }
+        elseif (Auth::guard('owner')->check()){
+            $this->owner = Owner::findOrFail(auth()->id());
         }
     }
     public function render()

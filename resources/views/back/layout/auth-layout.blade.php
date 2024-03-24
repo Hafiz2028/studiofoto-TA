@@ -102,11 +102,20 @@
         <script>
             window.addEventListener('showToaster', function(event){
                 toastr.remove();
-                if(event.detail.type === 'info'){ toastr.info(event.detail.message); }
-                else if(event.detail.type === 'success') {toastr.success(event.detail.message);}
-                else if(event.detail.type === 'error'){toastr.error(event.detail.message);}
-                else (return false;)
+                if(event.detail[0].type === 'info'){ toastr.info(event.detail[0].message); }
+                else if(event.detail[0].type === 'success') {toastr.success(event.detail[0].message);}
+                else if(event.detail[0].type === 'error'){toastr.error(event.detail[0].message);}
+                else {return false;}
             });
+            // document.addEventListener('livewire:init',()=>{
+            //     Livewire.on('showToastr',(event)=>{
+            //         toastr.remove();
+            //     if(event[0].type === 'info'){ toastr.info(event[0].message); }
+            //     else if(event[0].type === 'success') {toastr.success(event[0].message);}
+            //     else if(event[0].type === 'error'){toastr.error(event[0].message);}
+            //     else {return false;}
+            //     });
+            // });
         </script>
         @livewireScripts
 		@stack('scripts')

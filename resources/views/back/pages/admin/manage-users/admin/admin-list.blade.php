@@ -58,11 +58,34 @@
                                             <a href="{{ route('admin.user.edit-admin',['id'=>$item->id])}}" class="text-primary">
                                                 <i class="dw dw-edit2"></i>
                                             </a>
-                                            <a href="javascript:;" class="text-danger deleteServiceBtn">
+                                            <a type="button" class="text-danger" data-toggle="modal" data-target="#exampleModal{{$item->id}}">
                                                 <i class="dw dw-delete-3"></i>
-                                            </a>
-                                        </div>
-                                    </td>
+                                              </a>
+                                            <form method="POST" action="{{ route('admin.user.delete-admin', ['id' => $item->id])}}" id="deleteForm" >
+                                                @csrf
+                                                @method('DELETE')
+                                                  <div class="modal fade" id="exampleModal{{$item->id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                      <div class="modal-content">
+                                                        <div class="modal-header">
+                                                          <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
+                                                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                          </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                          Are you sure to delete this user?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                          <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                            </div>
+                                            </form>
+
+                                        </td>
                                 </tr>
                                 @empty
                                     <tr>
@@ -80,6 +103,28 @@
         </div>
     </div>
 
-
-
 @endsection
+@push('scripts')
+<script>
+    $(document).on('click','deleteServiceBtn',function(e){
+        e.preventDefault();
+        var admins_id = $(this).data('id');
+        Swal.fire({
+            title:"Are you sure?",
+            html:"You want to delete this service",
+            showCloseButton:true,
+            showCancelButton:true,
+            cancelButtonText:'cancel',
+            confirmButtonText:'Yes, Delete',
+            cancelButtonColor: '#d33',
+            confirmButtonColor:'#3085d6',
+            width:300,
+            allowOutsideClick:false
+        }).then(function(result){
+            if(result.value){
+                alert('Yes, delete Service');
+            }
+        });
+    });
+</script>
+@endpush

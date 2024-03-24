@@ -6,25 +6,25 @@
             <div class="pd-20 card-box mb-30">
                 <div class="clearfix">
                     <div class="pull-left">
-                        <h4 class="text-dark">Edit Service</h4>
+                        <h4 class="text-dark">Edit Admin User</h4>
                     </div>
                     <div class="pull-right">
-                        <a href="{{ route('admin.service.venueServiceList')}}" class="btn btn-primary btn-sm">
-                        <i class="ion-arrow-left-a"></i> Back to Venue's Services
+                        <a href="{{ route('admin.user.adminList') }}" class="btn btn-primary btn-sm">
+                            <i class="ion-arrow-left-a"></i> Back to Admin User List
                         </a>
                     </div>
                 </div>
                 <hr>
-                <form action="{{ route('admin.service.update-service')}}" method="POST" enctype="multipart/form-data" class="mt-3">
-                    <input type="hidden" name="service_id" value="{{ Request('id')}}">
+                <form action="{{ route('admin.user.update-admin') }}" method="POST" enctype="multipart/form-data" class="mt-3">
+                    <input type="hidden" name="admin_id" value="{{ Request('id')}}">
                     @csrf
                     @if (Session::get('success'))
-                        <div class="alert alert-success">
-                            <strong><i class="dw dw-checked"></i></strong>
-                            {!! Session::get('success') !!}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                    <div class="alert alert-success">
+                        <strong><i class="dw dw-checked"></i></strong>
+                        {!! Session::get('success') !!}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                         </div>
                     @endif
                     @if (Session::get('fail'))
@@ -36,22 +36,79 @@
                             </button>
                         </div>
                     @endif
-                    <div class="row">
-                        <div class="col-md-7">
+                    <div class="form-row">
+                        <div class="col">
                             <div class="form-group">
-                                <label for="">Service Name</label>
-                                        <input type="text" class="form-control" name="service_name" placeholder="Enter Service Name" value="{{ $admin->name}}">
-                                @error('service_name')
+                                <div class="form-row">
+                                    <div class="col">
+                                        <label for="">Name</label>
+                                        <input type="text" class="form-control" name="name" placeholder="Name"
+                                            value="{{ $admin->name }}"> @error('name')
+                                            <span class="text-danger ml-2">
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+                                    <div class="col">
+                                        <label for="">Username</label>
+                                        <input type="text" class="form-control" name="username"
+                                            placeholder="Username" value="{{ $admin->username }}">
+                                        @error('username')
+                                            <span class="text-danger ml-2">
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Address</label>
+                                <input type="text" class="form-control" name="address" placeholder="Address"
+                                    value="{{ $admin->address }}">
+                                @error('address')
                                     <span class="text-danger ml-2">
-                                        {{ $message}}
+                                        {{ $message }}
                                     </span>
                                 @enderror
                             </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <label for="">Email</label>
+                                        <input type="email" class="form-control" name="email" placeholder="Email"
+                                            value="{{ $admin->email }}" disabled>
+                                        @error('email')
+                                            <span class="text-danger ml-2">
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+                                    <div class="col">
+                                        <label for="">Phone Number</label>
+                                        <input type="text" class="form-control" name="handphone"
+                                            placeholder="Phone Number" value="{{ $admin->handphone }}">
+                                        @error('handphone')
+                                            <span class="text-danger ml-2">
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col">
+                                        <button type="submit" class="btn btn-primary float-right">Update</button>
+                                        </div>
+                                    </div>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">UPDATE</button>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
+</div>
+
+
+
 @endsection

@@ -21,7 +21,16 @@
     <link rel="stylesheet" type="text/css" href="/back/vendors/styles/core.css" />
     <link rel="stylesheet" type="text/css" href="/back/vendors/styles/icon-font.min.css" />
     <link rel="stylesheet" type="text/css" href="/back/vendors/styles/style.css" />
+    <link rel="stylesheet" type="text/css" href="/back/src/plugins/jquery-steps/jquery.steps.css" />
 
+    <link rel="stylesheet" href="/extra-assets/ijabo/ijabo.min.css">
+    <link rel="stylesheet" href="/extra-assets/ijaboCropTool/ijaboCropTool.min.css">
+    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
+    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     <script>
         (function(w, d, s, l, i) {
@@ -43,9 +52,16 @@
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- End Google Tag Manager -->
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Include necessary JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script> --}}
+
     @livewireStyles
     @stack('stylesheets')
 </head>
@@ -319,14 +335,14 @@
                         </li>
                         <li class="dropdown">
                             <a href="javascript:;"
-                                class="dropdown-toggle {{ Route::is('admin.user.adminList') ? 'active' : '' }} || {{ Route::is('admin.manage.cust-users') ? 'active' : '' }} || {{ Route::is('admin.manage.owner-users') ? 'active' : '' }} ">
+                                class="dropdown-toggle {{ Route::is('admin.user.*') ? 'active' : '' }} ">
                                 <span class="micon bi bi-people"></span>
                                 <span class="mtext">Users</span>
                             </a>
                             <ul class="submenu">
                                 <li><a href="{{ route('admin.user.adminList') }}">Admin</a></li>
-                                <li><a href=" {{ route('admin.user.owner-users') }}">Owner</a></li>
-                                <li><a href="{{ route('admin.user.cust-users') }}">Customer</a></li>
+                                <li><a href=" {{ route('admin.user.owner.index') }}">Owner</a></li>
+                                <li><a href="{{ route('admin.user.customer.index') }}">Customer</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -367,33 +383,37 @@
                             </li> --}}
                         @elseif (Route::is('owner.*'))
                         <li class="dropdown">
-                            <a href="javascript:;" class="dropdown-toggle no-arrow">
+                            <a href="{{ route('owner.home') }}"
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.home') ? 'active' : '' }}">
                                 <span class="micon bi bi-house"></span><span class="mtext">Home</span>
                             </a>
                         </li>
                         <li class="dropdown">
-                            <a href="javascript:;" class="dropdown-toggle no-arrow">
-                                <span class="micon bi bi-house"></span><span class="mtext">Venue's Manage</span>
+                            <a href="{{ route('owner.venue.index') }}"
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.venue.*') ? 'active' : '' }}">
+                                <span class="micon bi bi-building"></span><span class="mtext">Venue's Manage</span>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="{{ route('owner.booking.index') }}"
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.booking.*') ? 'active' : '' }}">
+                                <span class="micon bi bi-journal-bookmark-fill"></span><span
+                                    class="mtext">Booking</span>
                             </a>
                         </li>
                         <li class="dropdown">
                             <a href="javascript:;" class="dropdown-toggle no-arrow">
-                                <span class="micon bi bi-house"></span><span class="mtext">Booking</span>
+                                <span class="micon bi bi-chat-dots"></span><span class="mtext">Chat</span>
                             </a>
                         </li>
                         <li class="dropdown">
                             <a href="javascript:;" class="dropdown-toggle no-arrow">
-                                <span class="micon bi bi-house"></span><span class="mtext">Chat</span>
+                                <span class="micon bi bi-clock-history"></span><span class="mtext">History</span>
                             </a>
                         </li>
                         <li class="dropdown">
                             <a href="javascript:;" class="dropdown-toggle no-arrow">
-                                <span class="micon bi bi-house"></span><span class="mtext">History</span>
-                            </a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="javascript:;" class="dropdown-toggle no-arrow">
-                                <span class="micon bi bi-house"></span><span class="mtext">Transaction</span>
+                                <span class="micon bi bi-wallet2"></span><span class="mtext">Transaction</span>
                             </a>
                         </li>
                     @endif
@@ -423,6 +443,9 @@
     <script src="/back/vendors/scripts/script.min.js"></script>
     <script src="/back/vendors/scripts/process.js"></script>
     <script src="/back/vendors/scripts/layout-settings.js"></script>
+    <script src="/back/src/plugins/jquery-steps/jquery.steps.js"></script>
+    <script src="/back/vendors/scripts/steps-setting.js"></script>
+
     <script>
         if (navigator.userAgent.indexOf("Firefox") != -1) {
             history.pushState(null, null, document.URL);
@@ -432,68 +455,8 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {{-- <script>
-        Swal.bindClickHandler();
-        /* Bind a mixin to a click handler */
-        // Swal.mixin({
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.all.min.js"></script>
 
-        // })
-        Swal.mixin({
-            toast: true,
-            title: "Are you sure?",
-            icon: "warning",
-            html: "You want to delete this service",
-            // showCloseButton: true,
-            showCancelButton: true,
-            cancelButtonText: 'cancel',
-            confirmButtonText: 'Yes, Delete',
-            cancelButtonColor: '#3085d6',
-            confirmButtonColor: '#d33',
-            width: 400,
-            // allowOutsideClick: false
-        }).bindClickHandler("data-swal-template");
-    </script> --}}
-    {{-- <script>
-// $(document).on('click','deleteServiceBtn',function(e){
-//         e.preventDefault();
-//         var service_types_id = $(this).data('id');
-//         Swal.fire({
-//             title:"Are you sure?",
-//             html:"You want to delete this service",
-//             showCloseButton:true,
-//             showCancelButton:true,
-//             cancelButtonText:'cancel',
-//             confirmButtonText:'Yes, Delete',
-//             cancelButtonColor: '#d33',
-//             confirmButtonColor:'#3085d6',
-//             width:300,
-//             allowOutsideClick:false
-//         }).then(function(result){
-//             if(result.value){
-//                 alert('Yes, delete Service');
-//             }
-//         });
-//     });
-
-        function confirmDelete(event) {
-            event.preventDefault();
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('deleteForm').submit();
-                }
-            });
-        }
-    </script> --}}
 
     <script src="/extra-assets/ijabo/ijabo.min.css"></script>
     {{-- <script src="/extra-assets/ijabo/jquery.ijaboViewer.min.js"></script> --}}
@@ -502,18 +465,32 @@
     <script>
         window.addEventListener('showToaster', function(event) {
             toastr.remove();
-            if (event.detail.type === 'info') {
-                toastr.info(event.detail.message);
-            } else if (event.detail.type === 'success') {
-                toastr.success(event.detail.message);
-            } else if (event.detail.type === 'error') {
-                toastr.error(event.detail.message);
-            } else(
-                return false;)
+            if (event.detail[0].type === 'info') {
+                toastr.info(event.detail[0].message);
+            } else if (event.detail[0].type === 'success') {
+                toastr.success(event.detail[0].message);
+            } else if (event.detail[0].type === 'error') {
+                toastr.error(event.detail[0].message);
+            } else if (event.detail[0].type === 'warning') {
+                toastr.warning(event.detail[0].message);
+            } else {
+                return false;
+            }
         });
+        // document.addEventListener('livewire:init',()=>{
+        //     Livewire.on('showToastr',(event)=>{
+        //         toastr.remove();
+        //     if(event[0].type === 'info'){ toastr.info(event[0].message); }
+        //     else if(event[0].type === 'success') {toastr.success(event[0].message);}
+        //     else if(event[0].type === 'error'){toastr.error(event[0].message);}
+        //     else {return false;}
+        //     });
+        // });
     </script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     @livewireScripts
     @stack('scripts')
+
 </body>
 
 </html>

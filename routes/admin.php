@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\ServiceVenueController;
+use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\CustomerController;
 
 Route::prefix('admin')->name('admin.')->group(function(){
 
@@ -21,20 +23,22 @@ Route::prefix('admin')->name('admin.')->group(function(){
         Route::post('/logout_handler', [AdminController::class, 'logoutHandler'])->name('logout_handler');
         Route::get('/profile',[AdminController::class, 'profileView'])->name('profile');
         Route::post('/change-profile-picture',[AdminController::class, 'changeProfilePicture'])->name('change-profile-picture');
-        Route::view('/settings','back.pages.settings')->name('settings');
-        //hanya view belum crud
+        // Route::view('/settings','back.pages.settings')->name('settings');
         //menu Users
         Route::prefix('user')->name('user.')->group(function(){
+            //crud user admin
             Route::controller(AdminController::class)->group(function(){
                 Route::get('/','adminList')->name('adminList');
                 Route::get('/add-admin','addAdmin')->name('add-admin');
                 Route::post('/store-admin','storeAdmin')->name('store-admin');
                 Route::get('/edit-admin','editAdmin')->name('edit-admin');
-                // Route::post('update-admin','updateService')->name('update-admin');
+                Route::post('/update-admin','updateAdmin')->name('update-admin');
+                Route::delete('/delete-admin','deleteAdmin')->name('delete-admin');
             });
-            // Route::view('/admin-users','back.pages.admin.manage-users.admin.user-admin')->name('admin-users');
-            Route::view('/cust-users','back.pages.admin.manage-users.customer.user-customer')->name('cust-users');
-            Route::view('/owner-users','back.pages.admin.manage-users.owner.user-owner')->name('owner-users');
+            //crud user owner
+            Route::resource('owner', OwnerController::class);
+            // crud user customer
+            Route::resource('customer', CustomerController::class);
         });
         //menu Venue
         Route::view('/venue-need-approval','back.pages.admin.manage-venue.need-approval.need-approval-table')->name('venue-need-approval');

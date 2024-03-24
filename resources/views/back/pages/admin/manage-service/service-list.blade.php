@@ -30,7 +30,7 @@
 <script>
     $(document).on('click','deleteServiceBtn',function(e){
         e.preventDefault();
-        var service_types_id = $(this).data('id');
+        var service_type_id = $(this).data('id');
         Swal.fire({
             title:"Are you sure?",
             html:"You want to delete this service",
@@ -44,14 +44,14 @@
             allowOutsideClick:false
         }).then(function(result){
             if(result.value){
-                alert('Yes, delete Service');
+                Livewire.dispatch('deleteService',[service_type_id]) alert('Yes, delete Service');
             }
         });
     });
+</script>
 
 
-
-    // $('table tbody#sortable_services').sortable({
+    {{-- // $('table tbody#sortable_services').sortable({
     //     cursor:"move",
     //     update:function(event, ui){
     //         $(this).children().each(function(index){
@@ -66,7 +66,7 @@
     //         });
     //         window.livewire.emit('updateServicesOrdering',positions);
     //     }
-    // });
-</script>
+    // }); --}}
+
 
 @endpush

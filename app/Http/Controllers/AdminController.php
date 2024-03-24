@@ -251,24 +251,55 @@ class AdminController extends Controller
 
     public function storeAdmin(Request $request){
         //validate
-        $request->validate([
-            'admin_name' => 'required|min:5|unique:admins,admin_name',
-            'admin_email' => 'required|min:5|',
-            'admin_email' => 'required|email|exists:admins,email'
+        $validatedData = $request->validate([
+            'name' => 'required|min:5|unique:admins,name',
+            'username' => 'required|min:5|unique:admins,username|regex:/^\S*$/',
+            'email' => 'required|email|unique:admins,email',
+            'password' => 'required|min:5|max:45',
+            'handphone' => 'required|min:9|max:15',
+            'address' => 'required|string|max:255',
+            'password_confirmation' => 'required|min:5|max:45|same:password',
         ],[
-            'admin_name.required' => ':Attribute is required',
-            'admin_name.min'=> ':Attribute must contains atleast 5 characters',
-            'admin_name.unique' => 'This :attribute is already exists',
+            'name.required' => ':Attribute is required.',
+            'name.min' => ':Attribute must be at least 5 characters.',
+            'name.unique' => ':Attribute has already been taken.',
+            'username.regex' => ':Attribute may only contain letters, numbers, and underscores.',
+            'username.max' => ':Attribute must not exceed 255 characters.',
+            'username.required' => ':Attribute is required.',
+            'username.min' => ':Attribute must be at least 5 characters.',
+            'username.unique' => ':Attribute has already been taken.',
+            'email.required' => ':Attribute is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => ':Attribute has already been taken.',
+            'password.required' => ':Attribute is required.',
+            'password.min' => ':Attribute must be at least 5 characters.',
+            'password.max' => ':Attribute may not be greater than 45 characters.',
+            'handphone.required' => ':Attribute field is required.',
+            'password_confirmation.required' => ':Attribute is required.',
+            'password_confirmation.min' => ':Attribute must be at least 5 characters.',
+            'password_confirmation.max' => ':Attribute may not be greater than 45 characters.',
+            'handphone.required' => ':Attribute field is required.',
+            'handphone.min' => ':Attribute must be at least 9 characters.',
+            'handphone.max' => ':Attribute may not be greater than 15 characters.',
+            'address.required' => ':Attribute is required.',
+            'address.string' => ':Attribute must be a string.',
+            'address.max' => ':Attribute may not be greater than 255 characters.',
         ]);
-        // $admin = new Admin();
-        // $admin->admin_name = $request->admin_name;
+        $admin = new Admin();
 
-        // $saved = $admin->save();
-        // if ($saved){
-        //     return redirect()->route('admin.user.adminList')->with('success','<b>'.ucfirst($request->admin_name).'</b> service has been added');
-        // }else{
-        //     return redirect()->route('admin.user.add-admin')->with('fail','something went wrong, try again');
-        // }
+        $admin->name = $validatedData['name'];
+        $admin->username = $validatedData['username'];
+        $admin->email = $validatedData['email'];
+        $admin->password = Hash::make($validatedData['password']);
+        $admin->handphone = $validatedData['handphone'];
+        $admin->address = $validatedData['address'];
+        $saved = $admin->save();
+
+        if ($saved){
+            return redirect()->route('admin.user.adminList')->with('success','<b>'.ucfirst($validatedData['name']).'</b> user has been added');
+        }else{
+            return redirect()->route('admin.user.add-admin')->with('fail','something went wrong, try again');
+        }
     }
     public function editAdmin(Request $request){
         $admin_id = $request->id;
@@ -278,6 +309,59 @@ class AdminController extends Controller
             'admin'=>$admin
         ];
         return view('back.pages.admin.manage-users.admin.edit-admin',$data);
+    }
+    public function updateAdmin(Request $request){
+        $admin_id = $request->admin_id;
+        $admin = Admin::findOrFail($admin_id);
+
+        //validate
+        $request->validate([
+            'name' => 'required|min:5|unique:admins,name,'.$admin_id,
+            'username' => 'required|min:5|unique:admins,username,'.$admin_id.'|regex:/^\S*$/',
+            'handphone' => 'required|min:9|max:15',
+            'address' => 'required|string|max:255',
+        ],[
+            'name.required' => ':Attribute is required.',
+            'name.min' => ':Attribute must be at least 5 characters.',
+            'name.unique' => ':Attribute has already been taken.',
+            'username.regex' => ':Attribute may only contain letters, numbers, and underscores.',
+            'username.required' => ':Attribute is required.',
+            'username.min' => ':Attribute must be at least 5 characters.',
+            'username.unique' => ':Attribute has already been taken.',
+            'handphone.required' => ':Attribute field is required.',
+            'handphone.required' => ':Attribute field is required.',
+            'handphone.min' => ':Attribute must be at least 9 characters.',
+            'handphone.max' => ':Attribute may not be greater than 15 characters.',
+            'address.required' => ':Attribute is required.',
+            'address.string' => ':Attribute must be a string.',
+            'address.max' => ':Attribute may not be greater than 255 characters.',
+        ]);
+        $admin->name = $request->name;
+        $admin->username = $request->username;
+        $admin->handphone = $request->handphone;
+        $admin->address = $request->address;
+        $saved= $admin->save();
+        if($saved){
+            return redirect()->route('admin.user.adminList',['id'=>$admin_id])->with('success','<b>'.ucfirst($request->name).'</b> service has been updated');
+        }else{
+            return redirect()->route('admin.user.edit-admin',['id'=>$admin_id])->with('fail','Something went wrong, try again');
+
+        }
+
+    }
+
+    public function deleteAdmin(Request $request){
+        $admin_id = $request->id;
+        $admin = Admin::findOrFail($admin_id);
+        $admin_name = $admin->name;
+
+        $delete = $admin -> delete();
+        if($delete){
+        return redirect()->route('admin.user.adminList')->with('success','User <b>'.ucfirst($admin_name).'</b> deleted successfully');
+        }
+        else{
+            return redirect()->route('admin.user.adminList')->with('fail',"User <b>".ucfirst($admin_name)."</b> can't deleted, Try again");
+        }
     }
 
 }

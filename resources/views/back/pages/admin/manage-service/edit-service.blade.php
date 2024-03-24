@@ -49,7 +49,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">UPDATE</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
                 </form>
             </div>
         </div>
