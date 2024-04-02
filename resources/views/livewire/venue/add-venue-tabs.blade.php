@@ -220,9 +220,9 @@
                                             <div id="{{ strtolower($day->name) }}-schedule"
                                                 style="margin-top: 10px;">
                                                 @if (isset($jadwal_hari[$day->id]) && $jadwal_hari[$day->id])
-                                                    @if ($errors->has("selectedOpeningHours.{$day->id}"))
+                                                    @if ($errors->has("savedJadwalJam.{$day->id}"))
                                                         <div class="alert alert-danger mt-2">
-                                                            {{ $errors->first("selectedOpeningHours.{$day->id}") }}
+                                                            {{ $errors->first("savedJadwalJam.{$day->id}") }}
                                                         </div>
                                                     @endif
                                                     <div style="margin-top: 10px; margin-bottom: 10px;">
@@ -256,7 +256,8 @@
                                                                 <input class="form-check-input" type="checkbox"
                                                                     id="{{ strtolower($day->name) }}-{{ $hour->id }}"
                                                                     value="{{ $hour->time }}"
-                                                                    wire:model="jadwal_jam.{{ $day->id }}.{{ $hour->id }}">
+                                                                    wire:model="jadwal_jam.{{ $day->id }}.{{ $hour->id }}"
+                                                                    wire:change="updatedSelectedOpeningHours('{{ $day->id }}', '{{ $hour->id }}', $event.target.checked)">
                                                                 <label class="form-check-label"
                                                                     for="{{ strtolower($day->name) }}-{{ $hour->id }}">{{ $hour->hour }}</label>
                                                             </div>
@@ -273,9 +274,9 @@
                                     </div>
                                 @endforeach
                             </div>
-                            @if ($currentStep == 4 && $errors->has('selectedOpeningHours'))
+                            @if ($currentStep == 4 && $errors->has('savedJadwalJam'))
                                 <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('selectedOpeningHours') }}
+                                    {{ $errors->first('savedJadwalJam') }}
                                 </div>
                             @endif
                         </section>
