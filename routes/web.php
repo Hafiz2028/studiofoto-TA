@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DistrictController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/districts', [DistrictController::class, 'getDistricts'])->name('districts');
+Route::post('/submit', [DistrictController::class, 'submit'])->name('submit');
 
 Route::view('/example-page','example-page');
 Route::view('/example-auth','example-auth');

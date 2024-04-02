@@ -23,14 +23,13 @@
     <link rel="stylesheet" type="text/css" href="/back/vendors/styles/style.css" />
     <link rel="stylesheet" type="text/css" href="/back/src/plugins/jquery-steps/jquery.steps.css" />
 
-    <link rel="stylesheet" href="/extra-assets/ijabo/ijabo.min.css">
     <link rel="stylesheet" href="/extra-assets/ijaboCropTool/ijaboCropTool.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
         (function(w, d, s, l, i) {
@@ -47,21 +46,7 @@
             f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
     </script>
-    <link rel="stylesheet" href="/extra-assets/ijabo/ijabo.min.css">
-    <link rel="stylesheet" href="/extra-assets/ijaboCropTool/ijaboCropTool.min.css">
-    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
-    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
-    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!-- End Google Tag Manager -->
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <!-- Include necessary JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script> --}}
-
+    <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
     @livewireStyles
     @stack('stylesheets')
 </head>
@@ -458,8 +443,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.all.min.js"></script>
 
 
-    <script src="/extra-assets/ijabo/ijabo.min.css"></script>
-    {{-- <script src="/extra-assets/ijabo/jquery.ijaboViewer.min.js"></script> --}}
+
     <script src="/extra-assets/ijaboCropTool/ijaboCropTool.min.js"></script>
     <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
     <script>
@@ -488,8 +472,8 @@
         // });
     </script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    @livewireScripts
     @stack('scripts')
+    @livewireScripts
 
 </body>
 

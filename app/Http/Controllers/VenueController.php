@@ -49,17 +49,9 @@ class VenueController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|min:4',
-            'phone_number' => 'required|min:8|max:15',
-            'information' => 'nullable|string',
-            'imb' => 'required|mimes:pdf|max:5000',
-            'address' => 'required|string|max:255',
+
             'dp_percentage' => 'nullable|numeric',
-            'no_rek' => 'nullable|numeric',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'picture' => 'nullable|image|mimes:png,jpg,jpeg|max:5000',
-            'venue_image' => 'nullable|image|mimes:png,jpg,jpeg|max:5000',
+            
         ], [
             'name.required' => 'Nama venue harus diisi.',
             'name.min' => 'Nama venue minimal 4 karakter.',

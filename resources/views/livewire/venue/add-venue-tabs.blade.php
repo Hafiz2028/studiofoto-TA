@@ -1,249 +1,18 @@
 <div>
-
-
-    {{-- <div class="profile-tab height-100-p">
-        <div class="tab height-100-p">
-            <ul class="nav nav-tabs customtab" role="tablist">
-                <li class="nav-item">
-                    <a wire:click.prevent='selectTab("info_venue")' class="nav-link {{ $tab == 'info_venue' ? 'active' : '' }}" data-toggle="tab" href="#info_venue" role="tab">Info Venue</a>
-                </li>
-                <li class="nav-item">
-                    <a wire:click.prevent='selectTab("lokasi_venue")' class="nav-link {{ $tab == 'lokasi_venue' ? 'active' : '' }}" data-toggle="tab" href="#lokasi_venue" role="tab">Lokasi Venue</a>
-                </li>
-                <li class="nav-item">
-                    <a wire:click.prevent='selectTab("update_password")' class="nav-link {{ $tab == 'update_password' ? 'active' : '' }}" data-toggle="tab" href="#update_password" role="tab">Update Password</a>
-                </li>
-                <li class="nav-item">
-                    <a wire:click.prevent='selectTab("update_password")' class="nav-link {{ $tab == 'update_password' ? 'active' : '' }}" data-toggle="tab" href="#update_password" role="tab">Update Password</a>
-                </li>
-                <li class="nav-item">
-                    <a wire:click.prevent='selectTab("update_password")' class="nav-link {{ $tab == 'update_password' ? 'active' : '' }}" data-toggle="tab" href="#update_password" role="tab">Update Password</a>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <!-- Timeline Tab start -->
-                <div class="tab-pane fade {{ $tab == 'info_venue' ? 'active show' : '' }}" id="info_venue" role="tabpanel">
-                    <div class="pd-20">
-                        <form wire:submit.prevent='updateOwnerPersonalDetails'>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Name</label>
-                                        <input type='text' class="form-control" wire:model='name' placeholder='Enter full name'>
-                                        @error('name')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Email</label>
-                                        <input type='text' class="form-control" wire:model='email' placeholder='Enter Email'>
-                                        @error('email')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Username</label>
-                                        <input type='text' class="form-control" wire:model='username' placeholder='Enter Username'>
-                                        @error('username')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </form>
-                    </div>
-                </div>
-                <!-- Timeline Tab End -->
-                <!-- Tasks Tab start -->
-                <div class="tab-pane fade {{ $tab == 'update_password' ? 'active show' : '' }}" id="update_password" role="tabpanel">
-                    <div class="pd-20 profile-task-wrap">
-                        <form wire:submit.prevent='updatePassword()'>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Current Password</label>
-                                        <input type="password" placeholder="Enter current password"
-                                        wire:model.defer='current_password' class="form-control">
-                                        @error('current_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">New Password</label>
-                                        <input type="password" placeholder="Enter new password"
-                                        wire:model.defer='new_password'class="form-control">
-                                        @error('new_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Confirm new Password</label>
-                                        <input type="password" placeholder="Retype new password"
-                                        wire:model.defer='new_password_confirmation' class="form-control">
-                                        @error('new_password_confirmation')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
-                    </div>
-                </div>
-                <!-- Tasks Tab End -->
-                <!-- Tasks Tab start -->
-                <div class="tab-pane fade {{ $tab == 'update_password' ? 'active show' : '' }}" id="update_password" role="tabpanel">
-                    <div class="pd-20 profile-task-wrap">
-                        <form wire:submit.prevent='updatePassword()'>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Current Password</label>
-                                        <input type="password" placeholder="Enter current password"
-                                        wire:model.defer='current_password' class="form-control">
-                                        @error('current_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">New Password</label>
-                                        <input type="password" placeholder="Enter new password"
-                                        wire:model.defer='new_password'class="form-control">
-                                        @error('new_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Confirm new Password</label>
-                                        <input type="password" placeholder="Retype new password"
-                                        wire:model.defer='new_password_confirmation' class="form-control">
-                                        @error('new_password_confirmation')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
-                    </div>
-                </div>
-                <!-- Tasks Tab End -->
-                <!-- Tasks Tab start -->
-                <div class="tab-pane fade {{ $tab == 'update_password' ? 'active show' : '' }}" id="update_password" role="tabpanel">
-                    <div class="pd-20 profile-task-wrap">
-                        <form wire:submit.prevent='updatePassword()'>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Current Password</label>
-                                        <input type="password" placeholder="Enter current password"
-                                        wire:model.defer='current_password' class="form-control">
-                                        @error('current_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">New Password</label>
-                                        <input type="password" placeholder="Enter new password"
-                                        wire:model.defer='new_password'class="form-control">
-                                        @error('new_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Confirm new Password</label>
-                                        <input type="password" placeholder="Retype new password"
-                                        wire:model.defer='new_password_confirmation' class="form-control">
-                                        @error('new_password_confirmation')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
-                    </div>
-                </div>
-                <!-- Tasks Tab End -->
-                <!-- Tasks Tab start -->
-                <div class="tab-pane fade {{ $tab == 'update_password' ? 'active show' : '' }}" id="update_password" role="tabpanel">
-                    <div class="pd-20 profile-task-wrap">
-                        <form wire:submit.prevent='updatePassword()'>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Current Password</label>
-                                        <input type="password" placeholder="Enter current password"
-                                        wire:model.defer='current_password' class="form-control">
-                                        @error('current_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">New Password</label>
-                                        <input type="password" placeholder="Enter new password"
-                                        wire:model.defer='new_password'class="form-control">
-                                        @error('new_password')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="">Confirm new Password</label>
-                                        <input type="password" placeholder="Retype new password"
-                                        wire:model.defer='new_password_confirmation' class="form-control">
-                                        @error('new_password_confirmation')
-                                            <span class="text-danger">{{ $message }} </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
-                    </div>
-                </div>
-                <!-- Tasks Tab End -->
-            </div>
-        </div>
-    </div> --}}
-
-
-
-
-    <form wire:submit.prevent='storeVenue' class="">
-        @if (Session::get('success'))
+    <form wire:submit.prevent='storeVenue' class="" enctype="multipart/form-data">
+        @if (session()->has('success'))
             <div class="alert alert-success">
                 <strong><i class="dw dw-checked"></i></strong>
-                {!! Session::get('success') !!}
+                {!! session('success') !!}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
         @endif
-        @if (Session::get('fail'))
+        @if (session()->has('fail'))
             <div class="alert alert-danger">
                 <strong><i class="dw dw-checked"></i></strong>
-                {!! Session::get('fail') !!}
+                {!! session('fail') !!}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -260,8 +29,9 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Nama Studio Foto :</label>
-                                        <input type="text" class="form-control" id="name" name="name"
-                                            placeholder="Nama Venue" value="{{ old('name') }}" wire:model="name">
+                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                            id="name" name="name" placeholder="Nama Venue"
+                                            value="{{ old('name') }}" wire:model="name">
                                         @error('name')
                                             <span class="text-danger ml-2">{{ $message }}</span>
                                         @enderror
@@ -270,9 +40,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>No Handphone / WA :</label>
-                                        <input type="text" class="form-control" name="phone_number"
-                                            placeholder="No Handphone" value="{{ old('phone_number') }}"
-                                            wire:model="phone_number">
+                                        <input type="text"
+                                            class="form-control @error('phone_number') is-invalid @enderror"
+                                            name="phone_number" placeholder="No Handphone"
+                                            value="{{ old('phone_number') }}" wire:model="phone_number">
                                         @error('phone_number')
                                             <span class="text-danger ml-2">{{ $message }}</span>
                                         @enderror
@@ -293,10 +64,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Upload Surat Izin Mendirikan Bangunan (IMB) :</label>
-                                        <input type="file" class="form-control" name="imb"
-                                            placeholder="format .pdf" wire:model="imb">
+                                        <input type="file" class="form-control @error('imb') is-invalid @enderror"
+                                            name="imb" wire:model="imb" required>
                                         @error('imb')
-                                            <span class="text-danger ml-2">{{ $message }}</span>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -318,25 +89,31 @@
                                         <label for="address">Alamat:</label>
                                         <input type="text" id="address" class="form-control" name="address"
                                             placeholder="Masukkan alamat" value="{{ old('address') }}"
-                                            wire:model="address">
+                                            wire:model.lazy="address">
                                         @error('address')
                                             <span class="text-danger ml-2">{{ $message }}</span>
                                         @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="kecamatan">Kecamatan:</label>
+                                        <select id="kecamatan" class="form-control">
+                                            <!-- Options akan diisi oleh JavaScript -->
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="latitude">Latitude:</label>
-                                        <input type="number" id="latitude" class="form-control" placeholder="Latitude"
-                                            readonly name="latitude" wire:model="latitude">
+                                        <input type="text" id="latitude" class="form-control" placeholder="Latitude"
+                                            name="latitude" wire:model="latitude">
                                         @error('latitude')
                                             <span class="text-danger ml-2">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="form-group">
                                         <label for="longitude">Longitude:</label>
-                                        <input type="number" id="longitude" class="form-control"
-                                            placeholder="Longitude" name="longitude" readonly wire:model="longitude">
+                                        <input type="text" id="longitude" class="form-control"
+                                            placeholder="Longitude" name="longitude" wire:model="longitude">
                                         @error('longitude')
                                             <span class="text-danger ml-2">{{ $message }}</span>
                                         @enderror
@@ -346,12 +123,12 @@
                                     <div class="form-group">
                                         <label>Koordinat Lokasi:</label>
                                         <div class="col">
-                                            <div class="form-group" id="map"></div>
-                                        </div>
-                                        <div class="col">
                                             <div class="form-group">
-                                                <button class="btn btn-outline-info" id="myLocationButton">My
+                                                <button class="btn btn-outline-info" wire:click="findMyLocation">My
                                                     Location</button>
+                                            </div>
+                                            <div wire:ignore>
+                                                <div id="map" style="width: 100%; height: 400px;"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -373,30 +150,42 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>List Bank:</label>
-                                        <div id="bankList" style="display: flex; flex-wrap: wrap;">
-                                            @foreach ($payment_methods as $payment_method)
-                                                <div style="width: 50%; margin-bottom: 10px;">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="bank{{ $payment_method->id }}"
-                                                            wire:click="toggleBankAccountInput('{{ $payment_method->id }}')">
-                                                        <label class="form-check-label"
-                                                            for="bank{{ $payment_method->id }}">
-                                                            <img src="{{ asset('images/icon_bank/' . $payment_method->icon) }}"
-                                                                alt="{{ $payment_method->name }}" width="24"
-                                                                height="24">
-                                                            {{ $payment_method->name }}
-                                                        </label>
-                                                        <input type="text"
-                                                            id="bankAccount{{ $payment_method->id }}"
-                                                            class="form-control"
-                                                            style="{{ $selectedPaymentMethod[$payment_method->id] ? '' : 'display: none;' }}"
-                                                            placeholder="Nomor Rekening / E-Wallet"
-                                                            wire:model="bank_accounts.{{ $payment_method->id }}">
+                                        @if ($payment_methods->isNotEmpty())
+                                            <div id="bankList" style="display: flex; flex-wrap: wrap;">
+                                                @foreach ($payment_methods as $payment_method)
+                                                    <div style="width: 50%; margin-bottom: 10px;">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="bank{{ $payment_method->id }}"
+                                                                wire:click="toggleBankAccountInput('{{ $payment_method->id }}')"
+                                                                {{ isset($this->selectedPaymentMethod[$payment_method->id]) && $this->selectedPaymentMethod[$payment_method->id] ? 'checked' : '' }}>
+                                                            <label class="form-check-label"
+                                                                for="bank{{ $payment_method->id }}">
+                                                                <img src="{{ asset('images/icon_bank/' . $payment_method->icon) }}"
+                                                                    alt="{{ $payment_method->name }}" width="24"
+                                                                    height="24">
+                                                                {{ $payment_method->name }}
+                                                            </label>
+                                                            <input type="text"
+                                                                id="bankAccount{{ $payment_method->id }}"
+                                                                class="form-control @error('bank_accounts.' . $payment_method->id) is-invalid @enderror"
+                                                                style="{{ isset($this->selectedPaymentMethod[$payment_method->id]) && $this->selectedPaymentMethod[$payment_method->id] ? '' : 'display: none;' }}"
+                                                                placeholder="Nomor Rekening / E-Wallet"
+                                                                wire:model="bank_accounts.{{ $payment_method->id }}"
+                                                                required>
+                                                            @error('bank_accounts.' . $payment_method->id)
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                        @if ($currentStep == 3 && $errors->has('bank_accounts'))
+                                            <div class="alert alert-danger mt-2">
+                                                {{ $errors->first('bank_accounts') }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -410,25 +199,60 @@
                     <div class="card-header">Jadwal Buka Venue</div>
                     <div class="card-body">
                         <section id="jadwal_buka" role="tabpanel" aria-labelledby="jadwal_buka" class="tab-panel">
-                            <br>
                             <div class="row">
                                 @foreach ($days as $index => $day)
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <div class="custom-switch">
-                                                <input type="checkbox" class="custom-control-input"
-                                                    id="{{ strtolower($day->name) }}-toggle"
-                                                    wire:model="jadwal_hari.{{ $day->id }}"
-                                                    wire:click="toggleDaySchedule('{{ $day->id }}')">
-                                                <label class="custom-control-label"
-                                                    for="{{ strtolower($day->name) }}-toggle">{{ $day->name }}</label>
+                                            <div class="d-flex flex-column">
+                                                <label class="font-weight-bold">{{ $day->name }}</label>
+                                                <div class="custom-switch">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        id="{{ strtolower($day->name) }}-toggle"
+                                                        wire:model="jadwal_hari.{{ $day->id }}"
+                                                        wire:click="toggleDaySchedule('{{ $day->id }}')">
+                                                    <label class="custom-control-label"
+                                                        for="{{ strtolower($day->name) }}-toggle">
+                                                        <span
+                                                            class="font-weight-bold">{{ $jadwal_hari[$day->id] ? 'Buka' : 'Tutup' }}</span>
+                                                    </label>
+                                                </div>
                                             </div>
                                             <div id="{{ strtolower($day->name) }}-schedule"
                                                 style="margin-top: 10px;">
                                                 @if (isset($jadwal_hari[$day->id]) && $jadwal_hari[$day->id])
-                                                    <div class="form-check" style="display: flex; flex-wrap: wrap;">
+                                                    @if ($errors->has("selectedOpeningHours.{$day->id}"))
+                                                        <div class="alert alert-danger mt-2">
+                                                            {{ $errors->first("selectedOpeningHours.{$day->id}") }}
+                                                        </div>
+                                                    @endif
+                                                    <div style="margin-top: 10px; margin-bottom: 10px;">
+                                                        <button class="btn btn-outline-success"
+                                                            wire:click.prevent="checkAll('{{ $day->id }}')"
+                                                            data-toggle="tooltip"
+                                                            title="Ceklis semua jadwal hari ini"><i
+                                                                class="bi bi-check-all"></i></button>
+                                                        <button class="btn btn-outline-danger"
+                                                            wire:click.prevent="uncheckAll('{{ $day->id }}')"
+                                                            data-toggle="tooltip"
+                                                            title="Hapus semua jadwal hari ini"><i
+                                                                class="fa fa-trash"></i></button>
+                                                        <button class="btn btn-outline-primary"
+                                                            wire:click.prevent="checkWorkingHours('{{ $day->id }}')"
+                                                            data-toggle="tooltip"
+                                                            title="Ceklis jadwal hari ini berdasarkan jam kerja"><i
+                                                                class="fa fa-briefcase"></i></button>
+                                                        @if (isset($days[$index + 1]))
+                                                            <button class="btn btn-outline-info"
+                                                                wire:click.prevent="copySchedule('{{ $day->id }}', '{{ $days[$index + 1]->id }}')"
+                                                                data-toggle="tooltip"
+                                                                title="Salin semua jadwal hari ini ke hari {{ ucfirst(strtolower($days[$index + 1]->name)) }}"><i
+                                                                    class="fa fa-copy"></i></button>
+                                                        @endif
+                                                    </div>
+                                                    <div class="form-check"
+                                                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; margin-bottom: 10px; margin-top:10px;">
                                                         @foreach ($hours as $hour)
-                                                            <div style="width: 16.66%; margin-bottom: 5px;">
+                                                            <div>
                                                                 <input class="form-check-input" type="checkbox"
                                                                     id="{{ strtolower($day->name) }}-{{ $hour->id }}"
                                                                     value="{{ $hour->time }}"
@@ -438,36 +262,22 @@
                                                             </div>
                                                         @endforeach
                                                     </div>
-                                                    <div style="margin-top: 10px;">
-                                                        <button class="btn btn-outline-success"
-                                                            wire:click="checkAll('{{ $day->id }}')"
-                                                            data-toggle="tooltip"
-                                                            title="Ceklis semua jadwal hari ini"><i
-                                                                class="bi bi-check-all"></i></button>
-                                                        <button class="btn btn-outline-danger"
-                                                            wire:click="uncheckAll('{{ $day->id }}')"
-                                                            data-toggle="tooltip"
-                                                            title="Hapus semua jadwal hari ini"><i
-                                                                class="fa fa-trash"></i></button>
-                                                        <button class="btn btn-outline-primary"
-                                                            wire:click="checkWorkingHours('{{ $day->id }}')"
-                                                            data-toggle="tooltip"
-                                                            title="Ceklis jadwal hari ini berdasarkan jam kerja"><i
-                                                                class="fa fa-briefcase"></i></button>
-                                                        @if (isset($days[$index + 1]))
-                                                            <button class="btn btn-outline-info"
-                                                                wire:click="copySchedule('{{ $day->id }}', '{{ $days[$index + 1]->id }}')"
-                                                                data-toggle="tooltip"
-                                                                title="Salin semua jadwal hari ini ke hari {{ ucfirst(strtolower($days[$index + 1]->name)) }}"><i
-                                                                    class="fa fa-copy"></i></button>
-                                                        @endif
-                                                    </div>
+                                                    @if ($errors->has("jadwal_jam.{$day->id}"))
+                                                        <div class="alert alert-danger mt-2">
+                                                            {{ $errors->first("jadwal_jam.{$day->id}") }}
+                                                        </div>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
+                            @if ($currentStep == 4 && $errors->has('selectedOpeningHours'))
+                                <div class="alert alert-danger mt-2">
+                                    {{ $errors->first('selectedOpeningHours') }}
+                                </div>
+                            @endif
                         </section>
                     </div>
                 </div>
@@ -520,4 +330,88 @@
         </div>
 
     </form>
+    @push('styles')
+        <style>
+            #map {
+                width: 100%;
+                height: 400px;
+                border: 1px solid red;
+                /* Add a border for visibility */
+            }
+        </style>
+    @endpush
+    @push('scripts')
+        {{-- <script src="https://cdn.jsdelivr.net/npm/ol@v7.2.2/dist/ol.js"></script> --}}
+        {{-- <script>
+            document.addEventListener('livewire:load', function() {
+                console.log('Initializing map...');
+                const key = 'SzhEAidXbTEomDww4vrj';
+                const source = new ol.source.XYZ({
+                    url: `https://api.maptiler.com/maps/streets/v1/{z}/{x}/{y}.png?key=${key}`,
+                    tileSize: 512,
+                    attributions: '<a href="https://www.maptiler.com/copyright/">© MapTiler</a>'
+                });
+                document.addEventListener('DOMContentLoaded', function() {
+                    const map = new ol.Map({
+                        layers: [
+                            new ol.layer.Tile({
+                                source: source
+                            })
+                        ],
+                        target: 'map',
+                        view: new ol.View({
+                            center: ol.proj.fromLonLat([112.6235743, -
+                            7.9147449]),
+                            zoom: 13
+                        })
+                    });
+                    console.log('Map initialized successfully');
+                    Livewire.on('updateMap', (latitude, longitude) => {
+                        addMarker(latitude, longitude);
+                    });
+
+                    function addMarker(latitude, longitude) {
+                        const marker = new ol.Feature({
+                            geometry: new ol.geom.Point(ol.proj.fromLonLat([longitude, latitude]))
+                        });
+
+                        const markerLayer = new ol.layer.Vector({
+                            source: new ol.source.Vector({
+                                features: [marker]
+                            })
+                        });
+                        map.addLayer(markerLayer);
+                        document.getElementById('latitude').value = latitude.toFixed(4);
+                        document.getElementById('longitude').value = longitude.toFixed(4);
+                    }
+                });
+            });
+        </script> --}}
+        <script>
+            document.addEventListener('livewire:load', function() {
+                const apiKey = "SzhEAidXbTEomDww4vrj"; // Ganti dengan API key Anda
+                const map = new OpenLayers.Map("map");
+                const mapnik = new OpenLayers.Layer.OSM();
+                const epsg4326 = new OpenLayers.Projection("EPSG:4326"); // Proyeksi WGS 1984
+                const projectTo = new OpenLayers.Projection("EPSG:900913"); // Proyeksi Spherical Mercator
+
+                map.addLayer(mapnik);
+                map.setCenter(
+                    new OpenLayers.LonLat(0, 0).transform(epsg4326, projectTo),
+                    2
+                );
+
+                // Tambahkan layer vector tiles
+                const vectorLayer = new OpenLayers.Layer.Vector("Vector Tiles", {
+                    strategies: [new OpenLayers.Strategy.Fixed()],
+                    protocol: new OpenLayers.Protocol.HTTP({
+                        url: `https://api.maptiler.com/tiles/v3-openmaptiles/{z}/{x}/{y}.pbf?key=${apiKey}`,
+                        format: new OpenLayers.Format.MVT(),
+                    }),
+                });
+
+                map.addLayer(vectorLayer);
+            });
+        </script>
+    @endpush
 </div>

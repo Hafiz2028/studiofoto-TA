@@ -1,11 +1,14 @@
 @stack('stylesheets')
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://cdn.maptiler.com/maptiler-geocoding-control/v0.0.98/openlayers.umd.js"></script>
+{{-- <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <style>
+
     #map {
         height: 400px;
         width: 70%;
     }
-</style>
+</style> --}}
 <style>
     .custom-switch {
         position: relative;
@@ -108,7 +111,7 @@
 
 @stack('scripts')
 
-<script>
+{{-- <script>
     function checkAll(dayName, event) {
         event.preventDefault();
         $('#' + dayName + '-schedule input[type="checkbox"]').prop('checked', true);
@@ -208,7 +211,7 @@
         // Implement your additional photo handling logic here
     }
 </script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> --}}
 {{-- <script>
                             var map = L.map('map').setView([-0.9234, 100.4474], 20);
                             L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=SzhEAidXbTEomDww4vrj', {
