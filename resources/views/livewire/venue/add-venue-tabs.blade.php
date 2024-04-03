@@ -220,9 +220,9 @@
                                             <div id="{{ strtolower($day->name) }}-schedule"
                                                 style="margin-top: 10px;">
                                                 @if (isset($jadwal_hari[$day->id]) && $jadwal_hari[$day->id])
-                                                    @if ($errors->has("savedJadwalJam.{$day->id}"))
+                                                    @if ($errors->has("jadwal_jam.{$day->id}.*"))
                                                         <div class="alert alert-danger mt-2">
-                                                            {{ $errors->first("savedJadwalJam.{$day->id}") }}
+                                                            {{ $errors->first("jadwal_jam.{$day->id}.*") }}
                                                         </div>
                                                     @endif
                                                     <div style="margin-top: 10px; margin-bottom: 10px;">
@@ -263,9 +263,9 @@
                                                             </div>
                                                         @endforeach
                                                     </div>
-                                                    @if ($errors->has("jadwal_jam.{$day->id}"))
+                                                    @if ($errors->has("savedJadwalJam.{$day->id}.{$hour->id}"))
                                                         <div class="alert alert-danger mt-2">
-                                                            {{ $errors->first("jadwal_jam.{$day->id}") }}
+                                                            {{ $errors->first("savedJadwalJam.{$day->id}.{$hour->id}") }}
                                                         </div>
                                                     @endif
                                                 @endif
@@ -274,9 +274,19 @@
                                     </div>
                                 @endforeach
                             </div>
-                            @if ($currentStep == 4 && $errors->has('savedJadwalJam'))
+                            @if ($currentStep == 4 && $errors->has('jadwal_hari'))
                                 <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('savedJadwalJam') }}
+                                    {{ $errors->first('jadwal_hari') }}
+                                </div>
+                            @endif
+                            @if ($errors->has('jadwal_hari.*'))
+                                <div class="alert alert-danger">
+                                    {{ $errors->first('jadwal_hari.*') }}
+                                </div>
+                            @endif
+                            @if ($errors->has("jadwal_jam.{$day->id}.*"))
+                                <div class="alert alert-danger mt-2">
+                                    {{ $errors->first("jadwal_jam.{$day->id}.*") }}
                                 </div>
                             @endif
                         </section>
