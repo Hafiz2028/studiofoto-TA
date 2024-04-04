@@ -217,12 +217,20 @@
                                             <div id="{{ strtolower($day->name) }}-schedule"
                                                 style="margin-top: 10px;">
                                                 @if (isset($this->selectedOpeningDay[$day->id]) && $this->selectedOpeningDay[$day->id])
-                                                    {{-- @if ($errors->has("opening_hours.{$day->id}.*"))
+                                                    <div class="alert alert-warning">
+                                                        Jadwal Hari {{ $day->name }} <strong>TIDAK TERSIMPAN &
+                                                            DIRESET</strong> jika <strong>DITUTUP</strong>.
+                                                    </div>
+                                                    @if ($errors->has('opening_hours.*'))
                                                         <div class="alert alert-danger">
-                                                            Minimal Ceklis satu jam operasional untuk Hari yang telah
-                                                            dibuka.
+                                                            {{ $errors->first('opening_hours.*') }}
                                                         </div>
-                                                    @endif --}}
+                                                    @endif
+                                                    @if ($errors->has('opening_hours.*.*'))
+                                                        <div class="alert alert-danger">
+                                                            {{ $errors->first('opening_hours.*.*') }}
+                                                        </div>
+                                                    @endif
                                                     <div style="margin-top: 10px; margin-bottom: 10px;">
                                                         <button class="btn btn-outline-success"
                                                             wire:click.prevent="checkAll('{{ $day->id }}')"
@@ -272,7 +280,10 @@
                                     {{ $error }}
                                 </div>
                             @endforeach
-                            @if ($errors->has('opening_hours.*.*'))
+                            <div class="alert alert-warning">
+                                Jadwal Hari <strong>TIDAK DISIMPAN</strong> jika dibiarkan <strong>TERBUKA & KOSONG</strong>.
+                            </div>
+                            {{-- @if ($errors->has('opening_hours.*.*'))
                                 <div class="alert alert-danger mt-2">
                                     @foreach ($errors->get('opening_hours.*.*') as $dayErrors)
                                         @foreach ($dayErrors as $error)
@@ -280,7 +291,8 @@
                                         @endforeach
                                     @endforeach
                                 </div>
-                            @endif
+                            @endif --}}
+
                             {{-- @php
                                 $isAnyDaySelected = false;
                                 foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
