@@ -205,26 +205,18 @@
                                         <div class="form-group">
                                             <div class="d-flex flex-column">
                                                 <label class="font-weight-bold">{{ $day->name }}</label>
-                                                <div class="custom-switch">
+                                                <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input"
-                                                        id="{{ strtolower($day->name) }}-toggle"
-                                                        wire:model="jadwal_hari.{{ $day->id }}"
-                                                        wire:click="toggleDaySchedule('{{ $day->id }}')">
+                                                        id="day{{ $day->id }}"
+                                                        wire:click="toggleDaySchedule('{{ $day->id }}')"
+                                                        {{ isset($this->selectedOpeningDay[$day->id]) && $this->selectedOpeningDay[$day->id] ? 'checked' : '' }}>
                                                     <label class="custom-control-label"
-                                                        for="{{ strtolower($day->name) }}-toggle">
-                                                        <span
-                                                            class="font-weight-bold">{{ $jadwal_hari[$day->id] ? 'Buka' : 'Tutup' }}</span>
-                                                    </label>
+                                                        for="day{{ $day->id }}">{{ $selectedOpeningDay[$day->id] ? 'Buka' : 'Tutup' }}</label>
                                                 </div>
                                             </div>
                                             <div id="{{ strtolower($day->name) }}-schedule"
                                                 style="margin-top: 10px;">
-                                                @if (isset($jadwal_hari[$day->id]) && $jadwal_hari[$day->id])
-                                                    @if ($errors->has("jadwal_jam.{$day->id}.*"))
-                                                        <div class="alert alert-danger mt-2">
-                                                            {{ $errors->first("jadwal_jam.{$day->id}.*") }}
-                                                        </div>
-                                                    @endif
+                                                @if (isset($this->selectedOpeningDay[$day->id]) && $this->selectedOpeningDay[$day->id])
                                                     <div style="margin-top: 10px; margin-bottom: 10px;">
                                                         <button class="btn btn-outline-success"
                                                             wire:click.prevent="checkAll('{{ $day->id }}')"
@@ -245,7 +237,7 @@
                                                             <button class="btn btn-outline-info"
                                                                 wire:click.prevent="copySchedule('{{ $day->id }}', '{{ $days[$index + 1]->id }}')"
                                                                 data-toggle="tooltip"
-                                                                title="Salin semua jadwal hari ini ke hari {{ ucfirst(strtolower($days[$index + 1]->name)) }}"><i
+                                                                title="Salin semua jadwal dari hari {{ ucfirst(strtolower($day->name)) }} ke hari {{ ucfirst(strtolower($days[$index + 1]->name)) }}"><i
                                                                     class="fa fa-copy"></i></button>
                                                         @endif
                                                     </div>
@@ -254,39 +246,24 @@
                                                         @foreach ($hours as $hour)
                                                             <div>
                                                                 <input class="form-check-input" type="checkbox"
-                                                                    id="{{ strtolower($day->name) }}-{{ $hour->id }}"
+                                                                    id="openingHours{{ $day->id }}{{ $hour->id }}"
                                                                     value="{{ $hour->time }}"
-                                                                    wire:model="jadwal_jam.{{ $day->id }}.{{ $hour->id }}"
-                                                                    wire:change="updatedSelectedOpeningHours('{{ $day->id }}', '{{ $hour->id }}', $event.target.checked)">
+                                                                    wire:model="opening_hours.{{ $day->id }}.{{ $hour->id }}"
+                                                                    wire:change="selectedOpeningHours('{{ $day->id }}', '{{ $hour->id }}', !$this->opening_hours[$day->id][$hour->id])">
                                                                 <label class="form-check-label"
-                                                                    for="{{ strtolower($day->name) }}-{{ $hour->id }}">{{ $hour->hour }}</label>
+                                                                    for="openingHours{{ $day->id }}{{ $hour->id }}">{{ $hour->hour }}</label>
                                                             </div>
                                                         @endforeach
                                                     </div>
-                                                    @if ($errors->has("savedJadwalJam.{$day->id}.{$hour->id}"))
-                                                        <div class="alert alert-danger mt-2">
-                                                            {{ $errors->first("savedJadwalJam.{$day->id}.{$hour->id}") }}
-                                                        </div>
-                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
-                            @if ($currentStep == 4 && $errors->has('jadwal_hari'))
+                            @if ($currentStep == 4 && $errors->has('opening_hours'))
                                 <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('jadwal_hari') }}
-                                </div>
-                            @endif
-                            @if ($errors->has('jadwal_hari.*'))
-                                <div class="alert alert-danger">
-                                    {{ $errors->first('jadwal_hari.*') }}
-                                </div>
-                            @endif
-                            @if ($errors->has("jadwal_jam.{$day->id}.*"))
-                                <div class="alert alert-danger mt-2">
-                                    {{ $errors->first("jadwal_jam.{$day->id}.*") }}
+                                    {{ $errors->first('opening_hours') }}
                                 </div>
                             @endif
                         </section>

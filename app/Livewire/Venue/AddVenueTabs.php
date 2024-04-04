@@ -24,15 +24,16 @@ class AddVenueTabs extends Component
 {
     use WithFileUploads;
     public $name, $phone_number, $information, $imb, $address, $latitude, $longitude;
-    public $jadwal_hari = [], $jadwal_jam = [], $picture, $venue_image;
+    public $picture, $venue_image;
     public $upload = [];
 
     public $selectedPaymentMethod = [];
     public $bank_accounts = [];
     public $payment_methods;
-    public $selectedOpeningHours = [];
-    public $savedJadwalJam = [];
-    public $savedJadwalHari = [];
+
+    public $errorMessages = [];
+    public $selectedOpeningDay = [];
+    public $opening_hours = [];
     public $days, $hours;
 
     public $errorBag = null;
@@ -41,19 +42,14 @@ class AddVenueTabs extends Component
 
     public function render()
     {
-        $this->days = Day::all();
-        $this->hours = Hour::all();
-
         $validationErrors = [];
         if ($this->currentStep == 3) {
             $validationErrors = $this->getErrorBag()->get('bank_accounts.*');
         }
         if ($this->currentStep == 4) {
-            $validationErrors = $this->getErrorBag()->get('jadwal_hari.*');
+            $validationErrors = $this->getErrorBag()->get('opening_hours.*');
         }
         return view('livewire.venue.add-venue-tabs', [
-            'days' => $this->days,
-            'hours' => $this->hours,
             'validationErrors' => $validationErrors,
         ]);
     }
@@ -61,40 +57,34 @@ class AddVenueTabs extends Component
     public function mount()
     {
         $this->currentStep = 4;
-        $this->jadwal_hari = [];
-        $this->jadwal_jam = [];
-        $this->savedJadwalJam = [];
-        $this->savedJadwalHari = [];
-
         $owner = Auth::guard('owner')->user();
         if ($owner) {
             $this->payment_methods = PaymentMethod::all();
+            $this->days = Day::all();
+            $this->hours = Hour::all();
             $this->initializeSelectedPaymentMethods();
             $this->initializeSchedules();
             $this->bank_accounts = [];
+            $this->opening_hours = [];
+
+
             $this->errorBag = null;
         }
     }
     protected function initializeSchedules()
     {
-        $days = Day::all();
-        $hours = Hour::all();
-
-        foreach ($days as $day) {
-            $this->jadwal_hari[$day->id] = false;
-            $this->savedJadwalJam[$day->id] = [];
-            foreach ($hours as $hour) {
-                $this->jadwal_jam[$day->id][$hour->id] = false;
-                $this->savedJadwalJam[$day->id][$hour->id] = false;
+        foreach ($this->days as $day) {
+            $this->selectedOpeningDay[$day->id] = false;
+            foreach ($this->hours as $hour) {
+                $this->opening_hours[$day->id][$hour->id] = false;
             }
         }
     }
-
-    public function findMyLocation()
+    protected function initializeSelectedPaymentMethods()
     {
-        $latitude = 49.2125578; // Default latitude
-        $longitude = 16.62662018; // Default longitude
-        $this->emit('updateMap', $latitude, $longitude);
+        foreach ($this->payment_methods as $payment_method) {
+            $this->selectedPaymentMethod[$payment_method->id] = false;
+        }
     }
     public function toggleBankAccountInput($payment_method_id)
     {
@@ -102,7 +92,27 @@ class AddVenueTabs extends Component
             $this->selectedPaymentMethod[$payment_method_id] = !$this->selectedPaymentMethod[$payment_method_id];
         } else {
             Log::error("Undefined array key: {$payment_method_id}");
-            session()->flash('error_message', 'Terjadi kesalahan dalam memproses permintaan Anda.');
+            session()->flash('error_message', 'Terjadi kesalahan dalam memproses payment method Anda.');
+        }
+    }
+    public function toggleDaySchedule($dayId)
+    {
+        Log::info("toggleDaySchedule called for dayId: {$dayId}");
+        if (isset($this->selectedOpeningDay[$dayId])) {
+            $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
+        } else {
+            $this->selectedOpeningDay[$dayId] = true; // Atau false, tergantung pada kebutuhan Anda
+        }
+        Log::info("New value for dayId {$dayId}: " . ($this->selectedOpeningDay[$dayId] ? 'true' : 'false'));
+        $this->render();
+    }
+    public function toggleHourSchedule($dayId, $hourId)
+    {
+        if (array_key_exists($dayId, $this->opening_hours) && array_key_exists($hourId, $this->opening_hours[$dayId])) {
+            $this->opening_hours[$dayId][$hourId] = !$this->opening_hours[$dayId][$hourId];
+        } else {
+            Log::error("Undefined array key: {$hourId} for day {$dayId}");
+            session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal Jam Anda.');
         }
     }
     public function selectedPaymentMethod($value, $payment_method_id)
@@ -113,6 +123,25 @@ class AddVenueTabs extends Component
             $this->selectedPaymentMethod[$payment_method_id] = false;
             // Reset bank account value when unchecking the checkbox
             $this->bank_accounts[$payment_method_id] = '';
+        }
+    }
+    public function selectedOpeningDay($value, $dayId)
+    {
+        if (isset($this->selectedOpeningDay[$dayId])) {
+            $this->selectedOpeningDay[$dayId] = $value;
+        } else {
+            $this->selectedOpeningDay[$dayId] = false;
+            // Reset bank account value when unchecking the checkbox
+            $this->opening_hours[$dayId] = '';
+        }
+    }
+    public function selectedOpeningHours($value, $dayId, $hourId)
+    {
+        if (isset($this->opening_hours[$dayId][$hourId])) {
+            $this->opening_hours[$dayId][$hourId] = $value;
+        } else {
+            Log::error("Undefined array key: {$hourId} for day {$dayId}");
+            session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal jam Anda.');
         }
     }
     public function saveBankAccountDetails($venueId)
@@ -133,12 +162,6 @@ class AddVenueTabs extends Component
             }
         }
     }
-    protected function initializeSelectedPaymentMethods()
-    {
-        foreach ($this->payment_methods as $payment_method) {
-            $this->selectedPaymentMethod[$payment_method->id] = false;
-        }
-    }
     public function updatedBankAccounts($value, $paymentMethodId)
     {
         $this->resetErrorBag("bank_accounts.{$paymentMethodId}");
@@ -152,15 +175,15 @@ class AddVenueTabs extends Component
     //step 4
     public function checkAll($dayId)
     {
-        if (!isset($this->jadwal_jam[$dayId])) {
-            $this->jadwal_jam[$dayId] = [];
+        if (!isset($this->opening_hours[$dayId])) {
+            $this->opening_hours[$dayId] = [];
         }
         $allChecked = true;
 
         // Memeriksa apakah setiap jam sudah dicentang
         foreach ($this->hours as $hour) {
             $hourId = $hour->id;
-            if (!isset($this->jadwal_jam[$dayId][$hourId]) || !$this->jadwal_jam[$dayId][$hourId]) {
+            if (!isset($this->opening_hours[$dayId][$hourId]) || !$this->opening_hours[$dayId][$hourId]) {
                 $allChecked = false;
                 break;
             }
@@ -170,27 +193,34 @@ class AddVenueTabs extends Component
         if (!$allChecked) {
             foreach ($this->hours as $hour) {
                 $hourId = $hour->id;
-                $this->jadwal_jam[$dayId][$hourId] = true;
+                $this->opening_hours[$dayId][$hourId] = true;
             }
         } else {
             // Jika semua sudah dicentang, hapus ceklis semua jam
             foreach ($this->hours as $hour) {
                 $hourId = $hour->id;
-                $this->jadwal_jam[$dayId][$hourId] = false;
+                $this->opening_hours[$dayId][$hourId] = false;
             }
         }
     }
-    public function uncheckAll($dayId)
+    public function uncheckAll($dayId) : void
     {
-        foreach ($this->jadwal_jam[$dayId] as $hourId => $value) {
-            $this->jadwal_jam[$dayId][$hourId] = false;
+        if (isset($this->opening_hours[$dayId])) {
+            foreach ($this->opening_hours[$dayId] as $hourId => $value) {
+                $this->opening_hours[$dayId][$hourId] = false;
+            }
         }
     }
     public function checkWorkingHours($dayId)
     {
         // Memastikan jadwal_jam untuk hari ini terinisialisasi
-        if (!isset($this->jadwal_jam[$dayId])) {
-            $this->jadwal_jam[$dayId] = [];
+        if (!isset($this->selectedOpeningDay[$dayId])) {
+            $this->selectedOpeningDay[$dayId] = [];
+        }
+
+        // Iterasi semua jam dan ceklis jika belum dicentang, dan uncheck jika sudah tercentang
+        if (!isset($this->opening_hours[$dayId])) {
+            $this->opening_hours[$dayId] = [];
         }
 
         // Iterasi semua jam dan ceklis jika belum dicentang, dan uncheck jika sudah tercentang
@@ -198,52 +228,38 @@ class AddVenueTabs extends Component
             $hourId = $hour->id;
             if ($hourId >= 16 && $hourId <= 45) {
                 // Check jam jika belum dicentang
-                if (!isset($this->jadwal_jam[$dayId][$hourId]) || !$this->jadwal_jam[$dayId][$hourId]) {
-                    $this->jadwal_jam[$dayId][$hourId] = true;
-                }
+                $this->opening_hours[$dayId][$hourId] = true;
             } else {
                 // Uncheck jam jika sudah dicentang
-                if (isset($this->jadwal_jam[$dayId][$hourId])) {
-                    $this->jadwal_jam[$dayId][$hourId] = false;
-                }
+                $this->opening_hours[$dayId][$hourId] = false;
             }
         }
     }
     public function copySchedule($currentDayId, $nextDayId)
     {
         // Pastikan ada jadwal untuk hari ini yang akan disalin
-        if (isset($this->jadwal_jam[$currentDayId])) {
+        if (isset($this->opening_hours[$currentDayId])) {
             // Salin jadwal jam dari hari ini ke hari berikutnya
-            foreach ($this->jadwal_jam[$currentDayId] as $hourId => $isChecked) {
-                $this->jadwal_jam[$nextDayId][$hourId] = $isChecked;
+            foreach ($this->opening_hours[$currentDayId] as $hourId => $isChecked) {
+                // Pastikan bahwa $nextDayId ada dalam array $this->opening_hours
+                // Jika tidak, inisialisasi array untuk $nextDayId
+                if (!isset($this->opening_hours[$nextDayId])) {
+                    $this->opening_hours[$nextDayId] = [];
+                }
+                // Salin nilai dari $currentDayId ke $nextDayId dan atur menjadi true
+                $this->opening_hours[$nextDayId][$hourId] = $isChecked;
             }
+        }
 
-            // Aktifkan jadwal untuk hari berikutnya
-            $this->jadwal_hari[$nextDayId] = true;
+        if (!isset($this->toggleDaySchedule[$nextDayId]) || !$this->selectedOpeningDay[$nextDayId]) {
+            $this->selectedOpeningDay[$nextDayId] = true;
         }
     }
-    public function toggleDaySchedule($dayId)
+    public function findMyLocation()
     {
-        // Toggle nilai boolean untuk hari dengan id $dayId
-        $this->jadwal_hari[$dayId] = !$this->jadwal_hari[$dayId];
-
-        if ($this->jadwal_hari[$dayId]) {
-            $this->loadDaySchedule($dayId);
-        } else {
-            $this->resetDaySchedule($dayId);
-        }
-    }
-    protected function resetDaySchedule($dayId)
-    {
-        foreach ($this->jadwal_jam[$dayId] as $hourId => $value) {
-            $this->jadwal_jam[$dayId][$hourId] = false;
-        }
-    }
-    protected function loadDaySchedule($dayId)
-    {
-        foreach ($this->hours as $hour) {
-            $this->jadwal_jam[$dayId][$hour->id] = false;
-        }
+        $latitude = 49.2125578; // Default latitude
+        $longitude = 16.62662018; // Default longitude
+        $this->emit('updateMap', $latitude, $longitude);
     }
     public function increaseStep()
     {
@@ -310,28 +326,14 @@ class AddVenueTabs extends Component
             $this->addError('save_opening_hours', 'Gagal menyimpan jadwal buka: ' . $e->getMessage());
         }
     }
-    public function toggleSchedule($dayId, $hourId)
-    {
-        $isChecked = $this->jadwal_jam[$dayId][$hourId] ?? false;
-
-        // Toggle the checkbox state
-        $this->jadwal_jam[$dayId][$hourId] = !$isChecked;
-
-        // Tandai jadwal yang dipilih oleh pengguna
-        if ($this->jadwal_jam[$dayId][$hourId]) {
-            $this->selectedOpeningHours[$dayId][$hourId] = true;
-        } else {
-            unset($this->selectedOpeningHours[$dayId][$hourId]);
-        }
-    }
     public function updatedSelectedOpeningHours($dayId, $hourId, $value)
     {
-        $this->jadwal_jam[$dayId][$hourId] = $value;
+        $this->opening_hours[$dayId][$hourId] = $value;
 
         if ($value) {
-            $this->savedJadwalJam[$dayId][$hourId] = true;
+            $this->opening_hours[$dayId][$hourId] = true;
         } else {
-            unset($this->savedJadwalJam[$dayId][$hourId]);
+            unset($this->opening_hours[$dayId][$hourId]);
         }
     }
 
@@ -400,50 +402,27 @@ class AddVenueTabs extends Component
         } elseif ($this->currentStep == 4) {
             $rules = [];
             $messages = [];
-            $isAnyDaySelected = false;
-            $daysWithoutSchedule = [];
 
-            foreach ($this->savedJadwalJam as $dayId => $hours) {
-                if (!empty($hours)) {
-                    $isAnyDaySelected = true;
-                    // Jika hari dipilih, periksa apakah semua jadwal jam untuk hari ini bernilai false
-                    $isAnyHourSelected = false;
-                    // dd($rules, $messages);
-                    foreach ($hours as $hourId => $isHourChecked) {
-                        // dd($rules, $messages);
-                        if ($isHourChecked) {
-                            $isAnyHourSelected = true;
-                            break; // No need to check further hours for this day
-                        }
-                    }
-
-                    if (!$isAnyHourSelected) {
-                        // If no hours are selected, add validation rule
-                        $rules["savedJadwalJam.{$dayId}.*"] = 'required';
-                        $messages["savedJadwalJam.{$dayId}.*.required"] = 'Minimal Ceklis satu jam untuk Hari ' . Day::find($dayId)->name . ' yang telah dibuka.';
-                        // dd($rules, $messages);
-                        $daysWithoutSchedule[] = Day::find($dayId)->name;
+            // Validasi untuk memastikan setidaknya satu checkbox dengan ID 'openingHours' bernilai true
+            $hasAtLeastOneOpeningHourSelected = false;
+            foreach ($this->opening_hours as $dayId => $hours) {
+                foreach ($hours as $hourId => $isSelected) {
+                    if ($isSelected) {
+                        $hasAtLeastOneOpeningHourSelected = true;
+                        break 2; // Keluar dari loop saat menemukan satu yang terpilih
                     }
                 }
             }
-
-            // Jika tidak ada hari yang dipilih, tambahkan validasi
-            if (!$isAnyDaySelected) {
-                $rules['savedJadwalHari.*'] = 'required';
-                $messages['savedJadwalHari.*.required'] = 'Minimal Buka dan Isi 1 Jadwal Hari Venue ini.';
-                dd($rules, $messages);
+            if (!$hasAtLeastOneOpeningHourSelected) {
+                $rules['opening_hours'] = 'required';
+                $messages['opening_hours.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
             }
-
-            // Validasi
+            // dd($rules, $messages);
+            // dd($this->selectedOpeningDay, $this->opening_hours);
             $this->validate($rules, $messages);
 
-            // Menambahkan pesan error khusus untuk jadwal_jam
-            if (!empty($daysWithoutSchedule)) {
-                $this->addError('savedJadwalJam', '<div class="warning">Jangan Tutup Hari ' . implode(', ', $daysWithoutSchedule) . ' dengan kondisi Jadwal Jam masih diceklis.</div>');
-            }
         }
         $this->validate($rules, $messages);
-
         return true;
     }
 
