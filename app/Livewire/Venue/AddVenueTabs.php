@@ -426,14 +426,14 @@ class AddVenueTabs extends Component
                 }
             }
             if (!$hasAtLeastOneOpeningHourSelected) {
-                $rules['opening_hours'] = 'required';
-                $messages['opening_hours.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
+                $rules['opening_hours.*.*'] = 'required';
+                $messages['opening_hours.*.*.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
             }
             // dd($rules, $messages);
-            // dd($this->selectedOpeningDay, $this->opening_hours);
-            $this->validate($rules, $messages);
+
 
         }
+        // dd($rules, $messages);
         $this->validate($rules, $messages);
         return true;
     }

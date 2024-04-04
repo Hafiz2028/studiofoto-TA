@@ -261,9 +261,30 @@
                                     </div>
                                 @endforeach
                             </div>
-                            @if ($currentStep == 4 && $errors->has('opening_hours'))
+                            @foreach ($this->getErrorBag()->get('opening_hours.*') as $error)
+                                <div class="alert alert-danger">
+                                    {{ $error }}
+                                </div>
+                            @endforeach
+                            @if ($currentStep == 4 && $errors->has('opening_hours.*.*'))
                                 <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('opening_hours') }}
+                                    {{ $errors->first('opening_hours.*.*') }}
+                                </div>
+                            @endif
+                            @php
+                                $isAnyDaySelected = false;
+                                foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
+                                    if ($isSelected) {
+                                        $isAnyDaySelected = true;
+                                        break; // Hentikan iterasi jika hari yang dipilih ditemukan
+                                    }
+                                }
+                            @endphp
+
+                            @if (!$isAnyDaySelected)
+                                <div class="alert alert-danger">
+                                    Anda harus memilih setidaknya satu hari dan satu jam kerja operasional sebelum
+                                    melanjutkan.
                                 </div>
                             @endif
                         </section>
