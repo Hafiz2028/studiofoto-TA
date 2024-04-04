@@ -261,7 +261,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                            @foreach ($this->getErrorBag()->get('opening_hours.*') as $error)
+                            @foreach ($this->getErrorBag()->get('opening_hours') as $error)
                                 <div class="alert alert-danger">
                                     {{ $error }}
                                 </div>
@@ -271,7 +271,7 @@
                                     {{ $errors->first('opening_hours.*.*') }}
                                 </div>
                             @endif
-                            @php
+                            {{-- @php
                                 $isAnyDaySelected = false;
                                 foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
                                     if ($isSelected) {
@@ -286,7 +286,7 @@
                                     Anda harus memilih setidaknya satu hari dan satu jam kerja operasional sebelum
                                     melanjutkan.
                                 </div>
-                            @endif
+                            @endif --}}
                         </section>
                     </div>
                 </div>

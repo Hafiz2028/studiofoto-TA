@@ -420,21 +420,30 @@ class AddVenueTabs extends Component
             foreach ($this->opening_hours as $dayId => $hours) {
                 foreach ($hours as $hourId => $isSelected) {
                     if ($isSelected) {
+
+
                         $hasAtLeastOneOpeningHourSelected = true;
                         break 2; // Keluar dari loop saat menemukan satu yang terpilih
                     }
                 }
             }
             if (!$hasAtLeastOneOpeningHourSelected) {
-                $rules['opening_hours.*.*'] = 'required';
-                $messages['opening_hours.*.*.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
+                $rules['opening_hours'] = 'required|min:1';
+                $messages['opening_hours.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
             }
             // dd($rules, $messages);
+            // dd($this->selectedOpeningDay, $this->opening_hours);
+            // if (!empty($rules)) {
+            //     $this->validate($rules, $messages);
+            // }
 
 
         }
         // dd($rules, $messages);
-        $this->validate($rules, $messages);
+        if (!empty($rules)) {
+                $this->validate($rules, $messages);
+            }
+            dd($this->opening_hours);
         return true;
     }
 
