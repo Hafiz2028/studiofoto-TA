@@ -27,11 +27,12 @@ class AddVenueTabs extends Component
     public $picture, $venue_image;
     public $upload = [];
 
+    // variable step 3
     public $selectedPaymentMethod = [];
     public $bank_accounts = [];
     public $payment_methods;
 
-    public $errorMessages = [];
+    // variable step 4
     public $selectedOpeningDay = [];
     public $opening_hours = [];
     public $days, $hours;
@@ -66,20 +67,10 @@ class AddVenueTabs extends Component
             $this->initializeSchedules();
             $this->bank_accounts = [];
             $this->opening_hours = [];
-
-
             $this->errorBag = null;
         }
     }
-    protected function initializeSchedules()
-    {
-        foreach ($this->days as $day) {
-            $this->selectedOpeningDay[$day->id] = false;
-            foreach ($this->hours as $hour) {
-                $this->opening_hours[$day->id][$hour->id] = false;
-            }
-        }
-    }
+
     protected function initializeSelectedPaymentMethods()
     {
         foreach ($this->payment_methods as $payment_method) {
@@ -95,26 +86,6 @@ class AddVenueTabs extends Component
             session()->flash('error_message', 'Terjadi kesalahan dalam memproses payment method Anda.');
         }
     }
-    public function toggleDaySchedule($dayId)
-    {
-        Log::info("toggleDaySchedule called for dayId: {$dayId}");
-        if (isset($this->selectedOpeningDay[$dayId])) {
-            $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
-        } else {
-            $this->selectedOpeningDay[$dayId] = true; // Atau false, tergantung pada kebutuhan Anda
-        }
-        Log::info("New value for dayId {$dayId}: " . ($this->selectedOpeningDay[$dayId] ? 'true' : 'false'));
-        $this->render();
-    }
-    public function toggleHourSchedule($dayId, $hourId)
-    {
-        if (array_key_exists($dayId, $this->opening_hours) && array_key_exists($hourId, $this->opening_hours[$dayId])) {
-            $this->opening_hours[$dayId][$hourId] = !$this->opening_hours[$dayId][$hourId];
-        } else {
-            Log::error("Undefined array key: {$hourId} for day {$dayId}");
-            session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal Jam Anda.');
-        }
-    }
     public function selectedPaymentMethod($value, $payment_method_id)
     {
         if ($value) {
@@ -123,25 +94,6 @@ class AddVenueTabs extends Component
             $this->selectedPaymentMethod[$payment_method_id] = false;
             // Reset bank account value when unchecking the checkbox
             $this->bank_accounts[$payment_method_id] = '';
-        }
-    }
-    public function selectedOpeningDay($value, $dayId)
-    {
-        if (isset($this->selectedOpeningDay[$dayId])) {
-            $this->selectedOpeningDay[$dayId] = $value;
-        } else {
-            $this->selectedOpeningDay[$dayId] = false;
-            // Reset bank account value when unchecking the checkbox
-            $this->opening_hours[$dayId] = '';
-        }
-    }
-    public function selectedOpeningHours($value, $dayId, $hourId)
-    {
-        if (isset($this->opening_hours[$dayId][$hourId])) {
-            $this->opening_hours[$dayId][$hourId] = $value;
-        } else {
-            Log::error("Undefined array key: {$hourId} for day {$dayId}");
-            session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal jam Anda.');
         }
     }
     public function saveBankAccountDetails($venueId)
@@ -172,7 +124,89 @@ class AddVenueTabs extends Component
             $this->resetErrorBag("bank_accounts.{$paymentMethodId}");
         }
     }
-    //step 4
+    public function findMyLocation()
+    {
+        $latitude = 49.2125578; // Default latitude
+        $longitude = 16.62662018; // Default longitude
+        $this->emit('updateMap', $latitude, $longitude);
+    }
+    public function increaseStep()
+    {
+        $this->resetErrorBag();
+        if (!$this->validationData()) {
+            return;
+        }
+        $this->currentStep++;
+        if ($this->currentStep > $this->totalSteps) {
+            $this->currentStep = $this->totalSteps;
+        }
+    }
+    public function decreaseStep()
+    {
+        $this->resetErrorBag();
+        // $this->validationData();
+        $this->currentStep--;
+        if ($this->currentStep < 1) {
+            $this->currentStep = 1;
+        }
+    }
+
+
+    //step 4 jadwal
+    //inisialisasi false opening_hours
+    protected function initializeSchedules()
+    {
+        foreach ($this->days as $day) {
+            $this->selectedOpeningDay[$day->id] = false;
+            foreach ($this->hours as $hour) {
+                $this->opening_hours[$day->id][$hour->id] = false;
+            }
+        }
+    }
+    //ubah status check box jadwal hari
+    public function toggleDaySchedule($dayId)
+    {
+        Log::info("toggleDaySchedule called for dayId: {$dayId}");
+        if (isset($this->selectedOpeningDay[$dayId])) {
+            $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
+        } else {
+            $this->selectedOpeningDay[$dayId] = true; // Atau false, tergantung pada kebutuhan Anda
+        }
+        Log::info("New value for dayId {$dayId}: " . ($this->selectedOpeningDay[$dayId] ? 'true' : 'false'));
+        $this->render();
+    }
+    //ubah status check box jadwal jam
+    public function toggleHourSchedule($dayId, $hourId)
+    {
+        if (array_key_exists($dayId, $this->opening_hours) && array_key_exists($hourId, $this->opening_hours[$dayId])) {
+            $this->opening_hours[$dayId][$hourId] = !$this->opening_hours[$dayId][$hourId];
+        } else {
+            Log::error("Undefined array key: {$hourId} for day {$dayId}");
+            session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal Jam Anda.');
+        }
+    }
+    //mengatur value selectedOpeningDay
+    public function selectedOpeningDay($value, $dayId)
+    {
+        if (isset($this->selectedOpeningDay[$dayId])) {
+            $this->selectedOpeningDay[$dayId] = $value;
+        } else {
+            $this->selectedOpeningDay[$dayId] = false;
+            // Reset bank account value when unchecking the checkbox
+            $this->opening_hours[$dayId] = '';
+        }
+    }
+    //mengatur value opening_hours
+    public function selectedOpeningHours($value, $dayId, $hourId)
+    {
+        if (isset($this->opening_hours[$dayId][$hourId])) {
+            $this->opening_hours[$dayId][$hourId] = $value;
+        } else {
+            Log::error("Undefined array key: {$hourId} for day {$dayId}");
+            session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal jam Anda.');
+        }
+    }
+    //tombol checkall
     public function checkAll($dayId)
     {
         if (!isset($this->opening_hours[$dayId])) {
@@ -203,7 +237,8 @@ class AddVenueTabs extends Component
             }
         }
     }
-    public function uncheckAll($dayId) : void
+    //tombol uncheckall
+    public function uncheckAll($dayId)
     {
         if (isset($this->opening_hours[$dayId])) {
             foreach ($this->opening_hours[$dayId] as $hourId => $value) {
@@ -211,6 +246,7 @@ class AddVenueTabs extends Component
             }
         }
     }
+    //tombol checkworkinghours
     public function checkWorkingHours($dayId)
     {
         // Memastikan jadwal_jam untuk hari ini terinisialisasi
@@ -235,6 +271,7 @@ class AddVenueTabs extends Component
             }
         }
     }
+    //tombol copy schedule
     public function copySchedule($currentDayId, $nextDayId)
     {
         // Pastikan ada jadwal untuk hari ini yang akan disalin
@@ -253,32 +290,6 @@ class AddVenueTabs extends Component
 
         if (!isset($this->toggleDaySchedule[$nextDayId]) || !$this->selectedOpeningDay[$nextDayId]) {
             $this->selectedOpeningDay[$nextDayId] = true;
-        }
-    }
-    public function findMyLocation()
-    {
-        $latitude = 49.2125578; // Default latitude
-        $longitude = 16.62662018; // Default longitude
-        $this->emit('updateMap', $latitude, $longitude);
-    }
-    public function increaseStep()
-    {
-        $this->resetErrorBag();
-        if (!$this->validationData()) {
-            return;
-        }
-        $this->currentStep++;
-        if ($this->currentStep > $this->totalSteps) {
-            $this->currentStep = $this->totalSteps;
-        }
-    }
-    public function decreaseStep()
-    {
-        $this->resetErrorBag();
-        // $this->validationData();
-        $this->currentStep--;
-        if ($this->currentStep < 1) {
-            $this->currentStep = 1;
         }
     }
     public function saveOpeningHours($venueId)
@@ -337,6 +348,7 @@ class AddVenueTabs extends Component
         }
     }
 
+    //validasi persteps
     public function validationData()
     {
         $rules = [];
