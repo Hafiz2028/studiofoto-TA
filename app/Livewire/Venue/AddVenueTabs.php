@@ -65,8 +65,8 @@ class AddVenueTabs extends Component
             $this->hours = Hour::all();
             $this->initializeSelectedPaymentMethods();
             $this->initializeSchedules();
-            $this->bank_accounts = [];
             $this->opening_hours = [];
+            $this->bank_accounts = [];
             $this->errorBag = null;
         }
     }
@@ -162,6 +162,7 @@ class AddVenueTabs extends Component
                 $this->opening_hours[$day->id][$hour->id] = false;
             }
         }
+
     }
     //ubah status check box jadwal hari
     public function toggleDaySchedule($dayId)
@@ -169,6 +170,13 @@ class AddVenueTabs extends Component
         Log::info("toggleDaySchedule called for dayId: {$dayId}");
         if (isset($this->selectedOpeningDay[$dayId])) {
             $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
+
+            // Reset semua jam operasional untuk hari ini menjadi false (tidak dicentang)
+            if (isset($this->opening_hours[$dayId])) {
+                foreach ($this->opening_hours[$dayId] as $hourId => $value) {
+                    $this->opening_hours[$dayId][$hourId] = false;
+                }
+            }
         } else {
             $this->selectedOpeningDay[$dayId] = true; // Atau false, tergantung pada kebutuhan Anda
         }
@@ -378,6 +386,7 @@ class AddVenueTabs extends Component
                 $upload_imb = $this->imb->storeAs('images/venues/IMB', $newImbName);
                 session(['imb_path' => $upload_imb]);
             }
+
         } elseif ($this->currentStep == 2) {
             $rules = [
                 'address' => 'required|string|max:255',
@@ -408,29 +417,60 @@ class AddVenueTabs extends Component
                 }
             }
             if (!$isAnyBankAccountFilled) {
+
                 $rules['bank_accounts'] = 'required';
                 $messages['bank_accounts.required'] = 'Minimal Ceklis dan isi 1 rekening bank / e wallet.';
             }
         } elseif ($this->currentStep == 4) {
             $rules = [];
             $messages = [];
+            $daysWithAtLeastOneOpeningHourSelected = [];
 
             // Validasi untuk memastikan setidaknya satu checkbox dengan ID 'openingHours' bernilai true
-            $hasAtLeastOneOpeningHourSelected = false;
+            // $hasAtLeastOneOpeningHourSelected = false;
+            foreach ($this->opening_hours as $dayId => $hours) {
+                $dayHasAtLeastOneOpeningHourSelected = false;
+                foreach ($hours as $hourId => $isSelected) {
+                    if ($isSelected) {
+                        $dayHasAtLeastOneOpeningHourSelected = true;
+                        $daysWithAtLeastOneOpeningHourSelected[] = $dayId;
+                        // $hasAtLeastOneOpeningHourSelected = true;
+                        break; // Keluar dari loop saat menemukan satu yang terpilih
+                    }
+                }
+                // Jika tidak ada jam yang terpilih untuk hari ini, tambahkan aturan validasi dan pesan error
+                if (!$dayHasAtLeastOneOpeningHourSelected) {
+                    $rules["opening_hours.{$dayId}.*"] = 'required|min:1';
+                    $messages["opening_hours.{$dayId}.*.required"] = "Minimal Ceklis satu jam operasional untuk Hari " . Day::find($dayId)->name . " yang telah dibuka";
+                }
+            }
+
+            $hasAtLeastOneDaySelected = false;
             foreach ($this->opening_hours as $dayId => $hours) {
                 foreach ($hours as $hourId => $isSelected) {
                     if ($isSelected) {
-
-
-                        $hasAtLeastOneOpeningHourSelected = true;
+                        $hasAtLeastOneDaySelected = true;
                         break 2; // Keluar dari loop saat menemukan satu yang terpilih
                     }
                 }
             }
-            if (!$hasAtLeastOneOpeningHourSelected) {
-                $rules['opening_hours'] = 'required|min:1';
-                $messages['opening_hours.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
+            if (!$hasAtLeastOneDaySelected) {
+                $rules["opening_hours"] = 'required|min:1';
+                $messages["opening_hours.required"] = "Pilih Satu Jadwal hari dan setidaknya satu jam operasional.";
+
             }
+            foreach ($daysWithAtLeastOneOpeningHourSelected as $dayId) {
+                unset($rules["opening_hours.{$dayId}.*"]);
+                unset($messages["opening_hours.{$dayId}.*.required"]);
+            }
+            // Tambahkan aturan validasi untuk memastikan setidaknya satu hari dan satu jam operasional dipilih
+            // if (!$hasAtLeastOneOpeningHourSelected) {
+            //     $rules["opening_hours"] = 'required|min:1';
+            //     $messages["opening_hours.required"] = "Pilih Satu Jadwal hari dan setidaknya satu jam operasional.";
+            // }
+
+            // $rules['opening_hours'] = 'required|min:1';
+            // $messages['opening_hours.required'] = 'Pilih Satu Jadwal hari dan setidaknya satu jam operasional.';
             // dd($rules, $messages);
             // dd($this->selectedOpeningDay, $this->opening_hours);
             // if (!empty($rules)) {
@@ -441,9 +481,9 @@ class AddVenueTabs extends Component
         }
         // dd($rules, $messages);
         if (!empty($rules)) {
-                $this->validate($rules, $messages);
-            }
-            dd($this->opening_hours);
+            $this->validate($rules, $messages);
+        }
+        dd($this->opening_hours);
         return true;
     }
 

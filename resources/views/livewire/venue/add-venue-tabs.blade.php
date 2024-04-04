@@ -217,6 +217,12 @@
                                             <div id="{{ strtolower($day->name) }}-schedule"
                                                 style="margin-top: 10px;">
                                                 @if (isset($this->selectedOpeningDay[$day->id]) && $this->selectedOpeningDay[$day->id])
+                                                    {{-- @if ($errors->has("opening_hours.{$day->id}.*"))
+                                                        <div class="alert alert-danger">
+                                                            Minimal Ceklis satu jam operasional untuk Hari yang telah
+                                                            dibuka.
+                                                        </div>
+                                                    @endif --}}
                                                     <div style="margin-top: 10px; margin-bottom: 10px;">
                                                         <button class="btn btn-outline-success"
                                                             wire:click.prevent="checkAll('{{ $day->id }}')"
@@ -266,9 +272,13 @@
                                     {{ $error }}
                                 </div>
                             @endforeach
-                            @if ($currentStep == 4 && $errors->has('opening_hours.*.*'))
+                            @if ($errors->has('opening_hours.*.*'))
                                 <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('opening_hours.*.*') }}
+                                    @foreach ($errors->get('opening_hours.*.*') as $dayErrors)
+                                        @foreach ($dayErrors as $error)
+                                            {{ $error }}<br>
+                                        @endforeach
+                                    @endforeach
                                 </div>
                             @endif
                             {{-- @php
