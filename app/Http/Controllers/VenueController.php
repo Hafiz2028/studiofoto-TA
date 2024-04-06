@@ -48,34 +48,7 @@ class VenueController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-
-            'dp_percentage' => 'nullable|numeric',
-            
-        ], [
-            'name.required' => 'Nama venue harus diisi.',
-            'name.min' => 'Nama venue minimal 4 karakter.',
-            'phone_number.required' => 'Nomor HP harus diisi.',
-            'phone_number.min' => 'Nomor HP minimal 8 karakter.',
-            'phone_number.max' => 'Nomor HP maksimal 15 karakter.',
-            'imb.required' => 'File IMB harus diunggah.',
-            'imb.mimes' => 'File IMB harus berformat PDF.',
-            'imb.max' => 'Ukuran file IMB maksimal 5000 KB.',
-            'address.required' => 'Alamat venue harus diisi.',
-            'address.max' => 'Alamat venue maksimal 255 karakter.',
-            'dp_percentage.numeric' => 'DP harus berupa nilai numerik.',
-            'no_rek.numeric' => 'Nomor rekening harus berupa nilai numerik.',
-            'latitude.required' => 'Latitude harus diisi.',
-            'latitude.numeric' => 'Latitude harus berupa nilai numerik.',
-            'longitude.required' => 'Longitude harus diisi.',
-            'longitude.numeric' => 'Longitude harus berupa nilai numerik.',
-            'picture.image' => 'File harus berupa gambar.',
-            'picture.mimes' => 'Format gambar hanya bisa PNG, JPG, dan JPEG.',
-            'picture.max' => 'Ukuran gambar maksimal 5000 KB.',
-            'venue_image.image' => 'File harus berupa gambar.',
-            'venue_image.mimes' => 'Format gambar hanya bisa PNG, JPG, dan JPEG.',
-            'venue_image.max' => 'Ukuran gambar maksimal 5000 KB.',
-        ]);
+        
     }
 
     /**

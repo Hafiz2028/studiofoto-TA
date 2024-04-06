@@ -1,5 +1,6 @@
 <div>
     <form wire:submit.prevent='storeVenue' class="" enctype="multipart/form-data">
+        @csrf
         @if (session()->has('success'))
             <div class="alert alert-success">
                 <strong><i class="dw dw-checked"></i></strong>
@@ -124,8 +125,8 @@
                                         <label>Koordinat Lokasi:</label>
                                         <div class="col">
                                             <div class="form-group">
-                                                <button class="btn btn-outline-info" wire:click="findMyLocation">My
-                                                    Location</button>
+                                                {{-- <button class="btn btn-outline-info" wire:click="findMyLocation">My
+                                                    Location</button> --}}
                                             </div>
                                             <div wire:ignore>
                                                 <div id="map" style="width: 100%; height: 400px;"></div>
@@ -281,7 +282,8 @@
                                 </div>
                             @endforeach
                             <div class="alert alert-warning">
-                                Jadwal Hari <strong>TIDAK DISIMPAN</strong> jika dibiarkan <strong>TERBUKA & KOSONG</strong>.
+                                Jadwal Hari <strong>TIDAK DISIMPAN</strong> jika dibiarkan <strong>TERBUKA &
+                                    KOSONG</strong>.
                             </div>
                             {{-- @if ($errors->has('opening_hours.*.*'))
                                 <div class="alert alert-danger mt-2">
@@ -322,18 +324,30 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Foto Background / Profile Venue</label>
-                                        <input type="file" class="form-control" wire:model="picture" />
+                                        <label>Foto Venue</label>
+                                        <input type="file" class="form-control @error('picture') is-invalid @enderror" name="picture"  wire:model="picture" required />
+                                        @error('picture')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <div class="form-group" id="additionalPhotos">
-                                        <label>Foto Gedung atau Layanan Venue</label>
-                                        <div class="input-group mb-3">
-                                            <input type="file" class="form-control" id="additionalPhotoInput"
-                                                wire:model="venue_image">
-                                            <button class="btn btn-outline-primary" type="button"
-                                                onclick="addAdditionalPhoto()">Tambah
-                                                Foto</button>
-                                        </div>
+                                    <div class="form-group">
+                                        <label>Foto Studio Venue</label>
+                                        @foreach ($venueImages as $index => $image)
+                                            <div class="input-group mb-3">
+                                                <input type="file" class="form-control @error('venueImages.' . $index) is-invalid @enderror" name="venueImages.{{ $index }}"
+                                                    wire:model="venueImages.{{ $index }}" required>
+                                                @if ($index > 0)
+                                                    <button class="btn btn-outline-danger" type="button"
+                                                        wire:click="removeImage({{ $index }})">&times;</button>
+                                                @endif
+                                                @error('venueImages.' . $index)
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endforeach
+                                        <button class="btn btn-outline-primary" type="button"
+                                            wire:click="addImage">Tambah
+                                            Foto</button>
                                     </div>
                                 </div>
                             </div>

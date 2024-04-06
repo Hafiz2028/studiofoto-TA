@@ -7,6 +7,7 @@
     <title>@yield('pageTitle')</title>
 
     <!-- Site favicon -->
+    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
     <link rel="apple-touch-icon" sizes="180x180" href="/back/vendors/images/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/back/vendors/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/back/vendors/images/favicon-16x16.png" />
@@ -47,6 +48,7 @@
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
     </script>
     <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    {{-- @kropifyStyles --}}
     @livewireStyles
     @stack('stylesheets')
 </head>
@@ -431,6 +433,7 @@
     <script src="/back/src/plugins/jquery-steps/jquery.steps.js"></script>
     <script src="/back/vendors/scripts/steps-setting.js"></script>
 
+
     <script>
         if (navigator.userAgent.indexOf("Firefox") != -1) {
             history.pushState(null, null, document.URL);
@@ -461,20 +464,11 @@
                 return false;
             }
         });
-        // document.addEventListener('livewire:init',()=>{
-        //     Livewire.on('showToastr',(event)=>{
-        //         toastr.remove();
-        //     if(event[0].type === 'info'){ toastr.info(event[0].message); }
-        //     else if(event[0].type === 'success') {toastr.success(event[0].message);}
-        //     else if(event[0].type === 'error'){toastr.error(event[0].message);}
-        //     else {return false;}
-        //     });
-        // });
     </script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    @stack('scripts')
+    {{-- @kropifyScripts --}}
     @livewireScripts
-
+    @stack('scripts')
 </body>
 
 </html>

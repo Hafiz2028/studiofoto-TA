@@ -111,6 +111,8 @@
 
 @stack('scripts')
 
+
+
 {{-- <script>
     function checkAll(dayName, event) {
         event.preventDefault();

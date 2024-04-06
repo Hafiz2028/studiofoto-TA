@@ -17,6 +17,7 @@ class Venue extends Model
         'dp_percentage',
         'information',
         'phone_number',
+        'picture',
         'latitude',
         'longitude',
         'reject_note',
