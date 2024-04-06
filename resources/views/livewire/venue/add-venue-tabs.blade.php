@@ -1,6 +1,5 @@
 <div>
-    <form wire:submit.prevent='storeVenue' class="" enctype="multipart/form-data">
-        @csrf
+    <form wire:submit.prevent='storeVenue'>
         @if (session()->has('success'))
             <div class="alert alert-success">
                 <strong><i class="dw dw-checked"></i></strong>
@@ -324,26 +323,73 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Foto Venue</label>
-                                        <input type="file" class="form-control @error('picture') is-invalid @enderror" name="picture"  wire:model="picture" required />
+                                        <label><strong>Foto Venue</strong></label>
+                                        <div wire:loading wire:target="picture">Uploading...</div>
+                                        @if ($picture)
+                                            @if ($picture->getMimeType() !== 'application/pdf')
+                                                <div style="max-width: 200px; height: auto; margin-bottom: 10px;">
+                                                    Photo Preview:
+                                                    <img src="{{ $picture->temporaryUrl() }}">
+                                                </div>
+                                            @endif
+                                        @endif
+                                        <input type="file"
+                                            class="form-control @error('picture') is-invalid @enderror" name="picture"
+                                            wire:model="picture" required />
                                         @error('picture')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="form-group">
-                                        <label>Foto Studio Venue</label>
+                                        <label><strong>Foto Studio Venue</strong></label>
                                         @foreach ($venueImages as $index => $image)
-                                            <div class="input-group mb-3">
-                                                <input type="file" class="form-control @error('venueImages.' . $index) is-invalid @enderror" name="venueImages.{{ $index }}"
-                                                    wire:model="venueImages.{{ $index }}" required>
-                                                @if ($index > 0)
-                                                    <button class="btn btn-outline-danger" type="button"
-                                                        wire:click="removeImage({{ $index }})">&times;</button>
+                                            <div wire:loading wire:target="venueImages.{{ $index }}">
+                                                Uploading...</div>
+                                            @if ($index == 0)
+                                                @if ($image)
+                                                    @if ($image->getMimeType() !== 'application/pdf')
+                                                        <div
+                                                            style="max-width: 200px; height: auto; margin-bottom: 10px;">
+                                                            Photo Preview:
+                                                            <img src="{{ $image->temporaryUrl() }}">
+                                                        </div>
+                                                    @endif
                                                 @endif
+                                                <div style="display: flex; align-items: center;">
+                                                    <input type="file"
+                                                        class="form-control @error('venueImages.' . $index) is-invalid @enderror"
+                                                        name="venueImages.{{ $index }}"
+                                                        wire:model="venueImages.{{ $index }}" required>
+                                                </div>
                                                 @error('venueImages.' . $index)
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
-                                            </div>
+                                            @else
+                                                <div class="input-group">
+                                                    @if ($image)
+                                                        @if ($image->getMimeType() !== 'application/pdf')
+                                                            <div
+                                                                style="max-width: 200px; height: auto; margin-bottom: 10px;">
+                                                                Photo Preview:
+                                                                <img src="{{ $image->temporaryUrl() }}">
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                    <div style="display: flex; align-items: center;">
+                                                        <input type="file"
+                                                            class="form-control @error('venueImages.' . $index) is-invalid @enderror"
+                                                            name="venueImages.{{ $index }}"
+                                                            wire:model="venueImages.{{ $index }}" required
+                                                            style="width: 100%;">
+                                                        <button class="btn btn-outline-danger" type="button"
+                                                            wire:click="removeImage({{ $index }})"
+                                                            style="height: auto; margin-left: 10px;">&times;</button>
+                                                    </div>
+                                                    @error('venueImages.' . $index)
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            @endif
                                         @endforeach
                                         <button class="btn btn-outline-primary" type="button"
                                             wire:click="addImage">Tambah
@@ -351,9 +397,19 @@
                                     </div>
                                 </div>
                             </div>
+
                         </section>
                     </div>
                 </div>
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
         <div class="actions-buttons d-flex justify-content-between bg-white pt-2 pb-2">

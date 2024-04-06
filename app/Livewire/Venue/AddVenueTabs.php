@@ -141,8 +141,6 @@ class AddVenueTabs extends Component
             $this->currentStep = 1;
         }
     }
-
-
     //step 4 jadwal
     //inisialisasi false opening_hours
     protected function initializeSchedules()
@@ -427,8 +425,7 @@ class AddVenueTabs extends Component
                 if ($image instanceof UploadedFile && $image->isValid()) {
                     // Simpan foto ke dalam storage dan dapatkan pathnya
                     $venueImageName = 'STUDIO_IMG_' . $image->getClientOriginalName();
-                    $storedPath = $image->storeAs('public/images/venues/Studio_Image', $venueImageName);
-
+                    $storedPath = $image->storeAs('images/venues/Studio_Image', $venueImageName);
                     // Simpan path foto ke dalam tabel VenueImage
                     $venue->venueImages()->create([
                         'image' => $storedPath,
@@ -475,8 +472,13 @@ class AddVenueTabs extends Component
                 $originalName = $this->imb->getClientOriginalName();
                 $venueName = $this->name;
                 $newImbName = 'IMB_' . $venueName . '_' . $originalName;
-                $upload_imb = $this->imb->storeAs('public/images/venues/IMB', $newImbName);
-                session(['imb_path' => $upload_imb]);
+                try {
+                    $upload_imb = $this->imb->storeAs('images/venues/IMB', $newImbName);
+                    session(['imb_path' => $upload_imb]);
+                } catch (\Exception $e) {
+                    $this->addError('imb', 'Gagal menyimpan file IMB: ' . $e->getMessage());
+                    return;
+                }
             }
         } elseif ($this->currentStep == 2) {
             $rules = [
@@ -572,15 +574,21 @@ class AddVenueTabs extends Component
             ]);
         }
         if (!session()->has('imb_path')) {
-            $this->addError('imb', 'File IMB not fond.');
+            $this->addError('imb', 'File IMB Belum di tambahkan.');
             return;
         }
 
         $imbName = session('imb_path');
         $pictureName = 'VENUE_IMG_' . $this->picture->getClientOriginalName();
-        $uploadPicture = $this->picture->storeAs('public/images/venues/Venue_Image', $pictureName);
-        $this->upload['picture'] = $uploadPicture;
-        session()->forget('imb_path');
+        try {
+            $uploadPicture = $this->picture->storeAs('images/venues/Venue_Image', $pictureName);
+            $this->upload['picture'] = $uploadPicture;
+            dd($uploadPicture);
+            session()->forget('imb_path');
+        } catch (\Exception $e) {
+            $this->addError('picture', 'Gagal menyimpan foto venue: ' . $e->getMessage());
+            return;
+        }
 
         try {
             $venue = Venue::create([
