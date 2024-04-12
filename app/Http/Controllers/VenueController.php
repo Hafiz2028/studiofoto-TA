@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use App\Models\Venue;
+use App\Models\Admin;
 use App\Models\PaymentMethod;
 use App\Models\Day;
 use App\Models\Hour;
@@ -18,19 +19,11 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class VenueController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $venues = Venue::all();
-
         return view('back.pages.owner.venue-manage.index-venue', compact('venues'));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $payment_methods = PaymentMethod::all();
@@ -42,54 +35,72 @@ class VenueController extends Controller
             return redirect()->back();
         }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function needApproval()
     {
-        
+        $venue = Venue::all();
+        return view('back.pages.admin.manage-venue.need-approval.index', compact('venue'));
     }
 
-    /**
-     * Display the specified resource.
-     */
+    public function approveVenue($id){
+        $venue = Venue::findOrFail($id);
+        $venue->status = 1;
+        $saved = $venue->save();
+        if ($saved) {
+            return redirect()->route('admin.venue.approved', ['id' => $id])->with('success', 'Venue <b>' . ucfirst($venue->name) . '</b> dengan owner <b>' . ucfirst($venue->owner->name) . '</b> telah di Approve');
+        } else {
+            return redirect()->route('admin.venue.need-approval', ['id' => $id])->with('fail', 'Venue gagal di Approve, coba lagi');
+        }
+    }
+    public function rejectVenue(Request $request, $id){
+        $venue = Venue::findOrFail($id);
+        $venue->status = 2;
+        $venue->reject_note = $request->input('reject_note');
+        $saved = $venue->save();
+        if ($saved) {
+            return redirect()->route('admin.venue.rejected')->with('success', 'Venue <b>' . ucfirst($venue->name) . '</b> dengan owner <b>' . ucfirst($venue->owner->name) . '</b> telah di Reject');
+        } else {
+            return redirect()->route('admin.venue.need-approval')->with('fail', 'Venue gagal di Reject, coba lagi');
+        }
+    }
+
+    public function approved()
+    {
+        $venue = Venue::all();
+        return view('back.pages.admin.manage-venue.approved.index', compact('venue'));
+
+    }
+    public function rejected()
+    {
+        $venue = Venue::all();
+        return view('back.pages.admin.manage-venue.rejected.index', compact('venue'));
+    }
+    public function detailVenue($id){
+        $venue = Venue::findOrFail($id);
+        return view('back.pages.admin.manage-venue.detail', compact('venue'));
+    }
+
+
+
+
+    
     public function show(Venue $venue)
     {
-        // try{
-        //     $day = Day::pluck('name','id');
-        //     $venues = Venue::find($id);
-        //     $field_type = FieldType::select('name','id')->get();
-        //     $openingHours = OpeningHour::select('day_id')->where('venue_id', $venues->id)->groupby('day_id')->get();
-
-        //     Log::info("User ".Auth::user()->Owner->first_name." ".Auth::user()->Owner->last_name." Berhasil mengakses halaman detail venue pada venue");
-        //     return view('backend.owner.manage_venue.show', compact('venues','field_type','id', 'openingHours','day'));
-        // }
-        // catch(\Exception $e){
-        //     Log::error("User ".Auth::user()->Owner->first_name." ".Auth::user()->Owner->last_name." Gagal mengakses halaman detail venue pada venue");
-        //     return redirect()->back();
-        // }
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    public function store(Request $request)
+    {
+    }
     public function edit(Venue $venue)
     {
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Venue $venue)
     {
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Venue $venue)
     {
-        //
     }
+
+
+
+
+
 }

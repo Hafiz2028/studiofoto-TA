@@ -4,7 +4,6 @@ namespace App\Livewire\Venue;
 
 use Livewire\Component;
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -335,16 +334,6 @@ class AddVenueTabs extends Component
             $this->selectedOpeningDay[$nextDayId] = true;
         }
     }
-
-    public function addImage()
-    {
-        $this->venueImages[] = '';
-    }
-    public function removeImage($index)
-    {
-        unset($this->venueImages[$index]);
-        $this->venueImages = array_values($this->venueImages);
-    }
     public function updatedSelectedOpeningHours($dayId, $hourId, $value)
     {
         if ($value) {
@@ -408,42 +397,14 @@ class AddVenueTabs extends Component
             }
         }
     }
-    public function saveVenueImages($venueId)
+    public function addImage()
     {
-        try {
-            // Pastikan venueId ada
-            if (!$venueId) {
-                throw new \Exception('Venue ID tidak ditemukan');
-            }
-
-            // Ambil instance venue berdasarkan ID
-            $venue = Venue::findOrFail($venueId);
-
-            // Iterasi melalui semua file foto yang dipilih oleh user
-            foreach ($this->venueImages as $image) {
-                // Pastikan file foto valid
-                if ($image instanceof UploadedFile && $image->isValid()) {
-                    // Simpan foto ke dalam storage dan dapatkan pathnya
-                    $venueImageName = 'STUDIO_IMG_' . $image->getClientOriginalName();
-                    $storedPath = $image->storeAs('images/venues/Studio_Image', $venueImageName);
-                    // Simpan path foto ke dalam tabel VenueImage
-                    $venue->venueImages()->create([
-                        'image' => $storedPath,
-                    ]);
-                } else {
-                    throw new \Exception('File foto tidak valid');
-                }
-            }
-        } catch (\Exception $e) {
-            // Tangani kesalahan jika terjadi
-            $this->addError('venue_images_upload', $e->getMessage());
-        }
+        $this->venueImages[] = '';
     }
-    private function storeImage($image, $path)
+    public function removeImage($index)
     {
-        // Simpan file foto ke dalam storage dan dapatkan pathnya
-        $storedPath = Storage::putFile($path, $image);
-        return $storedPath;
+        unset($this->venueImages[$index]);
+        $this->venueImages = array_values($this->venueImages);
     }
     //validasi persteps
     public function validationData()
@@ -473,7 +434,7 @@ class AddVenueTabs extends Component
                 $venueName = $this->name;
                 $newImbName = 'IMB_' . $venueName . '_' . $originalName;
                 try {
-                    $upload_imb = $this->imb->storeAs('images/venues/IMB', $newImbName);
+                    $upload_imb = $this->imb->storeAs('/IMB', $newImbName, 'public');
                     session(['imb_path' => $upload_imb]);
                 } catch (\Exception $e) {
                     $this->addError('imb', 'Gagal menyimpan file IMB: ' . $e->getMessage());
@@ -554,9 +515,33 @@ class AddVenueTabs extends Component
             return null;
         }
     }
+    public function saveVenueImages($venueId)
+    {
+        try {
+            // Pastikan venueId ada
+            if (!$venueId) {
+                throw new \Exception('Venue ID tidak ditemukan');
+            }
+            $venue = Venue::findOrFail($venueId);
+            foreach ($this->venueImages as $image) {
+                if ($image instanceof UploadedFile && $image->isValid()) {
+                    $originalFileName = $image->getClientOriginalName();
+                    $randomString = Str::random(10);
+                    $newVenueImageName = 'STUDIO_IMG_' . date('YmdHis') . '_' . $randomString . '.' . $originalFileName;
+                    $storedPath = $image->storeAs('/Studio_Image', $newVenueImageName, 'public');
+                    $venue->venueImages()->create([
+                        'image' => $storedPath,
+                    ]);
+                } else {
+                    throw new \Exception('File foto tidak valid');
+                }
+            }
+        } catch (\Exception $e) {
+            $this->addError('venue_images_upload', $e->getMessage());
+        }
+    }
     public function storeVenue()
     {
-        // dd(request()->all());
         $this->resetErrorBag();
         if ($this->currentStep == 5) {
             $this->validate([
@@ -579,11 +564,14 @@ class AddVenueTabs extends Component
         }
 
         $imbName = session('imb_path');
-        $pictureName = 'VENUE_IMG_' . $this->picture->getClientOriginalName();
+
+        $originalpictName = $this->picture->getClientOriginalName();
+        $pictName = $this->name;
+        $newPictName = 'VENUE_IMG_' . $pictName . '_' . $originalpictName;
         try {
-            $uploadPicture = $this->picture->storeAs('images/venues/Venue_Image', $pictureName);
+            $uploadPicture = $this->picture->storeAs('/Venue_Image', $newPictName, 'public');
             $this->upload['picture'] = $uploadPicture;
-            dd($uploadPicture);
+            // dd($uploadPicture);
             session()->forget('imb_path');
         } catch (\Exception $e) {
             $this->addError('picture', 'Gagal menyimpan foto venue: ' . $e->getMessage());
@@ -600,13 +588,15 @@ class AddVenueTabs extends Component
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
                 'imb' => $imbName,
-                'picture' => $pictureName,
+                'picture' => $newPictName,
             ]);
             if (!$venue) {
                 throw new \Exception('Failed to create Venue.');
             }
             $this->saveVenueData($venue->id);
-            return redirect()->route('owner.venue.index')->with('success', 'Data venue berhasil ditambahkan.');
+            // dd($this->saveVenueData($venue->id));
+            session()->flash('success', 'Data venue berhasil ditambahkan bree.');
+            return redirect()->route('owner.venue.index');
         } catch (\Exception $e) {
             $this->addError('venue_id', $e->getMessage());
         }

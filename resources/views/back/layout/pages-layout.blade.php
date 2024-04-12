@@ -334,13 +334,13 @@
                         </li>
                         <li class="dropdown">
                             <a href="javascript:;"
-                                class="dropdown-toggle {{ Route::is('admin.venue-need-approval') ? 'active' : '' }} || {{ Route::is('admin.venue-approved') ? 'active' : '' }} || {{ Route::is('admin.venue-rejected') ? 'active' : '' }}">
+                                class="dropdown-toggle {{ Route::is('admin.venue.need-approval') ? 'active' : '' }} || {{ Route::is('admin.venue.approved') ? 'active' : '' }} || {{ Route::is('admin.venue.rejected') ? 'active' : '' }}">
                                 <span class="micon bi bi-building"></span><span class="mtext">Venue</span>
                             </a>
                             <ul class="submenu">
-                                <li><a href="{{ route('admin.venue-need-approval') }}">Need Approval</a></li>
-                                <li><a href="{{ route('admin.venue-approved') }}">Approved</a></li>
-                                <li><a href="{{ route('admin.venue-rejected') }}">Rejected</a></li>
+                                <li><a href="{{ route('admin.venue.need-approval') }}">Need Approval</a></li>
+                                <li><a href="{{ route('admin.venue.approved') }}">Approved</a></li>
+                                <li><a href="{{ route('admin.venue.rejected') }}">Rejected</a></li>
                             </ul>
                         </li>
                         <li>

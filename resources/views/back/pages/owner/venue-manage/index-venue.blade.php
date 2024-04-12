@@ -67,22 +67,19 @@
                             </div>
                         </div>
                     @endif
-
-
                     <div class="row justify-content-around">
                         @foreach ($venues as $venue)
-                            {{-- card2 --}}
-                            <div class="da-card col-sm-3">
-                                <div class="da-card-photo">
-                                    {{-- gambar venue --}}
-                                    <img src="/images/venues/Venue_Image/{{$venue->picture}}" alt="" width="100px" height="100px">
+                            <div class="da-card col-12 col-sm-6 col-md-4 col-lg-3">
+                                <div class="da-card-photo d-flex justify-content-center align-items-center"
+                                    style="height: 200px; overflow: hidden;">
+                                    <img src="/images/venues/Venue_Image/{{ $venue->picture }}" alt="{{ $venue->picture }}"
+                                        class="img-fluid" style="max-height: 100%; object-fit: contain;">
                                     <div class="da-overlay da-slide-bottom">
                                         <div class="da-social">
                                             <ul class="clearfix">
                                                 <div class="form-group mt-4">
                                                     <div class="form-row">
                                                         <div class="col">
-                                                            {{-- <a href="" type="button" class="btn btn-primary float-right">See Venue <i class="fa fa-arrow-right"></i></a> --}}
                                                             <a class="btn btn-sm btn-primary float-right"
                                                                 @if ($venue->status == 1) href="{{ route('owner.venue.show', $venue->id) }}"
                                                     @elseif ($venue->status == 2) onclick="edit_venue({{ $venue->id }})"
@@ -116,12 +113,8 @@
                                     <p class="mb-0">Phone : {{ $venue->phone_number }}</p>
                                 </div>
                             </div>
-                            {{-- card2 close --}}
                         @endforeach
-
                     </div>
-
-
                 </div>
             </div>
         </div>

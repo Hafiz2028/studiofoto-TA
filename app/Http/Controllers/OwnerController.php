@@ -17,53 +17,55 @@ use Illuminate\Support\Facades\File;
 class OwnerController extends Controller
 {
     //auth
-    public function loginHandler(Request $request){
+    public function loginHandler(Request $request)
+    {
         $fieldType = filter_var($request->login_id, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        if($fieldType == 'email'){
+        if ($fieldType == 'email') {
             $request->validate([
                 'login_id' => 'required|email|exists:owners,email',
                 'password' => 'required|min:5|max:45'
-            ],[
+            ], [
                 'login_id,required' => 'Email or Username is required',
                 'login_id.email' => 'Invalid email address',
                 'login_id.exists' => 'Email is not exists in system',
                 'password.required' => 'Password is required'
             ]);
-    }else{
-        $request->validate([
-            'login_id' => 'required|exists:owners,username',
-            'password' => 'required|min:5|max:45'
-        ],[
-            'login_id.required' => 'Email or Username is required',
-            'login_id.exists' => 'Username is not exists in system',
-            'password.required' => 'Password is required'
-        ]);
-    }
-    $creds=array(
-        $fieldType => $request->login_id,
-        'password'=>$request->password
+        } else {
+            $request->validate([
+                'login_id' => 'required|exists:owners,username',
+                'password' => 'required|min:5|max:45'
+            ], [
+                'login_id.required' => 'Email or Username is required',
+                'login_id.exists' => 'Username is not exists in system',
+                'password.required' => 'Password is required'
+            ]);
+        }
+        $creds = array(
+            $fieldType => $request->login_id,
+            'password' => $request->password
 
-    );
-    if(Auth::guard('owner')->attempt($creds)){
-        return redirect()->route('owner.home');
-    }else{
-        session()->flash('fail','wrong password');
-        return redirect()->route('owner.login');
+        );
+        if (Auth::guard('owner')->attempt($creds)) {
+            return redirect()->route('owner.home');
+        } else {
+            session()->flash('fail', 'wrong password');
+            return redirect()->route('owner.login');
+        }
     }
-
-}
     //logout
-    public function logoutHandler(Request $request){
+    public function logoutHandler(Request $request)
+    {
         Auth::guard('owner')->logout();
-        session()->flash('fail','You are logged out');
+        session()->flash('fail', 'You are logged out');
         return redirect()->route('owner.login');
     }
 
     //send email reset password start
-    public function sendPasswordResetLink(Request $request){
+    public function sendPasswordResetLink(Request $request)
+    {
         $request->validate([
             'email' => 'required|email|exists:owners,email'
-        ],[
+        ], [
             'email.required' => 'The :attribute is required',
             'email.email' => 'Invalid email address',
             'email.exists' => 'The :attribute is not exists in system'
@@ -77,27 +79,27 @@ class OwnerController extends Controller
 
         //check if there is an existing reset password token
         $oldToken = DB::table('password_reset_tokens')
-                        ->where(['email'=>$request->email,'guard'=>constGuards::OWNER])
-                        ->first();
+            ->where(['email' => $request->email, 'guard' => constGuards::OWNER])
+            ->first();
 
-        if( $oldToken){
+        if ($oldToken) {
             //update token
             DB::table('password_reset_tokens')
-                ->where(['email'=>$request->email,'guard'=>constGuards::OWNER])
+                ->where(['email' => $request->email, 'guard' => constGuards::OWNER])
                 ->update([
-                    'token'=>$token,
-                    'created_at'=>Carbon::now()
+                    'token' => $token,
+                    'created_at' => Carbon::now()
                 ]);
-        }else{
+        } else {
             DB::table('password_reset_tokens')->insert([
-                'email'=>$request->email,
-                'guard'=>constGuards::OWNER,
-                'token'=>$token,
-                'created_at'=>Carbon::now()
+                'email' => $request->email,
+                'guard' => constGuards::OWNER,
+                'token' => $token,
+                'created_at' => Carbon::now()
             ]);
         }
 
-        $actionLink = route('owner.reset-password',['token'=>$token, 'email'=>$request->email]);
+        $actionLink = route('owner.reset-password', ['token' => $token, 'email' => $request->email]);
 
         $data = array(
             'actionLink' => $actionLink,
@@ -107,55 +109,56 @@ class OwnerController extends Controller
         $mail_body = view('email-templates.admin-forgot-email-template', $data)->render();
 
         $mailConfig = array(
-            'mail_from_email' =>env('EMAIL_FROM_ADDRESS'),
-            'mail_from_name' =>env('EMAIL_FROM_NAME'),
-            'mail_recipient_email' =>$owner->email,
-            'mail_recipient_name' =>$owner->name,
-            'mail_subject' =>'Reset password',
-            'mail_body' =>$mail_body,
+            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+            'mail_from_name' => env('EMAIL_FROM_NAME'),
+            'mail_recipient_email' => $owner->email,
+            'mail_recipient_name' => $owner->name,
+            'mail_subject' => 'Reset password',
+            'mail_body' => $mail_body,
         );
 
-        if( sendEmail($mailConfig) ){
-            session()->flash('success','We have e-mailed your password reset link.');
+        if (sendEmail($mailConfig)) {
+            session()->flash('success', 'We have e-mailed your password reset link.');
             return redirect()->route('owner.forgot-password');
-        }else{
-            session()->flash('fail','Something went wrong!');
+        } else {
+            session()->flash('fail', 'Something went wrong!');
             return redirect()->route('owner.forgot-password');
         }
-
     }
 
     //reset password & email start
-    public function resetPassword(Request $request, $token=null){
+    public function resetPassword(Request $request, $token = null)
+    {
         $check_token = DB::table('password_reset_tokens')
-                    ->where(['token'=>$token,'guard'=>constGuards::OWNER])
-                    ->first();
-        if($check_token){
+            ->where(['token' => $token, 'guard' => constGuards::OWNER])
+            ->first();
+        if ($check_token) {
             //check if token is not expired
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $check_token->created_at)->diffInMinutes(Carbon::now());
 
-            if($diffMins > constDefaults::tokenExpiredMinutes){
+            if ($diffMins > constDefaults::tokenExpiredMinutes) {
                 //if token is expired
-                session()->flash('fail','Token expired, request another reset password link.');
-                return redirect()->route('owner.forgot-password',['token'=>$token]);
-            }else{
-                return view('back.pages.owner.auth.reset-password')->with(['token'=>$token]);
+                session()->flash('fail', 'Token expired, request another reset password link.');
+                return redirect()->route('owner.forgot-password', ['token' => $token]);
+            } else {
+                return view('back.pages.owner.auth.reset-password')->with(['token' => $token]);
             }
-        }else{
-            session()->flash('fail','Invalid token!, request another reset password link');
-            return redirect()->route('owner.forgot-password',['token'=>$token]);
+        } else {
+            session()->flash('fail', 'Invalid token!, request another reset password link');
+            return redirect()->route('owner.forgot-password', ['token' => $token]);
         }
     }
 
-    public function resetPasswordHandler(Request $request){
+    public function resetPasswordHandler(Request $request)
+    {
         $request->validate([
-            'new_password' =>'required|min:5|max:45|required_with:new_password_confirmation|same:new_password_confirmation',
-            'new_password_confirmation' =>'required'
+            'new_password' => 'required|min:5|max:45|required_with:new_password_confirmation|same:new_password_confirmation',
+            'new_password_confirmation' => 'required'
         ]);
 
         $token = DB::table('password_reset_tokens')
-                    ->where(['token' => $request->token,'guard'=>constGuards::OWNER])
-                    ->first();
+            ->where(['token' => $request->token, 'guard' => constGuards::OWNER])
+            ->first();
 
         // GET owner details
         $owner = Owner::where('email', $token->email)->first();
@@ -181,46 +184,48 @@ class OwnerController extends Controller
         $mail_body = view('email-templates.admin-reset-email-template', $data)->render();
 
         $mailConfig = array(
-            'mail_from_email'=>env('EMAIL_FROM_ADDRESS'),
-            'mail_from_name'=>env('EMAIL_FROM_NAME'),
-            'mail_recipient_email'=>$owner->email,
-            'mail_recipient_name'=>$owner->name,
-            'mail_subject'=>'Password Changed',
-            'mail_body'=>$mail_body
+            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+            'mail_from_name' => env('EMAIL_FROM_NAME'),
+            'mail_recipient_email' => $owner->email,
+            'mail_recipient_name' => $owner->name,
+            'mail_subject' => 'Password Changed',
+            'mail_body' => $mail_body
         );
 
         sendEmail($mailConfig);
         return redirect()->route('owner.login')->with('success', 'Done!, Your password has been changed, Use new password to login.');
     }
-//reset password & email end
+    //reset password & email end
 
-//profile page start
-    public function profileView(Request $request){
+    //profile page start
+    public function profileView(Request $request)
+    {
         $owner = null;
-        if(Auth::guard('owner')->check()){
+        if (Auth::guard('owner')->check()) {
             $owner = Owner::findOrFail(auth()->id());
         }
         return view('back.pages.owner.profile', compact('owner'));
     }
 
-    public function changeProfilePicture(Request $request){
+    public function changeProfilePicture(Request $request)
+    {
         $owner = Owner::findOrFail(auth('owner')->id());
         $path = 'images/users/owners/';
         $file = $request->file('ownerProfilePictureFile');
         $old_picture = $owner->getAttributes()['picture'];
-        $file_path = $path.$old_picture;
-        $filename = 'OWNER_IMG_'.rand(2,1000).$owner->id.time().uniqid().'.jpg';
+        $file_path = $path . $old_picture;
+        $filename = 'OWNER_IMG_' . rand(2, 1000) . $owner->id . time() . uniqid() . '.jpg';
 
-        $upload = $file->move(public_path($path),$filename);
+        $upload = $file->move(public_path($path), $filename);
 
-        if($upload){
-            if($old_picture !=null && File::exists(public_path($path.$old_picture))){
-                File::delete(public_path($path.$old_picture));
+        if ($upload) {
+            if ($old_picture != null && File::exists(public_path($path . $old_picture))) {
+                File::delete(public_path($path . $old_picture));
             }
-            $owner->update(['picture'=>$filename]);
-            return response()->json(['status'=>1,'msg'=>'Your profile picture has been successfully uploaded']);
-        }else{
-            return response()->json(['status'=>0,'msg'=>'Something went wrong.']);
+            $owner->update(['picture' => $filename]);
+            return response()->json(['status' => 1, 'msg' => 'Your profile picture has been successfully uploaded']);
+        } else {
+            return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
         }
     }
 
@@ -238,10 +243,10 @@ class OwnerController extends Controller
      */
     public function create()
     {
-        $data=[
+        $data = [
             'pageTitle' => 'Add Owner',
         ];
-        return view('back.pages.admin.manage-users.owner.add-owner',$data);
+        return view('back.pages.admin.manage-users.owner.add-owner', $data);
     }
 
     /**
@@ -257,7 +262,7 @@ class OwnerController extends Controller
             'handphone' => 'required|min:9|max:15',
             'address' => 'required|string|max:255',
             'password_confirmation' => 'required|min:5|max:45|same:password',
-        ],[
+        ], [
             'name.required' => ':Attribute is required.',
             'name.min' => ':Attribute must be at least 5 characters.',
             'name.unique' => ':Attribute has already been taken.',
@@ -293,13 +298,11 @@ class OwnerController extends Controller
         $owner->address = $validatedData['address'];
         $saved = $owner->save();
 
-        if($saved){
-            return redirect()->route('admin.user.owner.index')->with('success','<b>'.ucfirst($validatedData['name']).'</b> user has been added');
-        }else{
-            return redirect()->route('admin.user.owner.create')->with('fail','something went wrong, try again');
+        if ($saved) {
+            return redirect()->route('admin.user.owner.index')->with('success', '<b>' . ucfirst($validatedData['name']) . '</b> user has been added');
+        } else {
+            return redirect()->route('admin.user.owner.create')->with('fail', 'something went wrong, try again');
         }
-
-
     }
 
     /**
@@ -309,11 +312,11 @@ class OwnerController extends Controller
     {
         $owner_id = $id;
         $owner = Owner::findOrFail($owner_id);
-        $data =[
+        $data = [
             'pageTitle' => 'Edit Owner User',
-            'owner' =>$owner
+            'owner' => $owner
         ];
-        return view('back.pages.admin.manage-users.owner.edit-owner',$data);
+        return view('back.pages.admin.manage-users.owner.edit-owner', $data);
     }
 
     /**
@@ -325,11 +328,11 @@ class OwnerController extends Controller
         $owner = Owner::findOrFail($owner_id);
 
         $request->validate([
-            'name' => 'required|min:5|unique:owners,name,'.$owner_id,
-            'username' => 'required|min:5|unique:owners,username,'.$owner_id.'|regex:/^\S*$/',
+            'name' => 'required|min:5|unique:owners,name,' . $owner_id,
+            'username' => 'required|min:5|unique:owners,username,' . $owner_id . '|regex:/^\S*$/',
             'handphone' => 'required|min:9|max:15',
             'address' => 'required|string|max:255',
-        ],[
+        ], [
             'name.required' => ':Attribute is required.',
             'name.min' => ':Attribute must be at least 5 characters.',
             'name.unique' => ':Attribute has already been taken.',
@@ -349,12 +352,11 @@ class OwnerController extends Controller
         $owner->username = $request->username;
         $owner->handphone = $request->handphone;
         $owner->address = $request->address;
-        $saved= $owner->save();
-        if($saved){
-            return redirect()->route('admin.user.owner.index',['id'=>$owner_id])->with('success','User <b>'.ucfirst($request->name).'</b> has been updated');
-        }else{
-            return redirect()->route('admin.user.owner.edit',['id'=>$owner_id])->with('fail','Something went wrong, try again');
-
+        $saved = $owner->save();
+        if ($saved) {
+            return redirect()->route('admin.user.owner.index', ['id' => $owner_id])->with('success', 'User <b>' . ucfirst($request->name) . '</b> has been updated');
+        } else {
+            return redirect()->route('admin.user.owner.edit', ['id' => $owner_id])->with('fail', 'Something went wrong, try again');
         }
     }
 
@@ -367,11 +369,11 @@ class OwnerController extends Controller
         $owner = Owner::findOrFail($owner_id);
         $owner_name = $owner->name;
 
-        $delete = $owner -> delete();
-        if($delete){
-        return redirect()->route('admin.user.owner.index')->with('success','User <b>'.ucfirst($owner_name).'</b> deleted successfully');
-        }else{
-        return redirect()->route('admin.user.owner.index')->with('fail',"User <b>".ucfirst($owner_name)."</b> can't deleted, Try again");
+        $delete = $owner->delete();
+        if ($delete) {
+            return redirect()->route('admin.user.owner.index')->with('success', 'User <b>' . ucfirst($owner_name) . '</b> deleted successfully');
+        } else {
+            return redirect()->route('admin.user.owner.index')->with('fail', "User <b>" . ucfirst($owner_name) . "</b> can't deleted, Try again");
         }
     }
 
@@ -382,6 +384,4 @@ class OwnerController extends Controller
     {
         //
     }
-
-
 }
