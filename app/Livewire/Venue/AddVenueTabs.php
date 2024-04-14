@@ -50,9 +50,6 @@ class AddVenueTabs extends Component
         if ($this->currentStep == 3) {
             $validationErrors = $this->getErrorBag()->get('bank_accounts.*');
         }
-        // if ($this->currentStep == 4) {
-        //     $validationErrors = $this->getErrorBag()->get('opening_hours.*');
-        // }
         return view('livewire.venue.add-venue-tabs', [
             'validationErrors' => $validationErrors,
         ]);
@@ -69,7 +66,7 @@ class AddVenueTabs extends Component
             $this->hours = Hour::all();
             $this->initializeSelectedPaymentMethods();
             $this->initializeSchedules();
-            $this->opening_hours = [];
+            // $this->opening_hours = [];
             $this->bank_accounts = [];
             $this->errorBag = null;
             // dd($this->days, $this->hours);
@@ -111,12 +108,6 @@ class AddVenueTabs extends Component
             $this->resetErrorBag("bank_accounts.{$paymentMethodId}");
         }
     }
-    // public function findMyLocation()
-    // {
-    //     $latitude = 49.2125578; // Default latitude
-    //     $longitude = 16.62662018; // Default longitude
-    //     $this->emit('updateMap', $latitude, $longitude);
-    // }
     public function increaseStep()
     {
         $this->resetErrorBag();
@@ -125,6 +116,10 @@ class AddVenueTabs extends Component
         }
         if ($this->currentStep == 4) {
             $this->validateOpeningHours();
+            if (!$this->getErrorBag()->isEmpty()) {
+                // Jika terdapat kesalahan validasi, hentikan peningkatan langkah
+                return;
+            }
         }
         $this->currentStep++;
         if ($this->currentStep > $this->totalSteps) {
@@ -146,75 +141,52 @@ class AddVenueTabs extends Component
     {
         foreach ($this->days as $day) {
             $this->selectedOpeningDay[$day->id] = false;
-            // Inisialisasi array opening_hours untuk hari ini jika belum ada
-            if (!isset($this->opening_hours[$day->id])) {
-                $this->opening_hours[$day->id] = [];
-            }
+            $this->opening_hours[$day->id] = [];
+
             foreach ($this->hours as $hour) {
                 // Pastikan setiap id jam diinisialisasi dengan false
                 $this->opening_hours[$day->id][$hour->id] = false;
+            }
+        }
+        foreach ($this->opening_hours as $dayId => $hours) {
+            $hasActiveHours = false;
+            foreach ($hours as $hourId => $isChecked) {
+                if ($isChecked) {
+                    $hasActiveHours = true;
+                    break;
+                }
+            }
+            if ($hasActiveHours) {
+                $this->selectedOpeningDay[$dayId] = true;
             }
         }
     }
     //ubah status check box jadwal hari
     public function toggleDaySchedule($dayId)
     {
-        Log::info("toggleDaySchedule called for dayId: {$dayId}");
         if (isset($this->selectedOpeningDay[$dayId])) {
             $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
-
-            // Reset semua jam operasional untuk hari ini menjadi false (tidak dicentang)
-            if (isset($this->opening_hours[$dayId])) {
-                foreach ($this->opening_hours[$dayId] as $hourId => $value) {
-                    $this->opening_hours[$dayId][$hourId] = false;
-                }
-            }
         } else {
-            $this->selectedOpeningDay[$dayId] = true; // Atau false, tergantung pada kebutuhan Anda
+            $this->selectedOpeningDay[$dayId] = true;
         }
-        Log::info("New value for dayId {$dayId}: " . ($this->selectedOpeningDay[$dayId] ? 'true' : 'false'));
         $this->validateOpeningHours();
-        $this->render();
     }
     public function validateOpeningHours()
     {
-        $daysWithoutSelection = [];
-        $hoursWithoutSelection = [];
-        foreach ($this->opening_hours as $dayId => $hours) {
-            if ($this->selectedOpeningDay[$dayId]) {
-                $dayHasAtLeastOneOpeningHourSelected = false;
-                foreach ($hours as $hourId => $isSelected) {
-                    if ($isSelected) {
-                        $dayHasAtLeastOneOpeningHourSelected = true;
-                        break; // Keluar dari loop saat menemukan satu yang terpilih
-                    }
-                }
-                if (!$dayHasAtLeastOneOpeningHourSelected) {
-                    $daysWithoutSelection[] = Day::find($dayId)->name;
-                }
+        $hasActiveDays = false;
+
+        foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
+            if ($isSelected) {
+                $hasActiveDays = true;
+                break;
             }
         }
 
-        foreach ($this->hours as $hour) {
-            $hourHasAtLeastOneDaySelected = false;
-            foreach ($this->opening_hours as $dayId => $hours) {
-                if ($hours[$hour->id]) {
-                    $hourHasAtLeastOneDaySelected = true;
-                    break;
-                }
-            }
-            if (!$hourHasAtLeastOneDaySelected) {
-                $hoursWithoutSelection[] = $hour->name;
-            }
-        }
-
-        if (!empty($daysWithoutSelection)) {
-            foreach ($daysWithoutSelection as $dayName) {
-                $this->addError('opening_hours.*', "Minimal Ceklis satu jam operasional untuk Hari {$dayName} yang telah dibuka.");
-            }
+        if (!$hasActiveDays) {
+            $this->addError('opening_hours_validation', 'Harap pilih minimal satu hari untuk jadwal operasional.');
         } else {
-            // Jika tidak ada kesalahan, hapus kesalahan sebelumnya
-            $this->resetErrorBag('opening_hours.*');
+            // Jika setidaknya satu hari aktif, reset kesalahan sebelumnya
+            $this->resetErrorBag('opening_hours_validation');
         }
     }
     //ubah status check box jadwal jam
@@ -226,6 +198,7 @@ class AddVenueTabs extends Component
             Log::error("Undefined array key: {$hourId} for day {$dayId}");
             session()->flash('error_message', 'Terjadi kesalahan dalam memproses jadwal Jam Anda.');
         }
+        $this->validateOpeningHours();
     }
     //mengatur value selectedOpeningDay
     public function selectedOpeningDay($value, $dayId)
@@ -345,34 +318,24 @@ class AddVenueTabs extends Component
     public function saveOpeningHours($venueId)
     {
         try {
-            // Ambil venue berdasarkan ID
             $venue = Venue::findOrFail($venueId);
-
-            // Hapus semua jadwal buka yang sebelumnya tersimpan
             $venue->openingHours()->delete();
 
-            // Simpan hanya hari-hari yang memiliki jam buka yang dipilih
             foreach ($this->opening_hours as $dayId => $hours) {
-                $hasSelectedHours = false;
+                $hasActiveHours = false;
+                $hasInactiveHours = false;
                 foreach ($hours as $hourId => $isChecked) {
                     if ($isChecked) {
-                        // Tambahkan data jadwal buka ke dalam database
-                        $venue->openingHours()->create([
-                            'day_id' => $dayId,
-                            'hour_id' => $hourId,
-                            'status' => 2, // status 2 menunjukkan aktif
-                        ]);
-                        $hasSelectedHours = true;
+                        $hasActiveHours = true;
+                    } else {
+                        $hasInactiveHours = true;
+                    }
+
+                    // Jika ada setidaknya satu jam aktif dan satu jam tidak aktif, hentikan iterasi
+                    if ($hasActiveHours && $hasInactiveHours) {
+                        break;
                     }
                 }
-                if ($hasSelectedHours) {
-                    continue;
-                }
-                $venue->openingHours()->create([
-                    'day_id' => $dayId,
-                    'hour_id' => $hourId, // Atau nilai default lainnya jika diperlukan
-                    'status' => 1, // status 1 menunjukkan tidak aktif atau hari tidak buka
-                ]);
             }
         } catch (\Exception $e) {
             // Tangani kesalahan jika terjadi
@@ -435,7 +398,7 @@ class AddVenueTabs extends Component
                 $newImbName = 'IMB_' . $venueName . '_' . $originalName;
                 try {
                     $upload_imb = $this->imb->storeAs('/IMB', $newImbName, 'public');
-                    session(['imb_path' => $upload_imb]);
+                    session(['imb_path' => $newImbName]);
                 } catch (\Exception $e) {
                     $this->addError('imb', 'Gagal menyimpan file IMB: ' . $e->getMessage());
                     return;
@@ -457,8 +420,6 @@ class AddVenueTabs extends Component
                 'longitude.numeric' => 'Longitude harus berupa angka.',
             ];
         } elseif ($this->currentStep == 3) {
-            $rules = [];
-            $messages = [];
 
             $isAnyBankAccountFilled = false;
             foreach ($this->selectedPaymentMethod as $paymentMethodId => $isSelected) {
@@ -476,19 +437,18 @@ class AddVenueTabs extends Component
                 $messages['bank_accounts.required'] = 'Minimal Ceklis dan isi 1 rekening bank / e wallet.';
             }
         } elseif ($this->currentStep == 4) {
-            $rules = [];
-            $messages = [];
             $hasAtLeastOneDaySelected = false;
             foreach ($this->opening_hours as $dayId => $hours) {
                 $dayHasAtLeastOneOpeningHourSelected = false;
                 foreach ($hours as $hourId => $isSelected) {
                     if ($isSelected) {
                         $dayHasAtLeastOneOpeningHourSelected = true;
+                        $hasAtLeastOneDaySelected = true;
                         break; // Keluar dari loop saat menemukan satu yang terpilih
                     }
                 }
                 // Jika tidak ada jam yang terpilih untuk hari ini, tambahkan aturan validasi dan pesan error
-                if (!$dayHasAtLeastOneOpeningHourSelected && $this->selectedOpeningDay[$dayId]) {
+                if ($this->selectedOpeningDay[$dayId]) {
                     $rules["opening_hours.{$dayId}.*"] = 'required';
                     $messages["opening_hours.{$dayId}.*.required"] = "Minimal Ceklis satu jam operasional untuk Hari " . Day::find($dayId)->name . " yang telah dibuka";
                 }
@@ -498,6 +458,8 @@ class AddVenueTabs extends Component
                 $messages["opening_hours.required"] = "Pilih Minimal Satu Jadwal Hari dan Satu Jadwal Operasional Venue.";
             }
         }
+        // dd($rules, $messages);
+        // dd($this->opening_hours);
         $this->validate($rules, $messages);
         return true;
     }
@@ -508,6 +470,7 @@ class AddVenueTabs extends Component
             $this->saveBankAccountDetails($venue->id);
             $this->saveOpeningHours($venue->id);
             $this->saveVenueImages($venue->id);
+            // dd($venue->openingHours()->get());
             // dd($venue);
             return $venue;
         } catch (\Exception $e) {
@@ -530,7 +493,7 @@ class AddVenueTabs extends Component
                     $newVenueImageName = 'STUDIO_IMG_' . date('YmdHis') . '_' . $randomString . '.' . $originalFileName;
                     $storedPath = $image->storeAs('/Studio_Image', $newVenueImageName, 'public');
                     $venue->venueImages()->create([
-                        'image' => $storedPath,
+                        'image' => $newVenueImageName,
                     ]);
                 } else {
                     throw new \Exception('File foto tidak valid');
@@ -563,7 +526,7 @@ class AddVenueTabs extends Component
             return;
         }
 
-        $imbName = session('imb_path');
+        $newImbName = session('imb_path');
 
         $originalpictName = $this->picture->getClientOriginalName();
         $pictName = $this->name;
@@ -587,7 +550,7 @@ class AddVenueTabs extends Component
                 'address' => $this->address,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
-                'imb' => $imbName,
+                'imb' => $newImbName,
                 'picture' => $newPictName,
             ]);
             if (!$venue) {

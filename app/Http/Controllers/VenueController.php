@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Venue;
 use App\Models\Admin;
 use App\Models\PaymentMethod;
+use App\Models\PaymentMethodDetail;
+use App\Models\OpeningHour;
+use App\Models\VenueImage;
 use App\Models\Day;
 use App\Models\Hour;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +44,8 @@ class VenueController extends Controller
         return view('back.pages.admin.manage-venue.need-approval.index', compact('venue'));
     }
 
-    public function approveVenue($id){
+    public function approveVenue($id)
+    {
         $venue = Venue::findOrFail($id);
         $venue->status = 1;
         $saved = $venue->save();
@@ -51,7 +55,8 @@ class VenueController extends Controller
             return redirect()->route('admin.venue.need-approval', ['id' => $id])->with('fail', 'Venue gagal di Approve, coba lagi');
         }
     }
-    public function rejectVenue(Request $request, $id){
+    public function rejectVenue(Request $request, $id)
+    {
         $venue = Venue::findOrFail($id);
         $venue->status = 2;
         $venue->reject_note = $request->input('reject_note');
@@ -67,22 +72,35 @@ class VenueController extends Controller
     {
         $venue = Venue::all();
         return view('back.pages.admin.manage-venue.approved.index', compact('venue'));
-
     }
     public function rejected()
     {
         $venue = Venue::all();
         return view('back.pages.admin.manage-venue.rejected.index', compact('venue'));
     }
-    public function detailVenue($id){
+    public function detailVenue($id)
+    {
         $venue = Venue::findOrFail($id);
-        return view('back.pages.admin.manage-venue.detail', compact('venue'));
+        $payment_method_detail = PaymentMethodDetail::where('venue_id', $id)->get();
+        $uniqueDays = OpeningHour::select('day_id')
+            ->where('venue_id', $venue->id)
+            ->groupBy('day_id')
+            ->get();
+        $openingHours = []; 
+        foreach ($uniqueDays as $uniqueDay) {
+            $openingHours[$uniqueDay->day_id] = $venue
+                ->openingHours()
+                ->where('day_id', $uniqueDay->day_id)
+                ->get();
+        }
+        $venue_image = VenueImage::where('venue_id', $id)->get();
+        return view('back.pages.admin.manage-venue.detail', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image'));
     }
 
 
 
 
-    
+
     public function show(Venue $venue)
     {
     }
@@ -98,9 +116,4 @@ class VenueController extends Controller
     public function destroy(Venue $venue)
     {
     }
-
-
-
-
-
 }

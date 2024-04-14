@@ -30,8 +30,12 @@
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
     <script>
         (function(w, d, s, l, i) {
             w[l] = w[l] || [];
@@ -48,6 +52,8 @@
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
     </script>
     <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script>
     {{-- @kropifyStyles --}}
     @livewireStyles
     @stack('stylesheets')
@@ -334,7 +340,7 @@
                         </li>
                         <li class="dropdown">
                             <a href="javascript:;"
-                                class="dropdown-toggle {{ Route::is('admin.venue.need-approval') ? 'active' : '' }} || {{ Route::is('admin.venue.approved') ? 'active' : '' }} || {{ Route::is('admin.venue.rejected') ? 'active' : '' }}">
+                                class="dropdown-toggle {{ Route::is('admin.venue.*') ? 'active' : '' }}">
                                 <span class="micon bi bi-building"></span><span class="mtext">Venue</span>
                             </a>
                             <ul class="submenu">
@@ -466,6 +472,8 @@
         });
     </script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
     {{-- @kropifyScripts --}}
     @livewireScripts
     @stack('scripts')

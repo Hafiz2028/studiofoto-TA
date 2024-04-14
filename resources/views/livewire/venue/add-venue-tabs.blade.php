@@ -284,32 +284,6 @@
                                 Jadwal Hari <strong>TIDAK DISIMPAN</strong> jika dibiarkan <strong>TERBUKA &
                                     KOSONG</strong>.
                             </div>
-                            {{-- @if ($errors->has('opening_hours.*.*'))
-                                <div class="alert alert-danger mt-2">
-                                    @foreach ($errors->get('opening_hours.*.*') as $dayErrors)
-                                        @foreach ($dayErrors as $error)
-                                            {{ $error }}<br>
-                                        @endforeach
-                                    @endforeach
-                                </div>
-                            @endif --}}
-
-                            {{-- @php
-                                $isAnyDaySelected = false;
-                                foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
-                                    if ($isSelected) {
-                                        $isAnyDaySelected = true;
-                                        break; // Hentikan iterasi jika hari yang dipilih ditemukan
-                                    }
-                                }
-                            @endphp
-
-                            @if (!$isAnyDaySelected)
-                                <div class="alert alert-danger">
-                                    Anda harus memilih setidaknya satu hari dan satu jam kerja operasional sebelum
-                                    melanjutkan.
-                                </div>
-                            @endif --}}
                         </section>
                     </div>
                 </div>

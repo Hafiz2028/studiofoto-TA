@@ -30,8 +30,8 @@ class OpeningHour extends Model
         return $this->belongsTo(Hour::class, 'hour_id', 'id');
     }
 
-    public function openingHourDetails()
-    {
-        return $this->hasMany(OpeningHourDetail::class, 'opening_hour_id', 'id');
-    }
+    // public function openingHourDetails()
+    // {
+    //     return $this->hasMany(OpeningHourDetail::class, 'opening_hour_id', 'id');
+    // }
 }
