@@ -13,6 +13,7 @@ use App\Models\PaymentMethod;
 use App\Models\PaymentMethodDetail;
 use App\Models\OpeningHour;
 use App\Models\VenueImage;
+use App\Models\Owner;
 use App\Models\Day;
 use App\Models\Hour;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,6 @@ class VenueController extends Controller
             return redirect()->route('admin.venue.need-approval')->with('fail', 'Venue gagal di Reject, coba lagi');
         }
     }
-
     public function approved()
     {
         $venue = Venue::all();
@@ -86,7 +86,7 @@ class VenueController extends Controller
             ->where('venue_id', $venue->id)
             ->groupBy('day_id')
             ->get();
-        $openingHours = []; 
+        $openingHours = [];
         foreach ($uniqueDays as $uniqueDay) {
             $openingHours[$uniqueDay->day_id] = $venue
                 ->openingHours()
@@ -96,23 +96,43 @@ class VenueController extends Controller
         $venue_image = VenueImage::where('venue_id', $id)->get();
         return view('back.pages.admin.manage-venue.detail', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image'));
     }
-
-
-
-
-
     public function show(Venue $venue)
     {
-    }
-    public function store(Request $request)
-    {
+        $venue = Venue::findOrFail($venue->id);
+        $payment_method_detail = PaymentMethodDetail::where('venue_id', $venue->id)->get();
+        $uniqueDays = OpeningHour::select('day_id')
+            ->where('venue_id', $venue->id)
+            ->groupBy('day_id')
+            ->get();
+        $openingHours = [];
+        foreach ($uniqueDays as $uniqueDay) {
+            $openingHours[$uniqueDay->day_id] = $venue
+                ->openingHours()
+                ->where('day_id', $uniqueDay->day_id)
+                ->get();
+        }
+        $venue_image = VenueImage::where('venue_id', $venue->id)->get();
+        return view('back.pages.owner.venue-manage.show-venue', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image'));
     }
     public function edit(Venue $venue)
     {
+
+
+        return view('back.pages.owner.venue-manage.edit-venue', compact('venue'));
     }
+
     public function update(Request $request, Venue $venue)
     {
+
     }
+
+
+
+
+    public function store(Request $request)
+    {
+    }
+
     public function destroy(Venue $venue)
     {
     }

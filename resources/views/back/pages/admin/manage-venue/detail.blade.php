@@ -22,6 +22,36 @@
         </div>
     </div>
 
+    @if ($venue->status == 2)
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="card-box">
+                    <div class="alert alert-danger text-center">
+                        <strong style="font-size: 20px;">PERHATIAN</strong><br> Venue ini telah ditolak.
+                        @if (!empty($venue->reject_note))
+                            <br>
+                            <span class="text-center"><strong>Alasan penolakan:</strong><br><br>
+                                {{ ucwords($venue->reject_note) }}</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif ($venue->status == 0)
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="card-box">
+                    <div class="alert alert-info text-center">
+                        <strong style="font-size: 20px;">PERHATIAN</strong><br>
+                        <p class="pb-0 mb-0">Venue ini Belum Dikonfirmasi oleh Admin. <br><br>
+                            <a href="{{ route('admin.venue.need-approval') }}" class="btn btn-outline-primary">Konfirmasi <i
+                                    class="fas fa-angle-double-right"></i></a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="product-wrap">
         <div class="product-detail-wrap mb-30">
@@ -80,9 +110,12 @@
                                             :
                                         </h6>
                                         <ul class="ml-3" style="list-style-type: none;">
-                                            @if (!empty($payment_method_detail))
+                                            @if ($payment_method_detail->count() > 0)
                                                 @foreach ($payment_method_detail as $paymentMethodDetail)
                                                     <li>
+                                                        <img src="{{ asset('images/icon_bank/' . $paymentMethodDetail->paymentMethod->icon) }}"
+                                                            alt="{{ $paymentMethodDetail->paymentMethod->name }}"
+                                                            width="24" height="24">
                                                         <strong>{{ $paymentMethodDetail->paymentMethod->name }}</strong>
                                                         <span style="color: #007bff;">(<span
                                                                 onclick="copyToClipboard('{{ $paymentMethodDetail->no_rek }}')"
@@ -91,7 +124,8 @@
                                                     </li>
                                                 @endforeach
                                             @else
-                                                <div class="alert alert-info">Tidak ada Metode Pembayaran</div>
+                                                <div class="alert alert-info text-center mr-4 ml-1">Tidak ada Metode
+                                                    Pembayaran</div>
                                             @endif
                                         </ul>
                                         <h6 class="mb-3 mt-3">
@@ -126,11 +160,11 @@
                                                 </li>
                                             </ul>
                                         @elseif ($venue->status == 0)
-                                            <div class="alert alert-warning text-center">
+                                            <div class="alert alert-warning text-center ml-4 mr-4">
                                                 Venue Belum di Approve
                                             </div>
                                         @elseif ($venue->status == 2)
-                                            <div class="alert alert-danger text-center">
+                                            <div class="alert alert-danger text-center ml-4 mr-4">
                                                 Venue Ditolak
                                             </div>
                                         @endif
@@ -144,16 +178,31 @@
                 <div class="col-lg-4 col-md-4 col-sm-12">
                     <div class="card-box mb-2 pl-2 pr-2 pt-3 pb-4 text-center">
                         <h5 class="mb-3">Surat Izin Mendirikan Usaha</h5>
-                        <p class="mt-3">{{ $venue->imb ? 'Ada' : 'Tidak Ada' }}</p>
+                        @if ($venue->imb)
+                            <div class="alert alert-success" role="alert"
+                                style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">
+                                <span class="text-nowrap">Ada</span>
+                            </div>
+                        @else
+                            <div class="alert alert-danger" role="alert"
+                                style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">
+                                <span class="text-nowrap">Tidak Ada</span>
+                            </div>
+                        @endif
                         <div class="photo-display">
-                            <object data="http://studiofoto.test/images/venues/IMB/{{ $venue->imb }}"
-                                type="application/pdf" style="width: 100%; max-width: 200px; height: 281px;"
-                                class="document-display" id="imbDocument"
-                                sandbox="allow-scripts allow-same-origin allow-forms">
-                                <p>Browser Anda tidak mendukung menampilkan PDF secara langsung. Silakan <a
-                                        href="http://studiofoto.test/images/venues/IMB/{{ $venue->imb }}">klik di
-                                        sini</a> untuk melihat file PDF.</p>
-                            </object>
+                            @if (!empty($venue->imb))
+                                <object data="http://studiofoto.test/images/venues/IMB/{{ $venue->imb }}"
+                                    type="application/pdf" style="width: 100%; max-width: 200px; height: 281px;"
+                                    class="document-display" id="imbDocument"
+                                    sandbox="allow-scripts allow-same-origin allow-forms">
+                                    <p>Browser Anda tidak mendukung menampilkan PDF secara langsung. Silakan <a
+                                            href="http://studiofoto.test/images/venues/IMB/{{ $venue->imb }}">klik di
+                                            sini</a> untuk melihat file PDF.</p>
+                                </object>
+                            @else
+                                <img src="http://studiofoto.test/images/venues/IMB/default-surat.png" alt="Placeholder"
+                                    style="width: 100%; max-width: 200px; height: 281px;">
+                            @endif
                         </div>
                         <h5 class="mb-3 mt-3">Foto KTP</h5>
                         <p class="mt-3">Ada / Tidak Ada</p>
@@ -162,7 +211,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="row mt-2">
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="card-box p-3" style="background-color: #f8f9fa;">
@@ -175,7 +223,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="card-box pt-2 pl-3 pr-3 pb-3">
                         <br>

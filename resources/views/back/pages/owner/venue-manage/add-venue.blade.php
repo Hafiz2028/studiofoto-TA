@@ -1,14 +1,11 @@
 @stack('stylesheets')
 <script src="https://cdn.maptiler.com/maptiler-geocoding-control/v0.0.98/openlayers.umd.js"></script>
-{{-- <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <style>
-
     #map {
         height: 400px;
         width: 70%;
     }
-</style> --}}
+</style>
 <style>
     .custom-switch {
         position: relative;

@@ -29,26 +29,14 @@
                 <div class="pd-20 card-box mb-30">
                     <div class="clearfix">
                         <div class="pull-left">
-                            <h4 class="h4 text">List Data Venue</h4>
+                            <h5 class="h4 text">List Venue Owner <strong
+                                    style="color: #0011c9;">{{ ucwords(Auth::User()->name) }}</strong></h5>
                         </div>
                         <div class="pull-right">
                             {{-- @if (Auth::user()->owner->ktp) --}}
                             <a style="float:right; margin-right:5px;" href="{{ route('owner.venue.create') }}">
                                 <button class="btn btn-primary" type="button">Add Venue</button>
                             </a>
-                            {{-- @else
-                        <a style="float:right; margin-right:5px;" href="#">
-                            <button onclick="warning()" class="btn btn-primary" type="button">Add Venue</button>
-                        </a>
-                        @endif --}}
-
-
-
-                            {{-- <a href="{{ route('owner.venue.create')}}" class="btn btn-primary btn-sm" type="button">
-                                <i class="fa fa-plus"></i> Add Venue
-                            </a> --}}
-
-
                         </div>
                     </div>
                     <hr>
@@ -70,8 +58,7 @@
                     <div class="row justify-content-around">
                         @foreach ($venues as $venue)
                             <div class="da-card col-12 col-sm-6 col-md-4 col-lg-3 mb-4 mr-1">
-                                <div class="da-card-photo d-flex justify-content-center align-items-center"
-                                    style="height: 200px; overflow: hidden;">
+                                <div class="da-card-photo position-relative" style="height: 200px; overflow: hidden;">
                                     <img src="/images/venues/Venue_Image/{{ $venue->picture }}" alt="{{ $venue->picture }}"
                                         class="img-fluid" style="max-height: 100%; object-fit: contain;">
                                     <div class="da-overlay da-slide-bottom">
@@ -80,13 +67,21 @@
                                                 <div class="form-group mt-4">
                                                     <div class="form-row">
                                                         <div class="col">
-                                                            <a class="btn btn-sm btn-primary float-right"
-                                                                @if ($venue->status == 1) href="{{ route('owner.venue.show', $venue->id) }}"
-                                                    @elseif ($venue->status == 2) onclick="edit_venue({{ $venue->id }})"
-                                                    href="javascript:void(0)"
-                                                    @elseif ($venue->status == 0) onclick="confirm_venue()"
-                                                    href="javascript:void(0)" @endif>
-                                                                See Venue &ensp;<i class="fa fa-arrow-right"></i>
+                                                            <a class="btn btn-sm btn-outline-info btn-block"
+                                                                href="{{ route('owner.venue.show', $venue->id) }}">
+                                                                See Venue &ensp;<i class="fas fa-angle-double-right"></i>
+                                                            </a>
+                                                            <a class="btn btn-sm
+                                                                @if ($venue->status == 0) btn-outline-info
+                                                                @elseif ($venue->status == 1) btn-outline-success
+                                                                @elseif ($venue->status == 2) btn-outline-danger @endif
+                                                                btn-block"
+                                                                @if ($venue->status == 1) href="{{ route('owner.venue.edit', $venue->id) }}"
+                                                                @elseif ($venue->status == 2) onclick="editVenue({{ $venue->id }})"
+                                                                href="javascript:void(0)"
+                                                                @elseif ($venue->status == 0) onclick="confirmVenue()"
+                                                                href="javascript:void(0)" @endif>
+                                                                Edit Venue &ensp;<i class="fas fa-angle-double-right"></i>
                                                             </a>
                                                         </div>
                                                     </div>
@@ -107,10 +102,14 @@
                                         @endif
                                     </div>
                                     <h5 class="h5 mb-10 mt-3">{{ $venue->name }}</h5>
-                                    <br>
-                                    <p class="mb-0">Address: {{ $venue->address }}</p>
-                                    <br>
-                                    <p class="mb-0">Phone : {{ $venue->phone_number }}</p>
+                                    <p class="mb-0">
+                                        <span style="display: inline-block; width: 100px;">Alamat Venue</span>
+                                        : {{ ucwords($venue->address) }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <span style="display: inline-block; width: 100px;">CP Venue</span>
+                                        : {{ ucwords($venue->phone_number) }}
+                                    </p>
                                 </div>
                             </div>
                         @endforeach
@@ -121,64 +120,53 @@
     </div>
 @endsection
 
-@stack('scripts')
-<script type="text/javascript">
-    function edit(id, name, address, latitude, longitude) {
-        if ($('#edit').is(":visible")) {
-            $('#edit').hide('500');
-        } else {
-            console.log(id);
-            $('#edit').show('500');
-            $('#e_name').val(name);
-            $('#e_address').val(address);
-            $('#e_latitude').val(latitude);
-            $('#e_longitude').val(longitude);
-            $('#form-update').attr('action', "{{ route('owner.venue.index') }}/" + id);
+@push('stylesheets')
+    <style>
+        .btn-width-200px {
+            width: 100px !important;
         }
-    }
+    </style>
+@endpush
 
-    function show(id, name, address, latitude, longitude) {
-        $('#s_name').val(name);
-        $('#s_address').val(address);
-        $('#s_latitude').val(latitude);
-        $('#s_longitude').val(longitude);
-    }
+@stack('scripts')
 
-    function confirm_venue(id) {
-        swal({
+<script>
+    function confirmVenue() {
+        Swal.fire({
             title: "Venue kamu belum dikonfirmasi !",
-            text: "Harap menunggu admin untuk mengkonfirmasi venue kamu",
-            type: "warning",
-            confirmButtonColor: "#f02b2b",
+            text: "Harap menunggu admin untuk Approve venue kamu",
+            icon: "info",
+            confirmButtonColor: "info",
             confirmButtonText: "OK",
-            closeOnConfirm: false,
-            closeOnCancel: false
+            customClass: {
+                confirmButton: 'btn-width-200px'
+            }
         });
     }
 
-    function edit_venue(id) {
-        swal({
-                title: "Apakah kamu ingin melengkapi data venue?",
-                text: "Data venue yang telah dilengkapi akan diajukan lagi untuk dikonfirmasi oleh admin!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#5cc744",
-                confirmButtonText: "Ya, konfirmasi!",
-                cancelButtonText: "Tidak, batalkan!",
-                closeOnConfirm: false,
-                closeOnCancel: false
-            },
-            function(isConfirm) {
-                if (isConfirm) {
-                    swal("Lengkapi data!", "Kamu akan dipindahkan ke halaman untuk melengkapi data venue.",
-                        "success");
-                    location.href = "{{ route('owner.venue.index') }}/" + id + "/edit?data=request";
-                } else {
-                    swal("Dibatalkan", "Kamu batal melengkapi data venue", "error");
-                }
-            });
+    function editVenue(id) {
+        Swal.fire({
+            title: "Venue ditolak, Apakah kamu ingin melengkapi data venue?",
+            text: "Data venue yang telah dilengkapi akan diajukan lagi untuk dikonfirmasi oleh admin!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#5cc744",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, Lengkapi!",
+            cancelButtonText: "Tidak, Batalkan!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('owner.venue.edit', $venue->id) }}";
+            } else {
+                Swal.fire("Dibatalkan", "Kamu batal melengkapi data venue", "error");
+            }
+        });
     }
+</script>
 
+
+{{-- belum dipake --}}
+{{-- <script type="text/javascript">
     function warning() {
         swal({
                 title: "Apakah kamu ingin melengkapi data ktp anda?",
@@ -201,4 +189,4 @@
                 }
             });
     }
-</script>
+</script> --}}
