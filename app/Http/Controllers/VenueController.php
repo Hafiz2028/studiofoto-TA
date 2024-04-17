@@ -30,11 +30,8 @@ class VenueController extends Controller
     }
     public function create()
     {
-        $payment_methods = PaymentMethod::all();
-        $days = Day::all();
-        $hours = Hour::all();
         try {
-            return view('back.pages.owner.venue-manage.add-venue', compact('payment_methods', 'days', 'hours'));
+            return view('back.pages.owner.venue-manage.add-venue');
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -117,18 +114,17 @@ class VenueController extends Controller
     public function edit(Venue $venue)
     {
 
-
-        return view('back.pages.owner.venue-manage.edit-venue', compact('venue'));
+        try {
+            return view('back.pages.owner.venue-manage.edit-venue', compact('venue'));
+        } catch (\Exception $e) {
+            return redirect()->back();
+        }
     }
+
 
     public function update(Request $request, Venue $venue)
     {
-
     }
-
-
-
-
     public function store(Request $request)
     {
     }

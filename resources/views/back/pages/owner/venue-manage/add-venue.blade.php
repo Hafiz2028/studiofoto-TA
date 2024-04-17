@@ -67,13 +67,10 @@
         border-radius: 50%;
     }
 </style>
-
-
 @extends('back.layout.pages-layout')
 @section('pageTitle', isset($pageTitle) ? $pageTitle : "Venue's Manage")
 @section('content')
 
-    <div class="mobile-menu-overlay"></div>
     <div class="page-header">
         <div class="row">
             <div class="col-md-12 col-sm-12">
@@ -83,8 +80,10 @@
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            {{-- <a href="{{ route('admin.home') }}">Home</a> --}}
-                            <a href="">Home</a>
+                            <a href="{{ route('owner.home')}}">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('owner.venue.index')}}">Venue's Manage</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
                             Add Venue
@@ -105,5 +104,3 @@
 
     </div>
 @endsection
-
-@stack('scripts')

@@ -8,8 +8,8 @@ use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
 
 class AdminProfileTabs extends Component
-{
-    public $tab = null; 
+{ 
+    public $tab = null;
     public $tabname = 'personal_details';
     protected $queryString = ['tab'=>['keep'=>true]];
     public $name, $email, $username, $admin_id;

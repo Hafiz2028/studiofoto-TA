@@ -66,10 +66,8 @@ class AddVenueTabs extends Component
             $this->hours = Hour::all();
             $this->initializeSelectedPaymentMethods();
             $this->initializeSchedules();
-            // $this->opening_hours = [];
             $this->bank_accounts = [];
             $this->errorBag = null;
-            // dd($this->days, $this->hours);
         }
     }
 
@@ -136,7 +134,7 @@ class AddVenueTabs extends Component
         }
     }
     //step 4 jadwal
-    //inisialisasi false opening_hours
+    //inisialisasi false
     protected function initializeSchedules()
     {
         foreach ($this->days as $day) {
@@ -185,7 +183,6 @@ class AddVenueTabs extends Component
         if (!$hasActiveDays) {
             $this->addError('opening_hours_validation', 'Harap pilih minimal satu hari untuk jadwal operasional.');
         } else {
-            // Jika setidaknya satu hari aktif, reset kesalahan sebelumnya
             $this->resetErrorBag('opening_hours_validation');
         }
     }
@@ -207,11 +204,10 @@ class AddVenueTabs extends Component
             $this->selectedOpeningDay[$dayId] = $value;
         } else {
             $this->selectedOpeningDay[$dayId] = false;
-            // Reset bank account value when unchecking the checkbox
             $this->opening_hours[$dayId] = '';
         }
     }
-    //mengatur value opening_hours
+    //mengatur value
     public function selectedOpeningHours($value, $dayId, $hourId)
     {
         if (isset($this->opening_hours[$dayId][$hourId])) {
@@ -315,33 +311,7 @@ class AddVenueTabs extends Component
             $this->opening_hours[$dayId][$hourId] = false;
         }
     }
-    public function saveOpeningHours($venueId)
-    {
-        try {
-            $venue = Venue::findOrFail($venueId);
-            $venue->openingHours()->delete();
 
-            foreach ($this->opening_hours as $dayId => $hours) {
-                $hasActiveHours = false;
-                $hasInactiveHours = false;
-                foreach ($hours as $hourId => $isChecked) {
-                    if ($isChecked) {
-                        $hasActiveHours = true;
-                    } else {
-                        $hasInactiveHours = true;
-                    }
-
-                    // Jika ada setidaknya satu jam aktif dan satu jam tidak aktif, hentikan iterasi
-                    if ($hasActiveHours && $hasInactiveHours) {
-                        break;
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // Tangani kesalahan jika terjadi
-            $this->addError('save_opening_hours', 'Gagal menyimpan jadwal buka: ' . $e->getMessage());
-        }
-    }
     public function saveBankAccountDetails($venueId)
     {
         foreach ($this->selectedPaymentMethod as $paymentMethodId => $isChecked) {
@@ -463,6 +433,40 @@ class AddVenueTabs extends Component
         $this->validate($rules, $messages);
         return true;
     }
+    public function saveOpeningHours($venueId)
+    {
+        try {
+            $venue = Venue::findOrFail($venueId);
+            $venue->openingHours()->delete();
+            $daysWithSelectedHours = [];
+            foreach ($this->opening_hours as $dayId => $hours) {
+                if (in_array(true, $hours)) {
+                    $daysWithSelectedHours[] = $dayId;
+                }
+            }
+
+            foreach ($daysWithSelectedHours as $dayId) {
+                foreach ($this->opening_hours[$dayId] as $hourId => $isChecked) {
+                    if ($isChecked) {
+                        $status = 2;
+                    } else {
+                        $status = 1;
+                    }
+                    $openingHour = new OpeningHour();
+                    $openingHour->status = $status;
+                    $openingHour->venue_id = $venueId;
+                    $openingHour->day_id = $dayId;
+                    $openingHour->hour_id = $hourId;
+                    $openingHour->save();
+                }
+
+            }
+        } catch (\Exception $e) {
+            $this->addError('save_opening_hours', 'Gagal menyimpan jadwal buka: ' . $e->getMessage());
+        }
+    }
+
+
     protected function saveVenueData($venueId)
     {
         try {

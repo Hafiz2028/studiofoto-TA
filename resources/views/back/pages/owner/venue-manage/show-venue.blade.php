@@ -11,7 +11,10 @@
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            <a href="{{ route('admin.home') }}">Home</a>
+                            <a href="{{ route('owner.home')}}">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('owner.venue.index')}}">Venue's Manage</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
                             Detail Venue
@@ -33,8 +36,8 @@
                             <span class="text-center"><strong>Alasan penolakan:</strong><br><br>
                                 {{ ucwords($venue->reject_note) }}</span>
                         @endif
-                        <br><br><a href="{{ route('owner.venue.edit', $venue->id) }}" class="btn btn-outline-success">Perbaiki Venue <i
-                            class="fas fa-angle-double-right"></i></a>
+                        <br><br><a href="{{ route('owner.venue.edit', $venue->id) }}"
+                            class="btn btn-outline-success">Perbaiki Venue <i class="fas fa-angle-double-right"></i></a>
                     </div>
 
                 </div>
@@ -65,8 +68,13 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="profile-photo">
-                                            <img src="/images/users/owners/OWNER_IMG_7361170979030965e954652fcca.jpg"
-                                                alt="" class="avatar-photo" id="adminProfilePicture">
+                                            @if ($venue->owner->picture && file_exists(public_path("/images/users/owners/$venue->owner->picture")))
+                                                <img src="{{ asset("/images/users/owners/$venue->owner->picture") }}"
+                                                    alt="" class="avatar-photo" id="adminProfilePicture">
+                                            @else
+                                                <img src="{{ asset('/images/users/default-avatar.png') }}" alt=""
+                                                    class="avatar-photo" id="adminProfilePicture">
+                                            @endif
                                         </div>
                                         <h6 class="mb-2">
                                             <span style="display: inline-block; width: 135px;">Pemilik</span>
@@ -117,10 +125,10 @@
                                                         <img src="{{ asset('images/icon_bank/' . $paymentMethodDetail->paymentMethod->icon) }}"
                                                             alt="{{ $paymentMethodDetail->paymentMethod->name }}"
                                                             width="24" height="24">
-                                                        <strong>{{ $paymentMethodDetail->paymentMethod->name }}</strong>
+                                                        <strong style="display: inline-block; width: 110px;">{{ $paymentMethodDetail->paymentMethod->name }}</strong>
                                                         <span style="color: #007bff;">(<span
-                                                                onclick="copyToClipboard('{{ $paymentMethodDetail->no_rek }}')"
-                                                                data-toggle="tooltip" title="Klik untuk menyalin"
+                                                                onclick="copyToClipboard('{{ $paymentMethodDetail->no_rek }}', '{{ $paymentMethodDetail->paymentMethod->name }}')"
+                                                                data-toggle="tooltip" title="Klik untuk menyalin nomor {{ $paymentMethodDetail->paymentMethod->name}}"
                                                                 style="cursor: pointer; text-decoration: underline; color: #007bff;">{{ $paymentMethodDetail->no_rek }}</span>)</span>
                                                     </li>
                                                 @endforeach
@@ -426,7 +434,7 @@
 @push('scripts')
     {{-- fungsi salin norek --}}
     <script>
-        function copyToClipboard(text) {
+        function copyToClipboard(text, paymentMethodName) {
             var dummy = document.createElement("textarea");
             document.body.appendChild(dummy);
             dummy.value = text;
@@ -435,7 +443,7 @@
             document.body.removeChild(dummy);
             Swal.fire({
                 icon: 'success',
-                title: 'Nomor rekening telah disalin:',
+                title: 'Nomor ' + paymentMethodName + ' telah disalin:',
                 text: text
             });
         }
