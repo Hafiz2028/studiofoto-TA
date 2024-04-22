@@ -17,7 +17,6 @@ class Venue extends Model
         'dp_percentage',
         'information',
         'phone_number',
-        'picture',
         'latitude',
         'longitude',
         'reject_note',
@@ -39,7 +38,7 @@ class Venue extends Model
         return $this->hasMany(Chat::class, 'venue_id', 'id');
     }
 
-    public function venueImages() 
+    public function venueImages()
     {
         return $this->hasMany(VenueImage::class, 'venue_id', 'id');
     }

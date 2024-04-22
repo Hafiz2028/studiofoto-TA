@@ -100,7 +100,5 @@
         </div>
         <br>
         @livewire('venue.add-venue-tabs')
-
-
     </div>
 @endsection

@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('imb')->nullable();
             $table->text('information')->nullable();
             $table->string('phone_number');
-            $table->string('picture')->nullable();
             $table->float('latitude', 10,9)->nullable();
             $table->float('longitude', 200,9)->nullable();
             $table->string('reject_note')->nullable();

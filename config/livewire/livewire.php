@@ -38,10 +38,7 @@ return [
         'rules' => null,
         'directory' => null,
         'visibility' => null,
-        'preview_mimes' => [
-            'pdf',
-            // Tambahkan ekstensi lain yang ingin Anda tambahkan
-        ],
+        'preview_mimes' => ['image/jpeg', 'image/png'],
         'max_upload_time' => 5,
     ],
 

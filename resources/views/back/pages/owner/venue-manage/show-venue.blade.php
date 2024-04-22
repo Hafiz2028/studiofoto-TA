@@ -225,9 +225,8 @@
                     <div class="card-box p-3" style="background-color: #f8f9fa;">
                         <div class="image-name"></div>
                         <div class="product-slider owl-carousel main-slider">
-                            <img src="/images/venues/Venue_Image/{{ $venue->picture }}" alt="{{ $venue->picture }}">
                             @foreach ($venue->venueImages as $image)
-                                <img src="/images/venues/Studio_Image/{{ $image->image }}" alt="{{ $image->image }}">
+                                <img src="/images/venues/Venue_Image/{{ $image->image }}" alt="{{ $image->image }}">
                             @endforeach
                         </div>
                     </div>

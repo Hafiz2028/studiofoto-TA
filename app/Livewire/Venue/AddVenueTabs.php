@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +25,8 @@ use Illuminate\Http\UploadedFile;
 class AddVenueTabs extends Component
 {
     use WithFileUploads;
+    public $venue;
     public $name, $phone_number, $information, $imb, $address, $latitude, $longitude;
-
 
     // variable step 3
     public $selectedPaymentMethod = [];
@@ -37,8 +38,9 @@ class AddVenueTabs extends Component
     public $opening_hours = [];
     public $days, $hours;
 
-    public $picture, $venueImages = [''];
+    public $venueImages = [];
     public $upload = [];
+    public $deletedVenueImageIndices = [];
 
     public $errorBag = null;
     public $totalSteps = 5;
@@ -55,35 +57,161 @@ class AddVenueTabs extends Component
         ]);
     }
 
-    public function mount()
+    public function mount(Venue $venue = null)
     {
-
         $owner = Auth::guard('owner')->user();
         if ($owner) {
-            $this->currentStep = 1;
+            $this->venue = $venue;
             $this->payment_methods = PaymentMethod::all();
             $this->days = Day::all();
             $this->hours = Hour::all();
-            $this->initializeSelectedPaymentMethods();
-            $this->initializeSchedules();
-            $this->bank_accounts = [];
+
+            if ($this->venue && $this->venue->exists) {
+                $this->name = $this->venue->name;
+                $this->phone_number = $this->venue->phone_number;
+                $this->information = $this->venue->information;
+                $this->imb = $this->venue->imb;
+                $this->address = $this->venue->address;
+                $this->latitude = $this->venue->latitude;
+                $this->longitude = $this->venue->longitude;
+                $this->venueImages = $this->venue->venueImages()->pluck('image')->toArray();
+                $this->initializeSelectedPaymentMethods();
+                foreach ($this->venue->paymentMethodDetails as $paymentMethodDetail) {
+                    $this->bank_accounts[$paymentMethodDetail->payment_method_id] = $paymentMethodDetail->no_rek;
+                    $this->selectedPaymentMethod[$paymentMethodDetail->payment_method_id] = true;
+                }
+                foreach ($this->days as $day) {
+                    $openingHourStatus = $this->venue->openingHours()->where('day_id', $day->id)->where('status', 2)->exists();
+                    $this->selectedOpeningDay[$day->id] = $openingHourStatus;
+                    $this->opening_hours[$day->id] = [];
+                    foreach ($this->hours as $hour) {
+                        $openingHourStatus = $this->venue->openingHours()->where('day_id', $day->id)->where('hour_id', $hour->id)->value('status');
+                        $this->opening_hours[$day->id][$hour->id] = $openingHourStatus === 2; // Checkbox dicentang jika status 2
+                    }
+                }
+            } else {
+                $this->venue = new Venue();
+                $this->initializeSchedules();
+                $this->initializeSelectedPaymentMethods();
+                $this->bank_accounts = [];
+            }
             $this->errorBag = null;
         }
     }
+    //inisialisasi false
+    protected function initializeSchedules()
+    {
+        if (!$this->venue) {
+            foreach ($this->days as $day) {
+                $this->selectedOpeningDay[$day->id] = false; // Inisialisasi status hari sebagai false
+                $this->opening_hours[$day->id] = [];
+                foreach ($this->hours as $hour) {
+                    $this->opening_hours[$day->id][$hour->id] = false; // Inisialisasi status jam sebagai false
+                }
+            }
+        }
+        // Tambahkan kondisi berikut untuk mengatur opening_hours menjadi false saat kondisi create venue
+        else {
+            foreach ($this->days as $day) {
+                $this->selectedOpeningDay[$day->id] = $this->venue->openingHours()->where('day_id', $day->id)->exists();
+                $this->opening_hours[$day->id] = [];
+                foreach ($this->hours as $hour) {
+                    $this->opening_hours[$day->id][$hour->id] = false; // Inisialisasi sebagai false
+                }
+            }
+        }
+    }
+    protected function getOpeningHoursData($venue)
+    {
+        $openingHoursData = [];
 
+        $openingHours = OpeningHour::where('venue_id', $venue->id)->get();
+
+        foreach ($openingHours as $openingHour) {
+            $dayId = $openingHour->day_id;
+            $hourId = $openingHour->hour_id;
+
+            if (!isset($openingHoursData[$dayId])) {
+                $openingHoursData[$dayId] = [];
+            }
+
+            $openingHoursData[$dayId][] = $hourId;
+        }
+
+        return $openingHoursData;
+    }
+    protected function initializeDaySchedule($dayId)
+    {
+        if ($this->venue) {
+            $openingHours = $this->venue->openingHours()->where('day_id', $dayId)->get();
+            $this->opening_hours[$dayId] = [];
+
+            foreach ($this->hours as $hour) {
+                $hourId = $hour->id;
+                $openingHourExists = $openingHours->contains('hour_id', $hourId);
+                $this->opening_hours[$dayId][$hourId] = $openingHourExists;
+            }
+        }
+    }
+    //ubah status check box jadwal hari
+    public function toggleDaySchedule($dayId)
+    {
+        if (isset($this->selectedOpeningDay[$dayId])) {
+            $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
+        } else {
+            $this->selectedOpeningDay[$dayId] = true;
+        }
+
+        // Tambahkan logika untuk mengatur nilai jadwal jam menjadi false jika tombol hari dimatikan
+        if (!$this->selectedOpeningDay[$dayId]) {
+            // Mengatur semua jam pada hari ini menjadi false
+            foreach ($this->hours as $hour) {
+                $this->opening_hours[$dayId][$hour->id] = false;
+            }
+        } else {
+            // Jika tombol hari dinyalakan, biarkan jadwal jam seperti yang dipilih sebelumnya
+        }
+
+        $this->validateOpeningHours();
+    }
+    public function validateOpeningHours()
+    {
+        $hasActiveDays = false;
+
+        foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
+            if ($isSelected) {
+                $hasActiveDays = true;
+                break;
+            }
+        }
+
+        if (!$hasActiveDays) {
+            $this->addError('opening_hours_validation', 'Harap pilih minimal satu hari untuk jadwal operasional.');
+        } else {
+            $this->resetErrorBag('opening_hours_validation');
+        }
+    }
     protected function initializeSelectedPaymentMethods()
     {
-        foreach ($this->payment_methods as $payment_method) {
-            $this->selectedPaymentMethod[$payment_method->id] = false;
+        if ($this->payment_methods) {
+            foreach ($this->payment_methods as $payment_method) {
+                $this->selectedPaymentMethod[$payment_method->id] = false;
+            }
         }
     }
     public function toggleBankAccountInput($payment_method_id)
     {
-        if (array_key_exists($payment_method_id, $this->selectedPaymentMethod)) {
-            $this->selectedPaymentMethod[$payment_method_id] = !$this->selectedPaymentMethod[$payment_method_id];
+        if (!isset($this->selectedPaymentMethod[$payment_method_id])) {
+            $this->selectedPaymentMethod[$payment_method_id] = true;
         } else {
-            Log::error("Undefined array key: {$payment_method_id}");
-            session()->flash('error_message', 'Terjadi kesalahan dalam memproses payment method Anda.');
+            $this->selectedPaymentMethod[$payment_method_id] = !$this->selectedPaymentMethod[$payment_method_id];
+        }
+
+        // Tampilkan atau sembunyikan input bank_account berdasarkan status checkbox
+        if ($this->selectedPaymentMethod[$payment_method_id]) {
+            $this->bank_accounts[$payment_method_id] = '';
+        } else {
+            unset($this->bank_accounts[$payment_method_id]);
         }
     }
     public function selectedPaymentMethod($value, $payment_method_id)
@@ -131,59 +259,6 @@ class AddVenueTabs extends Component
         $this->currentStep--;
         if ($this->currentStep < 1) {
             $this->currentStep = 1;
-        }
-    }
-    //step 4 jadwal
-    //inisialisasi false
-    protected function initializeSchedules()
-    {
-        foreach ($this->days as $day) {
-            $this->selectedOpeningDay[$day->id] = false;
-            $this->opening_hours[$day->id] = [];
-
-            foreach ($this->hours as $hour) {
-                // Pastikan setiap id jam diinisialisasi dengan false
-                $this->opening_hours[$day->id][$hour->id] = false;
-            }
-        }
-        foreach ($this->opening_hours as $dayId => $hours) {
-            $hasActiveHours = false;
-            foreach ($hours as $hourId => $isChecked) {
-                if ($isChecked) {
-                    $hasActiveHours = true;
-                    break;
-                }
-            }
-            if ($hasActiveHours) {
-                $this->selectedOpeningDay[$dayId] = true;
-            }
-        }
-    }
-    //ubah status check box jadwal hari
-    public function toggleDaySchedule($dayId)
-    {
-        if (isset($this->selectedOpeningDay[$dayId])) {
-            $this->selectedOpeningDay[$dayId] = !$this->selectedOpeningDay[$dayId];
-        } else {
-            $this->selectedOpeningDay[$dayId] = true;
-        }
-        $this->validateOpeningHours();
-    }
-    public function validateOpeningHours()
-    {
-        $hasActiveDays = false;
-
-        foreach ($this->selectedOpeningDay as $dayId => $isSelected) {
-            if ($isSelected) {
-                $hasActiveDays = true;
-                break;
-            }
-        }
-
-        if (!$hasActiveDays) {
-            $this->addError('opening_hours_validation', 'Harap pilih minimal satu hari untuk jadwal operasional.');
-        } else {
-            $this->resetErrorBag('opening_hours_validation');
         }
     }
     //ubah status check box jadwal jam
@@ -311,34 +386,6 @@ class AddVenueTabs extends Component
             $this->opening_hours[$dayId][$hourId] = false;
         }
     }
-
-    public function saveBankAccountDetails($venueId)
-    {
-        foreach ($this->selectedPaymentMethod as $paymentMethodId => $isChecked) {
-            if ($isChecked && isset($this->bank_accounts[$paymentMethodId])) {
-                PaymentMethodDetail::updateOrCreate(
-                    [
-                        'payment_method_id' => $paymentMethodId,
-                        'venue_id' => $venueId,
-                    ],
-                    ['no_rek' => $this->bank_accounts[$paymentMethodId]]
-                );
-            } else {
-                PaymentMethodDetail::where('payment_method_id', $paymentMethodId)
-                    ->where('venue_id', $venueId)
-                    ->delete();
-            }
-        }
-    }
-    public function addImage()
-    {
-        $this->venueImages[] = '';
-    }
-    public function removeImage($index)
-    {
-        unset($this->venueImages[$index]);
-        $this->venueImages = array_values($this->venueImages);
-    }
     //validasi persteps
     public function validationData()
     {
@@ -349,7 +396,6 @@ class AddVenueTabs extends Component
                 'name' => 'required|min:2',
                 'phone_number' => 'required|min:8|max:15',
                 'information' => 'nullable|string',
-                'imb' => 'required|mimes:pdf|max:5000',
             ];
             $messages = [
                 'name.required' => 'Isi nama venue anda.',
@@ -357,13 +403,20 @@ class AddVenueTabs extends Component
                 'phone_number.required' => 'Nomor telepon owner harus diisi.',
                 'phone_number.min' => 'Nomor telepon minimal harus 8 angka.',
                 'phone_number.max' => 'Nomor telepon maksimal harus 15 angka.',
-                'imb.required' => 'File IMB harus diunggah.',
-                'imb.mimes' => 'File IMB harus berupa file PDF.',
-                'imb.max' => 'Ukuran file IMB maksimal adalah 5 MB.',
             ];
-
-            if ($this->imb) {
-                $originalName = $this->imb->getClientOriginalName();
+            if ($this->venue->imb) {
+                $rules['imb'] = 'nullable';
+            } else {
+                $rules['imb'] = 'required|mimes:pdf|max:5000';
+                $messages['imb.required'] = 'File IMB harus diunggah.';
+                $messages['imb.mimes'] = 'File IMB harus berupa file PDF.';
+                $messages['imb.max'] = 'Ukuran file IMB maksimal adalah 5 MB.';
+                if ($this->imb && $this->imb->isValid()) {
+                    $originalName = $this->imb->getClientOriginalName();
+                } else {
+                    $this->validate($rules, $messages);
+                    return;
+                }
                 $venueName = $this->name;
                 $newImbName = 'IMB_' . $venueName . '_' . $originalName;
                 try {
@@ -433,10 +486,10 @@ class AddVenueTabs extends Component
         $this->validate($rules, $messages);
         return true;
     }
-    public function saveOpeningHours($venueId)
+
+    public function saveOpeningHours($venue)
     {
         try {
-            $venue = Venue::findOrFail($venueId);
             $venue->openingHours()->delete();
             $daysWithSelectedHours = [];
             foreach ($this->opening_hours as $dayId => $hours) {
@@ -454,76 +507,62 @@ class AddVenueTabs extends Component
                     }
                     $openingHour = new OpeningHour();
                     $openingHour->status = $status;
-                    $openingHour->venue_id = $venueId;
+                    $openingHour->venue_id = $venue->id;
                     $openingHour->day_id = $dayId;
                     $openingHour->hour_id = $hourId;
                     $openingHour->save();
                 }
-
             }
+            // dd('Opening hours saved successfully.');
         } catch (\Exception $e) {
             $this->addError('save_opening_hours', 'Gagal menyimpan jadwal buka: ' . $e->getMessage());
+            dd('Failed to save opening hours: ' . $e->getMessage());
         }
     }
-
-
-    protected function saveVenueData($venueId)
+    public function saveBankAccountDetails($venue)
     {
         try {
-            $venue = Venue::findOrFail($venueId);
-            $this->saveBankAccountDetails($venue->id);
-            $this->saveOpeningHours($venue->id);
-            $this->saveVenueImages($venue->id);
-            // dd($venue->openingHours()->get());
-            // dd($venue);
-            return $venue;
-        } catch (\Exception $e) {
-            $this->addError('venue_creation', $e->getMessage());
-            return null;
-        }
-    }
-    public function saveVenueImages($venueId)
-    {
-        try {
-            // Pastikan venueId ada
-            if (!$venueId) {
-                throw new \Exception('Venue ID tidak ditemukan');
-            }
-            $venue = Venue::findOrFail($venueId);
-            foreach ($this->venueImages as $image) {
-                if ($image instanceof UploadedFile && $image->isValid()) {
-                    $originalFileName = $image->getClientOriginalName();
-                    $randomString = Str::random(10);
-                    $newVenueImageName = 'STUDIO_IMG_' . date('YmdHis') . '_' . $randomString . '.' . $originalFileName;
-                    $storedPath = $image->storeAs('/Studio_Image', $newVenueImageName, 'public');
-                    $venue->venueImages()->create([
-                        'image' => $newVenueImageName,
-                    ]);
+            $venueId = $venue->id;
+            foreach ($this->selectedPaymentMethod as $paymentMethodId => $isChecked) {
+                if ($isChecked && isset($this->bank_accounts[$paymentMethodId])) {
+                    PaymentMethodDetail::updateOrCreate(
+                        [
+                            'payment_method_id' => $paymentMethodId,
+                            'venue_id' => $venueId,
+                        ],
+                        ['no_rek' => $this->bank_accounts[$paymentMethodId]]
+                    );
                 } else {
-                    throw new \Exception('File foto tidak valid');
+                    PaymentMethodDetail::where('payment_method_id', $paymentMethodId)
+                        ->where('venue_id', $venueId)
+                        ->delete();
                 }
             }
+            // dd('Bank account details saved successfully.');
         } catch (\Exception $e) {
-            $this->addError('venue_images_upload', $e->getMessage());
+            $this->addError('save_bank_account_details', $e->getMessage());
+            dd('Failed to save bank account details: ' . $e->getMessage());
         }
+    }
+
+
+    protected function validateVenueImages()
+    {
+        $rules = [
+            'venueImages.*' => 'required|image|mimes:png,jpg,jpeg|max:5000',
+        ];
+        $messages = [
+            'venueImages.*.image' => 'Foto Studio Venue harus berupa file gambar.',
+            'venueImages.*.mimes' => 'Format gambar yang diperbolehkan hanya PNG, JPG, atau JPEG.',
+            'venueImages.*.max' => 'Ukuran file Foto Studio Venue maksimal adalah 5 MB.',
+        ];
+        $this->validate($rules, $messages);
     }
     public function storeVenue()
     {
         $this->resetErrorBag();
         if ($this->currentStep == 5) {
-            $this->validate([
-                'picture' => 'required|image|mimes:png,jpg,jpeg|max:5000',
-                'venueImages.*' => 'required|image|mimes:png,jpg,jpeg|max:5000',
-            ], [
-                'picture.required' => 'Foto Venue harus diunggah.',
-                'picture.image' => 'Foto Venue harus berupa file gambar.',
-                'picture.mimes' => 'Format gambar yang diperbolehkan hanya PNG, JPG, atau JPEG.',
-                'picture.max' => 'Ukuran file foto Venue maksimal adalah 5 MB.',
-                'venueImages.*.required' => 'Foto Studio Venue harus diunggah.',
-                'venueImages.*.image' => 'Foto Studio Venue harus berupa file gambar.',
-                'venueImages.*.mimes' => 'Format gambar yang diperbolehkan hanya PNG, JPG, atau JPEG.',
-                'venueImages.*.max' => 'Ukuran file Foto Studio Venue maksimal adalah 5 MB.',
-            ]);
+            $this->validateVenueImages();
         }
         if (!session()->has('imb_path')) {
             $this->addError('imb', 'File IMB Belum di tambahkan.');
@@ -531,19 +570,6 @@ class AddVenueTabs extends Component
         }
 
         $newImbName = session('imb_path');
-
-        $originalpictName = $this->picture->getClientOriginalName();
-        $pictName = $this->name;
-        $newPictName = 'VENUE_IMG_' . $pictName . '_' . $originalpictName;
-        try {
-            $uploadPicture = $this->picture->storeAs('/Venue_Image', $newPictName, 'public');
-            $this->upload['picture'] = $uploadPicture;
-            // dd($uploadPicture);
-            session()->forget('imb_path');
-        } catch (\Exception $e) {
-            $this->addError('picture', 'Gagal menyimpan foto venue: ' . $e->getMessage());
-            return;
-        }
 
         try {
             $venue = Venue::create([
@@ -555,14 +581,143 @@ class AddVenueTabs extends Component
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
                 'imb' => $newImbName,
-                'picture' => $newPictName,
             ]);
             if (!$venue) {
                 throw new \Exception('Failed to create Venue.');
             }
-            $this->saveVenueData($venue->id);
-            // dd($this->saveVenueData($venue->id));
+            $this->saveVenueData($venue);
             session()->flash('success', 'Data venue berhasil ditambahkan bree.');
+            return redirect()->route('owner.venue.index');
+        } catch (\Exception $e) {
+            $this->addError('venue_id', $e->getMessage());
+        }
+    }
+    public function addImage()
+    {
+        array_push($this->venueImages, '');
+    }
+
+    public function removeImage($index)
+    {
+        unset($this->venueImages[$index]);
+        $this->deletedVenueImageIndices[] = $index;
+    }
+    public function updatedVenueImages($value, $index)
+    {
+        if (!empty($value)) {
+            $this->validate([
+                'venueImages.' . $index => 'image|max:1024',
+            ]);
+        }
+    }
+    protected function saveVenueData($venue)
+    {
+        try {
+            $this->saveBankAccountDetails($venue);
+            $this->saveOpeningHours($venue);
+            $this->saveVenueImages($venue);
+            $this->deleteVenueImages($venue->id);
+            return $venue;
+        } catch (\Exception $e) {
+            $this->addError('venue_creation', $e->getMessage());
+            return null;
+        }
+    }
+    protected function deleteVenueImages($venue)
+    {
+        try {
+            VenueImage::where('venue_id', $venue->id)
+                ->whereIn('id', $this->deletedVenueImageIndices)
+                ->delete();
+        } catch (\Exception $e) {
+            $this->addError('venue_images_deletion', $e->getMessage());
+        }
+    }
+    public function saveVenueImages($venue)
+    {
+        try {
+            if (!$venue->id) {
+                throw new \Exception('Venue ID tidak ditemukan');
+            }
+
+
+            foreach ($this->venueImages as $index => $image) {
+                if ($image instanceof UploadedFile && $image->isValid()) {
+                    $venueName = $venue->name;
+                    $originalFileName = $image->getClientOriginalName();
+                    $randomString = Str::random(5);
+                    $newVenueImageName = 'VENUE_' . date('YmdHis') . '_' . $venueName .'_'. $randomString . '.' . $originalFileName;
+                    $storedPath = $image->storeAs('/Venue_Image', $newVenueImageName, 'public');
+                    $venue->venueImages()->create([
+                        'image' => $newVenueImageName,
+                    ]);
+                } else {
+                    throw new \Exception('File foto tidak valid');
+                }
+            }
+            // dd('Venue images saved successfully.');
+        } catch (\Exception $e) {
+            $this->addError('venue_images_upload', $e->getMessage());
+            dd('Failed to save venue images: ' . $e->getMessage());
+        }
+    }
+    public function updateVenue($venue)
+    {
+        $this->resetErrorBag();
+        try {
+            if (is_int($venue)) {
+                $venue = Venue::findOrFail($venue);
+            }
+            $venue->update([
+                'name' => $this->name,
+                'phone_number' => $this->phone_number,
+                'information' => $this->information,
+                'address' => $this->address,
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
+            ]);
+            if (!$venue) {
+                throw new \Exception('Failed to update Venue.');
+            }
+            if ($venue->imb) {
+                $previousImbPath = 'IMB/' . $venue->imb;
+                if (Storage::disk('public')->exists($previousImbPath)) {
+                    Storage::disk('public')->delete($previousImbPath);
+                }
+            }
+            if ($this->imb instanceof UploadedFile && $this->imb->isValid()) {
+                $venueName = $this->name;
+                $newImbName = 'IMB_' . uniqid() . '_' . $venueName . '.' . $this->imb->getClientOriginalExtension();
+                $this->imb->storeAs('/IMB', $newImbName, 'public');
+                $venue->update(['imb' => $newImbName]);
+            }
+
+            $this->deleteVenueImages($venue);
+            
+            foreach ($this->deletedVenueImageIndices as $index) {
+                $image = $venue->venueImages()->find($index);
+                if ($image) {
+                    $imagePath = 'Venue_Image/' . $image->image;
+                    if (Storage::disk('public')->exists($imagePath)) {
+                        Storage::disk('public')->delete($imagePath);
+                    }
+                    $image->delete();
+                }
+            }
+            foreach ($this->venueImages as $index => $image) {
+                if ($image instanceof UploadedFile && $image->isValid()) {
+                    $venueName = $venue->name;
+                    $originalFileName = $image->getClientOriginalName();
+                    $randomString = Str::random(5);
+                    $newVenueImageName = 'VENUE_' . date('YmdHis') . '_' . $venueName .'_'. $randomString . '.' . $originalFileName;
+                    $storedPath = $image->storeAs('/Venue_Image', $newVenueImageName, 'public');
+                    $venue->venueImages()->create([
+                        'image' => $newVenueImageName,
+                    ]);
+                }
+            }
+            $this->saveVenueData($venue);
+            session()->flash('success', 'Data venue berhasil diperbarui bree.');
             return redirect()->route('owner.venue.index');
         } catch (\Exception $e) {
             $this->addError('venue_id', $e->getMessage());

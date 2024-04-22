@@ -59,8 +59,14 @@
                         @foreach ($venues as $venue)
                             <div class="da-card col-12 col-sm-6 col-md-4 col-lg-3 mb-4 mr-1">
                                 <div class="da-card-photo position-relative" style="height: 200px; overflow: hidden;">
-                                    <img src="/images/venues/Venue_Image/{{ $venue->picture }}" alt="{{ $venue->picture }}"
-                                        class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                                    @if ($venue->venueImages->isNotEmpty())
+                                        <img src="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
+                                            alt="{{ $venue->venueImages->first()->image }}" class="img-fluid"
+                                            style="max-height: 100%; object-fit: contain;">
+                                    @else
+                                        <img src="/images/venues/Venue_Image/default-image.jpg" alt="Default Image" class="img-fluid"
+                                            style="max-height: 100%; object-fit: contain;">
+                                    @endif
                                     <div class="da-overlay da-slide-bottom">
                                         <div class="da-social">
                                             <ul class="clearfix">

@@ -27,8 +27,7 @@
 
     <div class="pd-20 card-box mb-30">
         <br>
-        {{-- @livewire('venue.add-venue-tabs') --}}
-
+        @livewire('venue.add-venue-tabs', ['venue' => $venue]) 
     </div>
 
 
