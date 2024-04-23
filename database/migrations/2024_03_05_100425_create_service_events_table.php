@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('service_events', function (Blueprint $table) {
             $table->unsignedInteger('id')->autoIncrement();
             $table->string('name');
-            $table->string('image')->nullable();
+            $table->string('catalog')->nullable();
             $table->unsignedInteger('venue_id')->unsigned();
             $table->unsignedInteger('service_type_id')->unsigned();
             $table->timestamps();
-
             $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('service_type_id')->references('id')->on('service_types')->onUpdate('cascade')->onDelete('cascade');
         });

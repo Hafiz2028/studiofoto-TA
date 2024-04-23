@@ -357,23 +357,6 @@
                             </a>
                         </li>
                         <li>
-                            {{-- <div class="dropdown-divider"></div>
-                            </li>
-                            <li>
-                                <div class="sidebar-small-cap">Settings</div>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.profile')}}" class="dropdown-toggle no-arrow {{ Route::is('admin.profile') ? 'active' : '' }}">
-                                    <span class="micon fa fa-user"></span>
-                                    <span class="mtext">Profile</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.settings')}}" class="dropdown-toggle no-arrow {{ Route::is('admin.settings') ? 'active' : '' }}">
-                                    <span class="micon icon-copy fi-widget"></span>
-                                    <span class="mtext">Setting</span>
-                                </a>
-                            </li> --}}
                         @elseif (Route::is('owner.*'))
                         <li class="dropdown">
                             <a href="{{ route('owner.home') }}"
@@ -383,7 +366,7 @@
                         </li>
                         <li class="dropdown">
                             <a href="{{ route('owner.venue.index') }}"
-                                class="dropdown-toggle no-arrow {{ Route::is('owner.venue.*') ? 'active' : '' }}">
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.venue.*') || Route::is('owner.service.*')  ? 'active' : '' }}">
                                 <span class="micon bi bi-building"></span><span class="mtext">Venue's Manage</span>
                             </a>
                         </li>

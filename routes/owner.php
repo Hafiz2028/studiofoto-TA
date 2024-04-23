@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VenueController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 
 
@@ -29,6 +30,8 @@ Route::prefix('owner')->name('owner.')->group(function(){
         //sidebar route
         //menu venue's manage
         Route::resource('venue', VenueController::class);
+        Route::resource('venue.services', ServiceController::class);
+
         Route::resource('booking', BookingController::class);
 
 

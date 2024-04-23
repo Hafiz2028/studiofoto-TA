@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedInteger('venue_id')->unsigned();
             $table->string('image');
             $table->timestamps();
-
             $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
 
         });

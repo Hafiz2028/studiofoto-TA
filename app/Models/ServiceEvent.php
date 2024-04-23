@@ -13,7 +13,7 @@ class ServiceEvent extends Model
     protected $fillable = [
         'name',
         'venue_id',
-        'image',
+        'catalog',
         'service_type_id'
     ];
 

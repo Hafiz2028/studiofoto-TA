@@ -254,11 +254,11 @@ class MasterSeeder extends Seeder
             'service_slug' => 'keluarga'
             ],
             [
-            'service_name' => 'Organisasi',
-            'service_slug' => 'organisasi'
+            'service_name' => 'Kelompok',
+            'service_slug' => 'kelompok'
             ],
             [
-            'service_name' => 'Pre Wedding',
+            'service_name' => 'Pre-Wedding',
             'service_slug' => 'pre-wedding'
             ],
             [

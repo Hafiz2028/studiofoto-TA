@@ -369,31 +369,55 @@
                                     <div class="col-md-6 col-lg-12">
                                         <div class="form-group">
                                             <label><strong>Update Foto Venue</strong></label>
-                                            <div class="d-flex mb-2" style="max-width: 100%; overflow-x: auto;">
-                                                @foreach ($venueImages as $index => $image)
-                                                    <div class="mr-2 position-relative">
-                                                        <button class="btn btn-outline-danger btn-sm position-absolute"
-                                                            style="top: 5px; right: 5px;" type="button"
-                                                            wire:click="removeImage({{ $index }})">
-                                                            &times;
-                                                        </button>
-                                                        <input type="file"
-                                                            class="form-control mb-2 @error('venueImages.' . $index) is-invalid @enderror"
-                                                            name="venueImages.{{ $index }}"
-                                                            wire:model="venueImages.{{ $index }}"
-                                                            style="width: 100%;">
-                                                        @error('venueImages.' . $index)
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                        <button class="btn btn-outline-danger btn-sm position-absolute"
-                                                            style="top: 5px; left: calc(100% + 5px);" type="button"
-                                                            wire:click="removeImage({{ $index }})">
-                                                            Hapus
-                                                        </button>
+                                            <div class="row">
+                                                @foreach ($venueImages as $imageIndex => $image)
+                                                    <div class="col-md-3 col-sm-6 mb-3">
+                                                        <div class="position-relative">
+                                                            @if (is_array($image))
+                                                                @php
+                                                                    $imageName = $image['name'] ?? null;
+                                                                    $imagePath = public_path(
+                                                                        'images/venues/Venue_Image/' . $imageName,
+                                                                    );
+                                                                @endphp
+                                                                @if (is_string($imageName) && file_exists($imagePath))
+                                                                    <img src="{{ asset('images/venues/Venue_Image/' . $imageName) }}"
+                                                                        alt="Venue Image" class="img-thumbnail mb-2">
+                                                                    <button class="btn btn-outline-danger btn-sm w-100"
+                                                                        type="button"
+                                                                        wire:click="removeImage({{ $imageIndex }})">
+                                                                        Hapus
+                                                                    </button>
+                                                                @else
+                                                                    <span class="text-danger">Gambar tidak
+                                                                        ditemukan</span>
+                                                                @endif
+                                                            @else
+                                                                @if ($image)
+                                                                    <img src="{{ $image->temporaryUrl() }}"
+                                                                        alt="Preview Image"
+                                                                        class="img-thumbnail mb-2">
+                                                                @endif
+                                                                <input type="file"
+                                                                    class="form-control @error('venueImages.' . $imageIndex) is-invalid @enderror"
+                                                                    name="venueImages.{{ $imageIndex }}"
+                                                                    wire:model="venueImages.{{ $imageIndex }}" accept="image/*">
+                                                                <button
+                                                                    class="btn btn-outline-danger btn-sm mt-2 w-100"
+                                                                    type="button"
+                                                                    wire:click="removeImage({{ $imageIndex }})">
+                                                                    Hapus
+                                                                </button>
+                                                                @error('venueImages.' . $imageIndex)
+                                                                    <div class="invalid-feedback">{{ $message }}
+                                                                    </div>
+                                                                @enderror
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                 @endforeach
                                             </div>
-                                            <button class="btn btn-outline-primary m-3" type="button"
+                                            <button class="btn btn-outline-primary mt-3" type="button"
                                                 wire:click="addImage">Tambah Foto</button>
                                         </div>
                                     </div>

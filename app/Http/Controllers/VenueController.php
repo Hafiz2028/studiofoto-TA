@@ -41,7 +41,6 @@ class VenueController extends Controller
         $venue = Venue::all();
         return view('back.pages.admin.manage-venue.need-approval.index', compact('venue'));
     }
-
     public function approveVenue($id)
     {
         $venue = Venue::findOrFail($id);
@@ -120,16 +119,14 @@ class VenueController extends Controller
             return redirect()->back();
         }
     }
-
-
     public function update(Request $request, Venue $venue)
     {
     }
     public function store(Request $request)
     {
     }
-
     public function destroy(Venue $venue)
     {
     }
+
 }

@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service_event_images_tabel', function (Blueprint $table) {
+        Schema::create('service_event_images', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('service_event_id')->unsigned();
             $table->string('image');
             $table->timestamps();
-
             $table->foreign('service_event_id')->references('id')->on('service_events')->onUpdate('cascade')->onDelete('cascade');
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_event_images_tabel');
+        Schema::dropIfExists('service_event_images');
     }
 };

@@ -1,21 +1,47 @@
 @extends('back.layout.pages-layout')
-@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Page title here')
+@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Add Event Service')
 @section('content')
+
+    <div class="page-header">
+        <div class="clearfix">
+            <div class="pull-left">
+                <h4 class="text-dark">Add Event Service</h4>
+            </div>
+        </div>
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ route('owner.home') }}">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ route('owner.venue.index') }}">Venue's Manage</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ route('owner.venue.show', $venue->id) }}">Detail Venue</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Add Event Service
+                </li>
+            </ol>
+        </nav>
+    </div>
+
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 col-sm-12">
             <div class="pd-20 card-box mb-30">
                 <div class="clearfix">
                     <div class="pull-left">
-                        <h4 class="text-dark">Add Admin User</h4>
+                        <h4 class="text-primary">Add Event Service</h4>
                     </div>
                     <div class="pull-right">
-                        <a href="{{ route('admin.user.adminList') }}" class="btn btn-primary btn-sm">
-                            <i class="ion-arrow-left-a"></i> Back to Admin User List
+                        <a href="{{ route('owner.venue.show', $venue->id) }}" class="btn btn-primary btn-sm">
+                            <i class="ion-arrow-left-a"></i> Back to Detail Venue
                         </a>
                     </div>
                 </div>
                 <hr>
-                <form action="{{ route('admin.user.store-admin') }}" method="POST" enctype="multipart/form-data"
+
+                <form action="{{ route('owner.venue.services.store') }}" method="POST" enctype="multipart/form-data"
                     class="mt-3">
                     @csrf
                     @if (Session::get('success'))
@@ -129,10 +155,9 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
-
-
 
 @endsection

@@ -21,6 +21,7 @@ use App\Models\Day;
 use App\Models\Hour;
 use App\Models\OpeningHour;
 use Illuminate\Http\UploadedFile;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class AddVenueTabs extends Component
 {
@@ -74,7 +75,13 @@ class AddVenueTabs extends Component
                 $this->address = $this->venue->address;
                 $this->latitude = $this->venue->latitude;
                 $this->longitude = $this->venue->longitude;
-                $this->venueImages = $this->venue->venueImages()->pluck('image')->toArray();
+                $venueImages = $this->venue->venueImages()->select('id', 'image')->get();
+                $this->venueImages = $venueImages->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'name' => $image->image,
+                    ];
+                })->toArray();
                 $this->initializeSelectedPaymentMethods();
                 foreach ($this->venue->paymentMethodDetails as $paymentMethodDetail) {
                     $this->bank_accounts[$paymentMethodDetail->payment_method_id] = $paymentMethodDetail->no_rek;
@@ -592,16 +599,7 @@ class AddVenueTabs extends Component
             $this->addError('venue_id', $e->getMessage());
         }
     }
-    public function addImage()
-    {
-        array_push($this->venueImages, '');
-    }
 
-    public function removeImage($index)
-    {
-        unset($this->venueImages[$index]);
-        $this->deletedVenueImageIndices[] = $index;
-    }
     public function updatedVenueImages($value, $index)
     {
         if (!empty($value)) {
@@ -616,21 +614,52 @@ class AddVenueTabs extends Component
             $this->saveBankAccountDetails($venue);
             $this->saveOpeningHours($venue);
             $this->saveVenueImages($venue);
-            $this->deleteVenueImages($venue->id);
             return $venue;
         } catch (\Exception $e) {
             $this->addError('venue_creation', $e->getMessage());
             return null;
         }
     }
-    protected function deleteVenueImages($venue)
+    public function addImage()
+    {
+        $this->venueImages[] = null;
+    }
+    // public function loadVenueImages($venueId)
+    // {
+    //     $venue = Venue::findOrFail($venueId);
+    //     $this->venueImages = $venue->images()->pluck('path')->toArray();
+    // }
+    public function removeImage($imageIndex)
     {
         try {
-            VenueImage::where('venue_id', $venue->id)
-                ->whereIn('id', $this->deletedVenueImageIndices)
-                ->delete();
+            if (isset($this->venueImages[$imageIndex])) {
+                $image = $this->venueImages[$imageIndex];
+                unset($this->venueImages[$imageIndex]);
+                if ($image instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                } elseif (isset($image['id'])) {
+                    $this->deletedVenueImageIndices[] = $image['id'];
+                }
+            } else {
+                throw new \Exception('Error: Invalid structure of venueImages array. Image ID not found at index: ' . $imageIndex);
+            }
         } catch (\Exception $e) {
-            $this->addError('venue_images_deletion', $e->getMessage());
+            error_log($e->getMessage());
+        }
+    }
+    public function deleteVenueImage($imageId)
+    {
+        try {
+            $image = VenueImage::find($imageId);
+            if ($image) {
+                $imagePath = public_path('images/venues/Venue_Image/' . $image->image);
+                if (File::exists($imagePath)) {
+                    File::delete($imagePath);
+                    // dd('Image deleted:', $imagePath);
+                }
+                $image->delete();
+            }
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to delete image: ' . $e->getMessage());
         }
     }
     public function saveVenueImages($venue)
@@ -639,28 +668,33 @@ class AddVenueTabs extends Component
             if (!$venue->id) {
                 throw new \Exception('Venue ID tidak ditemukan');
             }
-
-
-            foreach ($this->venueImages as $index => $image) {
+            $deletedImages = collect($this->venueImages)->filter(function ($image) {
+                return is_numeric($image);
+            })->all();
+            foreach ($deletedImages as $deletedImage) {
+                $this->deleteVenueImage($deletedImage);
+            }
+            foreach ($this->venueImages as $image) {
                 if ($image instanceof UploadedFile && $image->isValid()) {
+                    if (!in_array($image->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'gif'])) {
+                        throw new \Exception('Hanya file gambar yang diizinkan (JPG, JPEG, PNG, GIF)');
+                    }
                     $venueName = $venue->name;
                     $originalFileName = $image->getClientOriginalName();
                     $randomString = Str::random(5);
-                    $newVenueImageName = 'VENUE_' . date('YmdHis') . '_' . $venueName .'_'. $randomString . '.' . $originalFileName;
+                    $newVenueImageName = 'VENUE_' . date('YmdHis') . '_' . $venueName . '_' . $randomString . '.' . $originalFileName;
                     $storedPath = $image->storeAs('/Venue_Image', $newVenueImageName, 'public');
                     $venue->venueImages()->create([
                         'image' => $newVenueImageName,
                     ]);
-                } else {
-                    throw new \Exception('File foto tidak valid');
                 }
             }
-            // dd('Venue images saved successfully.');
         } catch (\Exception $e) {
             $this->addError('venue_images_upload', $e->getMessage());
             dd('Failed to save venue images: ' . $e->getMessage());
         }
     }
+
     public function updateVenue($venue)
     {
         $this->resetErrorBag();
@@ -668,59 +702,43 @@ class AddVenueTabs extends Component
             if (is_int($venue)) {
                 $venue = Venue::findOrFail($venue);
             }
-            $venue->update([
+            DB::beginTransaction();
+            $updatedData = [
                 'name' => $this->name,
                 'phone_number' => $this->phone_number,
                 'information' => $this->information,
                 'address' => $this->address,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
-            ]);
-            if (!$venue) {
-                throw new \Exception('Failed to update Venue.');
-            }
-            if ($venue->imb) {
-                $previousImbPath = 'IMB/' . $venue->imb;
-                if (Storage::disk('public')->exists($previousImbPath)) {
-                    Storage::disk('public')->delete($previousImbPath);
+            ];
+            $imbChanged = $this->imb instanceof UploadedFile && $this->imb->isValid();
+            $venue->update($updatedData);
+            if (!$imbChanged) {
+                unset($updatedData['imb']);
+                $venue->update($updatedData);
+            } else {
+                if ($venue->imb) {
+                    $previousImbPath = 'IMB/' . $venue->imb;
+                    if (Storage::disk('public')->exists($previousImbPath)) {
+                        Storage::disk('public')->delete($previousImbPath);
+                    }
                 }
-            }
-            if ($this->imb instanceof UploadedFile && $this->imb->isValid()) {
                 $venueName = $this->name;
                 $newImbName = 'IMB_' . uniqid() . '_' . $venueName . '.' . $this->imb->getClientOriginalExtension();
                 $this->imb->storeAs('/IMB', $newImbName, 'public');
                 $venue->update(['imb' => $newImbName]);
             }
-
-            $this->deleteVenueImages($venue);
-            
-            foreach ($this->deletedVenueImageIndices as $index) {
-                $image = $venue->venueImages()->find($index);
-                if ($image) {
-                    $imagePath = 'Venue_Image/' . $image->image;
-                    if (Storage::disk('public')->exists($imagePath)) {
-                        Storage::disk('public')->delete($imagePath);
-                    }
-                    $image->delete();
-                }
-            }
-            foreach ($this->venueImages as $index => $image) {
-                if ($image instanceof UploadedFile && $image->isValid()) {
-                    $venueName = $venue->name;
-                    $originalFileName = $image->getClientOriginalName();
-                    $randomString = Str::random(5);
-                    $newVenueImageName = 'VENUE_' . date('YmdHis') . '_' . $venueName .'_'. $randomString . '.' . $originalFileName;
-                    $storedPath = $image->storeAs('/Venue_Image', $newVenueImageName, 'public');
-                    $venue->venueImages()->create([
-                        'image' => $newVenueImageName,
-                    ]);
-                }
+            foreach ($this->deletedVenueImageIndices as $imageId) {
+                $this->deleteVenueImage($imageId);
             }
             $this->saveVenueData($venue);
+            DB::commit();
             session()->flash('success', 'Data venue berhasil diperbarui bree.');
             return redirect()->route('owner.venue.index');
         } catch (\Exception $e) {
             $this->addError('venue_id', $e->getMessage());
+            DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
+            dd('Failed to update Venue: ' . $e->getMessage());
         }
     }
 }
