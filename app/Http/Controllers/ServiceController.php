@@ -37,14 +37,32 @@ class ServiceController extends Controller
 
         try {
             $venue = Venue::findOrFail($venueId);
-            return view('back.pages.owner.service-manage.create', compact('venue'));
+            $serviceTypes = ServiceType::all();
+            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
     }
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|min:3',
+            'service_type_id' => 'required',
+            'catalog' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000', 
+        ], [
+            'name.required' => 'Nama layanan wajib diisi.',
+            'name.min' => 'Nama layanan minimal terdiri dari 3 karakter.',
+            'service_type_id.required' => 'Jenis layanan harus dipilih.',
+            'catalog.image' => 'Katalog layanan harus berupa gambar.',
+            'catalog.mimes' => 'Format file katalog layanan tidak valid. Harus berupa jpeg, png, jpg, atau gif.',
+            'catalog.max' => 'Ukuran file katalog layanan maksimal adalah 5000 KB.',
+            'images.array' => 'Foto layanan harus berupa array.',
+            'images.*.image' => 'Foto layanan harus berupa gambar.',
+            'images.*.mimes' => 'Format file foto layanan tidak valid. Harus berupa jpeg, png, jpg, atau gif.',
+            'images.*.max' => 'Ukuran file foto layanan maksimal adalah 5000 KB.',
+        ]);
     }
     public function show($venueId, $serviceId)
     {

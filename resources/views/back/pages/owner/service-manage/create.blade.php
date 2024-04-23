@@ -34,15 +34,15 @@
                         <h4 class="text-primary">Add Event Service</h4>
                     </div>
                     <div class="pull-right">
-                        <a href="{{ route('owner.venue.show', $venue->id) }}" class="btn btn-primary btn-sm">
-                            <i class="ion-arrow-left-a"></i> Back to Detail Venue
+                        <a href="{{ route('owner.venue.show', $venue->id) }}" class="btn btn-outline-info btn-sm">
+                            <i class="ion-arrow-left-a"></i> Kembali
                         </a>
                     </div>
                 </div>
                 <hr>
 
-                <form action="{{ route('owner.venue.services.store') }}" method="POST" enctype="multipart/form-data"
-                    class="mt-3">
+                <form action="{{ route('owner.venue.services.store', $venue->id) }}" method="POST"
+                    enctype="multipart/form-data" class="mt-3">
                     @csrf
                     @if (Session::get('success'))
                         <div class="alert alert-success">
@@ -65,99 +65,81 @@
                     <div class="form-row">
                         <div class="col">
                             <div class="form-group">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <label for="">Name</label>
-                                        <input type="text" class="form-control" name="name" placeholder="Name"
-                                            value="{{ old('name') }}"> @error('name')
-                                            <span class="text-danger ml-2">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                    <div class="col">
-                                        <label for="">Username</label>
-                                        <input type="text" class="form-control" name="username" placeholder="Username"
-                                            value="{{ old('username') }}">
-                                        @error('username')
-                                            <span class="text-danger ml-2">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="">Address</label>
-                                <input type="text" class="form-control" name="address" placeholder="Address"
-                                    value="{{ old('address') }}">
-                                @error('address')
+                                <label for="">Nama Layanan</label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    name="name" placeholder="contoh : Foto Keluarga, Foto Wisuda"
+                                    value="{{ old('name') }}">
+                                @error('name')
                                     <span class="text-danger ml-2">
                                         {{ $message }}
                                     </span>
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <label for="">Email</label>
-                                        <input type="email" class="form-control" name="email" placeholder="Email"
-                                            value="{{ old('email') }}">
-                                        @error('email')
-                                            <span class="text-danger ml-2">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                    <div class="col">
-                                        <label for="">Phone Number</label>
-                                        <input type="text" class="form-control" name="handphone"
-                                            placeholder="Phone Number" value="{{ old('handphone') }}">
-                                        @error('handphone')
-                                            <span class="text-danger ml-2">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                </div>
+                                <label for="service_type_id">Jenis Layanan</label>
+                                <select class="form-control @error('service_type_id') is-invalid @enderror" id="service_type_id" name="service_type_id">
+                                    <option value="">Pilih Jenis Layanan</option>
+                                    @foreach ($serviceTypes as $serviceType)
+                                        <option value="{{ $serviceType->id }}">{{ $serviceType->service_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('service_type_id')
+                                    <span class="text-danger ml-2">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="catalog">Katalog Layanan</label>
+                                <input type="file" class="form-control @error('catalog') is-invalid @enderror" id="catalog" name="catalog"
+                                    placeholder="Input Foto Katalog Layanan Jika ada" accept="image/*">
+                                @error('catalog')
+                                    <span class="text-danger ml-2">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="images">Foto Layanan</label>
+                                <input type="file" class="form-control-file @error('images.*') is-invalid @enderror" id="images" name="images[]" multiple>
+                                @error('images.*')
+                                    <span class="text-danger ml-2">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div id="additionalImages"></div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-secondary" id="addImageInput">Tambah Foto</button>
                             </div>
                             <div class="form-group">
                                 <div class="form-row">
                                     <div class="col">
-                                        <label for="">Password</label>
-                                        <input type="password" class="form-control" name="password" placeholder="Password"
-                                            value="{{ old('password') }}" id="show_hide_password">
-                                        @error('password')
-                                            <span class="text-danger ml-2">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                    <div class="col">
-                                        <label for="">Confirm Password</label>
-                                        <input type="password" class="form-control" name="password_confirmation"
-                                            placeholder="Confirm Password" value="{{ old('password_confirmation') }}">
-                                        @error('password_confirmation')
-                                            <span class="text-danger ml-2">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-primary float-right">ADD USER</button>
+                                        <button type="submit" class="btn btn-primary float-right">Tambah Layanan</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
 
 @endsection
+@stack('scripts')
+<script>
+    document.getElementById('addImageInput').addEventListener('click', function() {
+        var additionalImagesContainer = document.getElementById('additionalImages');
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.className = 'form-control-file mt-2';
+        input.name = 'images[]';
+        input.multiple = true;
+        additionalImagesContainer.appendChild(input);
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-danger mt-2 ml-2';
+        removeButton.textContent = 'Hapus Foto';
+        removeButton.addEventListener('click', function() {
+            additionalImagesContainer.removeChild(input);
+            additionalImagesContainer.removeChild(removeButton);
+        });
+        additionalImagesContainer.appendChild(removeButton);
+    });
+</script>
