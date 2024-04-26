@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedInteger('id')->autoIncrement();
             $table->string('name');
             $table->string('catalog')->nullable();
+            $table->text('description')->nullable();
             $table->unsignedInteger('venue_id')->unsigned();
             $table->unsignedInteger('service_type_id')->unsigned();
             $table->timestamps();

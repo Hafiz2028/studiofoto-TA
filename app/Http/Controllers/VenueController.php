@@ -16,6 +16,7 @@ use App\Models\VenueImage;
 use App\Models\Owner;
 use App\Models\Day;
 use App\Models\Hour;
+use App\Models\ServiceEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Stmt\Catch_;
@@ -107,9 +108,11 @@ class VenueController extends Controller
                 ->where('day_id', $uniqueDay->day_id)
                 ->get();
         }
+        $service_events = ServiceEvent::where('venue_id', $venue->id)->get();
         $venue_image = VenueImage::where('venue_id', $venue->id)->get();
-        return view('back.pages.owner.venue-manage.show-venue', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image'));
+        return view('back.pages.owner.venue-manage.show-venue', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image','service_events'));
     }
+    
     public function edit(Venue $venue)
     {
 

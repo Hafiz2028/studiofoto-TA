@@ -16,10 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('information')->nullable();
             $table->float('dp_percentage')->nullable();
-            $table->integer('min_price')->nullable();
             $table->integer('price')->nullable();
-            $table->tinyInteger('print_status')->default(0);
-            $table->string('address');
             $table->unsignedInteger('service_event_id');
 
             $table->foreign('service_event_id')->references('id')->on('service_events')->onUpdate('cascade')->onDelete('cascade');

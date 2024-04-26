@@ -11,8 +11,8 @@ class ServicePackage extends Model
     protected $fillable = [
         'name',
         'information',
+        'dp_percentage',
         'price',
-        'print_status',
         'service_event_id',
     ];
     public function serviceEvent()

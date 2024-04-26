@@ -14,6 +14,7 @@ class ServiceEvent extends Model
         'name',
         'venue_id',
         'catalog',
+        'description',
         'service_type_id'
     ];
 

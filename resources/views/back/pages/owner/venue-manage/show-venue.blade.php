@@ -76,7 +76,8 @@
                                 class="btn btn-outline-info mr-2 mr-sm-1 mb-2 mb-sm-0">
                                 <i class="fas fa-edit"></i> Update Venue
                             </a>
-                            <a href="{{ route('owner.venue.services.create', $venue->id)}}" class="btn btn-primary mb-2 mb-sm-0">
+                            <a href="{{ route('owner.venue.services.create', $venue->id) }}"
+                                class="btn btn-primary mb-2 mb-sm-0">
                                 <i class="fas fa-plus"></i> Tambah Event Layanan Studio
                             </a>
                         </div>
@@ -176,27 +177,16 @@
                                     </h6>
                                     @if ($venue->status == 1)
                                         <ul class="ml-3" style="list-style-type: none;">
-                                            <li>
-                                                <a href="#" class="btn btn-check-out">
-                                                    <span class="text">Wisuda dan orasd</span>
-                                                    <span class="hover-text">Lihat Layanan</span>
-                                                    <span class="icon"><i class="fas fa-angle-double-right"></i></span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="btn btn-check-out">
-                                                    <span class="text">Pre Wedding</span>
-                                                    <span class="hover-text">Lihat Layanan</span>
-                                                    <span class="icon"><i class="fas fa-angle-double-right"></i></span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="btn btn-check-out">
-                                                    <span class="text">Keluarga</span>
-                                                    <span class="hover-text">Lihat Layanan</span>
-                                                    <span class="icon"><i class="fas fa-angle-double-right"></i></span>
-                                                </a>
-                                            </li>
+                                            @foreach ($service_events as $service_event)
+                                                <li>
+                                                    <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}" class="btn btn-check-out">
+                                                        <span class="text">{{ $service_event->name }}</span>
+                                                        <span class="hover-text">Lihat Layanan</span>
+                                                        <span class="icon"><i
+                                                        class="fas fa-angle-double-right"></i></span>
+                                                    </a>
+                                                </li>
+                                            @endforeach
                                         </ul>
                                     @elseif ($venue->status == 0)
                                         <div class="alert alert-warning text-center ml-4 mr-4">

@@ -20,5 +20,8 @@ Route::get('/', function () {
 Route::get('/districts', [DistrictController::class, 'getDistricts'])->name('districts');
 Route::post('/submit', [DistrictController::class, 'submit'])->name('submit');
 
-Route::view('/example-page','example-page');
-Route::view('/example-auth','example-auth');
+Route::view('/example-page', 'example-page');
+Route::view('/example-auth', 'example-auth');
+Route::get('/error-page', function () {
+    return view('error.page');
+})->name('error.page');

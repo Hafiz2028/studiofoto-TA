@@ -352,5 +352,14 @@ class MasterSeeder extends Seeder
 
 
         ]);
+        DB::table('add_on_packages')->insert([
+            [
+            'name' => 'Moment'
+            ],
+            [
+            'name' => 'Outfit'
+            ],
+
+        ]);
     }
 }
