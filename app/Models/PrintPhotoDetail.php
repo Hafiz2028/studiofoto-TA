@@ -11,7 +11,6 @@ class PrintPhotoDetail extends Model
     protected $fillable = [
         'service_package_id',
         'print_photo_id',
-        'price',
         ];
 
     public function servicePackage()

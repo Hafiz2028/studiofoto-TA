@@ -12,7 +12,6 @@ class AddOnPackageDetail extends Model
         'service_package_id',
         'add_on_package_id',
         'sum',
-        'total_price',
     ];
 
     public function servicePackage()
