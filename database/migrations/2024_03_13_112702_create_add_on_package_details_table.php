@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('add_on_package_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('venue_id');
             $table->unsignedInteger('service_package_id');
             $table->unsignedInteger('add_on_package_id');
             $table->integer('sum');
             $table->integer('total_price');
-            $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('service_package_id')->references('id')->on('service_packages')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('add_on_package_id')->references('id')->on('add_on_packages')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();

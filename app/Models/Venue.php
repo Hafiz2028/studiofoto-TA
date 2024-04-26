@@ -52,14 +52,4 @@ class Venue extends Model
     {
         return $this->hasMany(PaymentMethodDetail::class, 'venue_id', 'id');
     }
-
-    public function printPhotoDetails()
-    {
-        return $this->hasMany(PrintPhotoDetail::class, 'venue_id', 'id');
-    }
-
-    public function addOnPackageDetails()
-    {
-        return $this->hasMany(AddOnPackageDetail::class, 'venue_id', 'id');
-    }
 }
