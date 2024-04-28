@@ -68,7 +68,7 @@
     }
 </style>
 @extends('back.layout.pages-layout')
-@section('pageTitle', isset($pageTitle) ? $pageTitle : "Venue's Manage")
+@section('pageTitle', isset($pageTitle) ? $pageTitle : "Add Venue")
 @section('content')
 
     <div class="page-header">

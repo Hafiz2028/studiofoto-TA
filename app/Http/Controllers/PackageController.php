@@ -3,60 +3,76 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ServiceEvent;
+use App\Models\ServiceEventImage;
+use App\Models\ServiceType;
+use App\Models\ServicePackage;
+use App\Models\AddOnPackage;
+use App\Models\PrintPhoto;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use App\Models\Venue;
+use App\Models\Admin;
+use App\Models\PaymentMethod;
+use App\Models\PaymentMethodDetail;
+use App\Models\OpeningHour;
+use App\Models\VenueImage;
+use App\Models\Owner;
+use App\Models\Day;
+use App\Models\Hour;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\Catch_;
+use PhpParser\Node\Stmt\TryCatch;
 
 class PackageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index($venueId, $serviceId)
     {
-        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create($venueId, $serviceId)
     {
-        //
+        try {
+            $venue = Venue::findOrFail($venueId);
+            $service = ServiceEvent::findOrFail($serviceId);
+            $addOnPackages = AddOnPackage::all();
+            $printPhotos = PrintPhoto::all();
+            return view('back.pages.owner.package-manage.create', compact('venue', 'service','addOnPackages', 'printPhotos'));
+        } catch (\Exception $e) {
+            return redirect()->back();
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request, $venueId, $serviceId)
     {
-        //
+        
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show($venueId, $serviceId, $packageId)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit($venueId, $serviceId, $packageId)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, $venueId, $serviceId, $packageId)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($venueId, $serviceId, $packageId)
     {
         //

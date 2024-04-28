@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('information')->nullable();
             $table->float('dp_percentage')->nullable();
+            $table->tinyInteger('time_status')->default(0);
             $table->integer('price')->nullable();
             $table->unsignedInteger('service_event_id');
 
