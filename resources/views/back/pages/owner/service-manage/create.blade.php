@@ -106,10 +106,59 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 col-lg-12">
+
+                                <div class="form-group">
+                                    <label for="print_photos_switch">Print Foto Layanan</label>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
+                                            name="print_photos_switch">
+                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Untuk Pilih
+                                            Ukuran Print Foto</label>
+                                    </div>
+                                </div>
+                                <div id="print_photos_options" style="display: none;">
+                                    <label for="print_photos">Pilih Ukuran Foto & Harga jika layanan ini bisa Print
+                                        Foto.</label><br>
+                                    <div class="row mb-2">
+                                        <div class="col-md-12">
+                                            <button id="check-all-button" type="button"
+                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
+                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
+                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
+                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
+                                                    class="fa fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        @php
+                                            $columnCount = 3;
+                                            $rowCount = ceil(count($printPhotos) / $columnCount);
+                                        @endphp
+                                        @for ($i = 0; $i < $rowCount; $i++)
+                                            <div class="col-md-{{ 12 / $columnCount }}">
+                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printPhotos)); $j++)
+                                                    @php $printPhoto = $printPhotos[$j]; @endphp
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="print_photo_{{ $printPhoto->id }}" name="print_photos[]"
+                                                            value="{{ $printPhoto->id }}">
+                                                        <label class="custom-control-label"
+                                                            for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->size }}</label>
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                        @endfor
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
                                     <label for="description">Deskripsi Layanan</label>
-                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4"
-                                        placeholder="Isi deskripsi untuk venue"></textarea>
+                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
+                                        rows="4" placeholder="Isi deskripsi untuk venue"></textarea>
                                     @error('information')
                                         <span class="text-danger ml-2">{{ $message }}</span>
                                     @enderror
@@ -429,6 +478,92 @@
             additionalImages.appendChild(newInputGroup);
 
             addImagePreviewForNewInput(newInput, additionalPreviews);
+        });
+    </script>
+
+    {{-- print foto --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const printPhotosSwitch = document.getElementById('print_photos_switch');
+            const printPhotosOptions = document.getElementById('print_photos_options');
+            const checkAllButton = document.querySelector('[data-toggle="check-all"]');
+            const uncheckAllButton = document.querySelector('[data-toggle="uncheck-all"]');
+            const printPhotoCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
+
+            printPhotosSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    printPhotosOptions.style.display = 'block';
+                } else {
+                    printPhotosOptions.style.display = 'none';
+                    printPhotoCheckboxes.forEach(function(checkbox) {
+                        checkbox.checked = false;
+                        hidePriceInput(checkbox);
+                    });
+                }
+            });
+
+            checkAllButton.addEventListener('click', function() {
+                printPhotoCheckboxes.forEach(function(checkbox) {
+                    checkbox.checked = true;
+                    showPriceInput(checkbox);
+                });
+            });
+
+            uncheckAllButton.addEventListener('click', function() {
+                printPhotoCheckboxes.forEach(function(checkbox) {
+                    checkbox.checked = false;
+                    hidePriceInput(checkbox);
+                });
+            });
+            printPhotoCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        showPriceInput(this);
+                    } else {
+                        hidePriceInput(this);
+                    }
+                });
+            });
+
+            function showPriceInput(checkbox) {
+                if (checkbox.parentNode.querySelector('.input-group') === null) {
+                    const priceInputGroup = document.createElement('div');
+                    priceInputGroup.setAttribute('class', 'input-group');
+
+                    const prependSpan = document.createElement('span');
+                    prependSpan.setAttribute('class', 'input-group-text');
+                    prependSpan.textContent = 'Rp';
+
+                    const priceInput = document.createElement('input');
+                    priceInput.setAttribute('type', 'text');
+                    priceInput.setAttribute('class', 'form-control');
+                    priceInput.setAttribute('placeholder', 'Harga cetak ukuran ini...');
+                    priceInput.setAttribute('name', 'price_' + checkbox.value);
+                    priceInput.setAttribute('onkeypress', 'return event.charCode >= 48 && event.charCode <= 57');
+
+                    priceInput.addEventListener('input', function() {
+                        this.value = formatCurrency(this.value);
+                    });
+
+                    priceInputGroup.appendChild(prependSpan);
+                    priceInputGroup.appendChild(priceInput);
+
+                    checkbox.parentNode.appendChild(priceInputGroup);
+                }
+            }
+
+            function formatCurrency(number) {
+                let formattedNumber = number.replace(/\D/g, '');
+                formattedNumber = formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                return formattedNumber;
+            }
+
+            function hidePriceInput(checkbox) {
+                const priceInputGroup = checkbox.parentNode.querySelector('.input-group');
+                if (priceInputGroup) {
+                    priceInputGroup.remove();
+                }
+            }
         });
     </script>
 @endpush

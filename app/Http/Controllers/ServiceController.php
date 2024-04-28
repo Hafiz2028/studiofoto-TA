@@ -7,6 +7,8 @@ use App\Models\ServiceEvent;
 use App\Models\ServiceEventImage;
 use App\Models\ServiceType;
 use App\Models\ServicePackage;
+use App\Models\PrintPhoto;
+use App\Models\PrintServiceEvent;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -38,7 +40,9 @@ class ServiceController extends Controller
         try {
             $venue = Venue::findOrFail($venueId);
             $serviceTypes = ServiceType::all();
-            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes'));
+            $printPhotos = PrintPhoto::all();
+
+            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes','printPhotos'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -90,6 +94,20 @@ class ServiceController extends Controller
                 ]);
             }
         }
+        if ($request->has('print_photos')) {
+            foreach ($request->print_photos as $printPhotoId) {
+                $priceInputName = 'price_' . $printPhotoId;
+                $price = $request->input($priceInputName);
+                $price = str_replace(' ', '', $price);
+
+                PrintServiceEvent::create([
+                    'service_event_id' => $serviceEvent->id,
+                    'print_photo_id' => $printPhotoId,
+                    'price' => $price,
+                ]);
+            }
+        }
+
         return redirect()->route('owner.venue.show', ['venue' => $request->venue_id])->with('success', 'Layanan berhasil ditambahkan.');
     }
 

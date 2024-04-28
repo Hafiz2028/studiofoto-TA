@@ -95,6 +95,7 @@
                                     @enderror
                                 </div>
                             </div>
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Maksimal Waktu Pemotretan</label>
@@ -121,15 +122,35 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name">Harga Paket</label>
-                                    <input type="number" class="form-control @error('price') is-invalid @enderror"
-                                        id="price" name="price" placeholder="Harga ini Belum Termasuk Cetak Foto..."
-                                        value="{{ old('price') }}" required>
-                                    @error('price')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <label for="add_on_switch">Add On</label>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="add_on_switch"
+                                            name="add_on_switch">
+                                        <label class="custom-control-label" for="add_on_switch">Aktifkan Tambahan</label>
+                                    </div>
+                                </div>
+                                <div id="add_on_options" style="display: none;">
+                                    <label for="add_ons">Tambahkan Total Add On untuk paket ini </label><br>
+                                    @foreach ($addOnPackages as $addOnPackage)
+                                        <div class="addon-item custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input addon-checkbox"
+                                                id="add_on_{{ $addOnPackage->id }}" name="add_ons[]"
+                                                value="{{ $addOnPackage->id }}">
+                                            <label class="custom-control-label"
+                                                for="add_on_{{ $addOnPackage->id }}">{{ $addOnPackage->name }}</label>
+                                            <div class="addon-inputs" style="display: none;">
+                                                <div class="addon-controls">
+                                                    <input type="number" id="total_qty_{{ $addOnPackage->id }}"
+                                                        name="total_qty_{{ $addOnPackage->id }}"
+                                                        class="form-control addon-qty"
+                                                        placeholder="Jumlah {{ $addOnPackage->name }} (qty)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="dp_percentage">Metode Pembayaran Tambahan</label>
@@ -169,35 +190,18 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="add_on_switch">Tambahan</label>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="add_on_switch"
-                                            name="add_on_switch">
-                                        <label class="custom-control-label" for="add_on_switch">Aktifkan Tambahan</label>
-                                    </div>
+                                    <label for="name">Harga Paket</label>
+                                    <input type="number" class="form-control @error('price') is-invalid @enderror"
+                                        id="price" name="price"
+                                        placeholder="Tambahkan Harga Paket..." value="{{ old('price') }}"
+                                        required>
+                                    <p class="alert alert-info">Jika ada Add On, buat Harga Paket menjadi Harga + Add On.<br>Harga belum termasuk harga Cetak Foto.</p>
+                                    @error('price')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
-                                <div id="add_on_options" style="display: none;">
-                                    <label for="add_ons">Pilih Tambahan yang Tersedia:</label><br>
-                                    @foreach ($addOnPackages as $addOnPackage)
-                                        <div class="addon-item custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input addon-checkbox"
-                                                id="add_on_{{ $addOnPackage->id }}" name="add_ons[]"
-                                                value="{{ $addOnPackage->id }}">
-                                            <label class="custom-control-label"
-                                                for="add_on_{{ $addOnPackage->id }}">{{ $addOnPackage->name }}</label>
-                                            <div class="addon-inputs" style="display: none;">
-                                                <div class="addon-controls">
-                                                    <input type="number" id="total_qty_{{ $addOnPackage->id }}"
-                                                        name="total_qty_{{ $addOnPackage->id }}"
-                                                        class="form-control addon-qty"
-                                                        placeholder="Jumlah {{ $addOnPackage->name }} (qty)">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-
                             </div>
+
                             <div class="col-lg-12 col-md-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Cetak Foto</label>
@@ -212,32 +216,31 @@
                                     <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
                                     <div class="row mb-2">
                                         <div class="col-md-12">
-                                            <button type="button" class="btn btn-outline-primary mr-2"
-                                                data-toggle="check-all" title="Copy Harga Cetak Foto Paket Sebelumnya"><i
-                                                    class="fa fa-copy"></i></button>
-                                            <button type="button" class="btn btn-outline-success mr-2"
-                                                data-toggle="check-all" title="Ceklis semua ukuran foto"><i
-                                                    class="bi bi-check-all"></i></button>
-                                            <button type="button" class="btn btn-outline-danger"
+                                            <button id="check-all-button" type="button"
+                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
+                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
+                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
                                                 data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
                                                     class="fa fa-trash"></i></button>
                                         </div>
                                     </div>
                                     <div class="row">
                                         @php
-                                            $columnCount = 6;
-                                            $rowCount = ceil(count($printPhotos) / $columnCount);
+                                            $columnCount = 3;
+                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
                                         @endphp
                                         @for ($i = 0; $i < $rowCount; $i++)
                                             <div class="col-md-{{ 12 / $columnCount }}">
-                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printPhotos)); $j++)
-                                                    @php $printPhoto = $printPhotos[$j]; @endphp
+                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
+                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" class="custom-control-input"
-                                                            id="print_photo_{{ $printPhoto->id }}" name="print_photos[]"
-                                                            value="{{ $printPhoto->id }}">
+                                                            id="print_photo_{{ $printServiceEvent->id }}"
+                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}">
                                                         <label class="custom-control-label"
-                                                            for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->size }}</label>
+                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
+                                                            (Harga Rp
+                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
                                                     </div>
                                                 @endfor
                                             </div>
@@ -245,9 +248,15 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-lg-12">
                                 <div class="form-group">
                                     <label>Perkiraan Harga</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Judul Paket Foto</label>
                                 </div>
                             </div>
                             <div class="col-lg-12 mt-2">
@@ -324,39 +333,41 @@
             });
         });
     </script>
+
     {{-- print foto --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const printPhotosSwitch = document.getElementById('print_photos_switch');
-            const printPhotosOptions = document.getElementById('print_photos_options');
+            const printServiceEventsSwitch = document.getElementById('print_photos_switch');
+            const printServiceEventsOptions = document.getElementById('print_photos_options');
             const checkAllButton = document.querySelector('[data-toggle="check-all"]');
             const uncheckAllButton = document.querySelector('[data-toggle="uncheck-all"]');
-            const printPhotoCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
+            const printServiceEventCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
 
-            printPhotosSwitch.addEventListener('change', function() {
+            printServiceEventsSwitch.addEventListener('change', function() {
                 if (this.checked) {
-                    printPhotosOptions.style.display = 'block';
+                    printServiceEventsOptions.style.display = 'block';
                 } else {
-                    printPhotosOptions.style.display = 'none';
-                    printPhotoCheckboxes.forEach(function(checkbox) {
+                    printServiceEventsOptions.style.display = 'none';
+                    printServiceEventCheckboxes.forEach(function(checkbox) {
                         checkbox.checked = false;
                     });
                 }
             });
-            checkAllButton.addEventListener('click', function(event) {
-                event.preventDefault();
-                printPhotoCheckboxes.forEach(function(checkbox) {
+
+            checkAllButton.addEventListener('click', function() {
+                printServiceEventCheckboxes.forEach(function(checkbox) {
                     checkbox.checked = true;
                 });
             });
-            uncheckAllButton.addEventListener('click', function(event) {
-                event.preventDefault();
-                printPhotoCheckboxes.forEach(function(checkbox) {
+
+            uncheckAllButton.addEventListener('click', function() {
+                printServiceEventCheckboxes.forEach(function(checkbox) {
                     checkbox.checked = false;
                 });
             });
         });
     </script>
+
 
     {{-- add on paket --}}
     <script>

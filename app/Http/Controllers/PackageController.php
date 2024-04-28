@@ -9,6 +9,8 @@ use App\Models\ServiceType;
 use App\Models\ServicePackage;
 use App\Models\AddOnPackage;
 use App\Models\PrintPhoto;
+use App\Models\PrintServiceEvent;
+use App\Models\PrintPhotoDetail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -42,8 +44,8 @@ class PackageController extends Controller
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
             $addOnPackages = AddOnPackage::all();
-            $printPhotos = PrintPhoto::all();
-            return view('back.pages.owner.package-manage.create', compact('venue', 'service','addOnPackages', 'printPhotos'));
+            $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
+            return view('back.pages.owner.package-manage.create', compact('venue', 'service', 'addOnPackages', 'printServiceEvents'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -52,7 +54,6 @@ class PackageController extends Controller
 
     public function store(Request $request, $venueId, $serviceId)
     {
-        
     }
 
 

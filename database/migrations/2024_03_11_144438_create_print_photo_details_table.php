@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('print_photo_details', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('venue_id');
             $table->unsignedInteger('service_package_id');
-            $table->unsignedInteger('print_photo_id');
-            $table->integer('price');
-            $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('print_service_event_id');
             $table->foreign('service_package_id')->references('id')->on('service_packages')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('print_photo_id')->references('id')->on('print_photos')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('print_service_event_id')->references('id')->on('print_service_events')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

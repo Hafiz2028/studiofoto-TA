@@ -9,7 +9,6 @@ class ServiceEvent extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
         'name',
         'venue_id',
@@ -26,6 +25,11 @@ class ServiceEvent extends Model
     public function serviceType()
     {
         return $this->belongsTo(ServiceType::class, 'service_type_id', 'id');
+    }
+
+    public function printServiceEvents()
+    {
+        return $this->hasMany(PrintServiceEvent::class, 'service_event_id', 'id');
     }
 
     public function servicePackages()

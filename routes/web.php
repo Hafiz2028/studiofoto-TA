@@ -14,7 +14,7 @@ use App\Http\Controllers\DistrictController;
 |
 */
 
-Route::get('/', function () {
+Route::get('/', function () { 
     return view('welcome');
 });
 Route::get('/districts', [DistrictController::class, 'getDistricts'])->name('districts');

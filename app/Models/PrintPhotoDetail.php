@@ -9,24 +9,17 @@ class PrintPhotoDetail extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'venue_id',
+        'print_service_event_id',
         'service_package_id',
-        'print_photo_id',
-        'price',
         ];
 
-    public function venue()
+    public function serviceEvent()
     {
-        return $this->belongsTo(Venue::class, 'venue_id', 'id');
+        return $this->belongsTo(ServiceEvent::class, 'service_event_id', 'id');
     }
 
     public function servicePackage()
     {
         return $this->belongsTo(ServicePackage::class, 'service_package_id', 'id');
-    }
-
-    public function printPhoto()
-    {
-        return $this->belongsTo(PrintPhoto::class, 'print_photo_id', 'id');
     }
 }
