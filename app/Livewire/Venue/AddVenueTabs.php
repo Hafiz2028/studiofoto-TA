@@ -45,7 +45,7 @@ class AddVenueTabs extends Component
 
     public $errorBag = null;
     public $totalSteps = 5;
-    public $currentStep = 1;
+    public $currentStep = 2;
 
     public function render()
     {

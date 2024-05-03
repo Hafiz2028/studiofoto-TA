@@ -19,8 +19,9 @@ return new class extends Migration
             $table->string('imb')->nullable();
             $table->text('information')->nullable();
             $table->string('phone_number');
-            $table->float('latitude', 10,9)->nullable();
-            $table->float('longitude', 200,9)->nullable();
+            $table->string('district')->nullable();
+            $table->string('village')->nullable();
+            $table->string('map_link')->nullable();
             $table->string('reject_note')->nullable();
             $table->unsignedInteger('owner_id');
             $table->foreign('owner_id')->references('id')->on('owners')->onUpdate('cascade')->onDelete('cascade');

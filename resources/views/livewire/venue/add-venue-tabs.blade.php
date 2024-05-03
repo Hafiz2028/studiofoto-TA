@@ -109,7 +109,6 @@
                                 <div class="form-group">
                                     <label for="kecamatan">Kecamatan:</label>
                                     <select id="kecamatan" class="form-control">
-                                        <!-- Options akan diisi oleh JavaScript -->
                                     </select>
                                 </div>
                             </div>
@@ -131,20 +130,6 @@
                                     @error('longitude')
                                         <span class="text-danger ml-2">{{ $message }}</span>
                                     @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Koordinat Lokasi:</label>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            {{-- <button class="btn btn-outline-info" wire:click="findMyLocation">My
-                                                    Location</button> --}}
-                                        </div>
-                                        <div wire:ignore>
-                                            <div id="map" style="width: 100%; height: 400px;"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -462,87 +447,8 @@
     </form>
     @push('styles')
         <style>
-            #map {
-                width: 100%;
-                height: 400px;
-                border: 1px solid red;
-                /* Add a border for visibility */
-            }
         </style>
     @endpush
     @push('scripts')
-        {{-- <script src="https://cdn.jsdelivr.net/npm/ol@v7.2.2/dist/ol.js"></script> --}}
-        {{-- <script>
-            document.addEventListener('livewire:load', function() {
-                console.log('Initializing map...');
-                const key = 'SzhEAidXbTEomDww4vrj';
-                const source = new ol.source.XYZ({
-                    url: `https://api.maptiler.com/maps/streets/v1/{z}/{x}/{y}.png?key=${key}`,
-                    tileSize: 512,
-                    attributions: '<a href="https://www.maptiler.com/copyright/">© MapTiler</a>'
-                });
-                document.addEventListener('DOMContentLoaded', function() {
-                    const map = new ol.Map({
-                        layers: [
-                            new ol.layer.Tile({
-                                source: source
-                            })
-                        ],
-                        target: 'map',
-                        view: new ol.View({
-                            center: ol.proj.fromLonLat([112.6235743, -
-                            7.9147449]),
-                            zoom: 13
-                        })
-                    });
-                    console.log('Map initialized successfully');
-                    Livewire.on('updateMap', (latitude, longitude) => {
-                        addMarker(latitude, longitude);
-                    });
-
-                    function addMarker(latitude, longitude) {
-                        const marker = new ol.Feature({
-                            geometry: new ol.geom.Point(ol.proj.fromLonLat([longitude, latitude]))
-                        });
-
-                        const markerLayer = new ol.layer.Vector({
-                            source: new ol.source.Vector({
-                                features: [marker]
-                            })
-                        });
-                        map.addLayer(markerLayer);
-                        document.getElementById('latitude').value = latitude.toFixed(4);
-                        document.getElementById('longitude').value = longitude.toFixed(4);
-                    }
-                });
-            });
-        </script> --}}
-
-        {{-- <script>
-            document.addEventListener('livewire:load', function() {
-                const apiKey = "SzhEAidXbTEomDww4vrj"; // Ganti dengan API key Anda
-                const map = new OpenLayers.Map("map");
-                const mapnik = new OpenLayers.Layer.OSM();
-                const epsg4326 = new OpenLayers.Projection("EPSG:4326"); // Proyeksi WGS 1984
-                const projectTo = new OpenLayers.Projection("EPSG:900913"); // Proyeksi Spherical Mercator
-
-                map.addLayer(mapnik);
-                map.setCenter(
-                    new OpenLayers.LonLat(0, 0).transform(epsg4326, projectTo),
-                    2
-                );
-
-                // Tambahkan layer vector tiles
-                const vectorLayer = new OpenLayers.Layer.Vector("Vector Tiles", {
-                    strategies: [new OpenLayers.Strategy.Fixed()],
-                    protocol: new OpenLayers.Protocol.HTTP({
-                        url: `https://api.maptiler.com/tiles/v3-openmaptiles/{z}/{x}/{y}.pbf?key=${apiKey}`,
-                        format: new OpenLayers.Format.MVT(),
-                    }),
-                });
-
-                map.addLayer(vectorLayer);
-            });
-        </script> --}}
     @endpush
 </div>

@@ -2,10 +2,13 @@
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use App\Models\ServiceType;
+use App\Models\Venue;
 
 /** SEND EMAIL FUNCTION USING PHPMAILER LIBRARY */
-if(!function_exists('sendEmail')){
-    function sendEmail($mailConfig){
+if (!function_exists('sendEmail')) {
+    function sendEmail($mailConfig)
+    {
         require 'PHPMailer/src/Exception.php';
         require 'PHPMailer/src/PHPMailer.php';
         require 'PHPMailer/src/SMTP.php';
@@ -24,10 +27,43 @@ if(!function_exists('sendEmail')){
         $mail->isHTML(true);
         $mail->Subject = $mailConfig['mail_subject'];
         $mail->Body = $mailConfig['mail_body'];
-        if($mail->send()){
+        if ($mail->send()) {
             return true;
-        }else{
+        } else {
             return false;
+        }
+    }
+    //FRONTEND::
+    /** GET FRONTEND SERVICE TYPE */
+    if (!function_exists('get_service_types')) {
+        function get_service_types()
+        {
+            $service_types = ServiceType::orderBy('id', 'ASC')->get();
+            return !empty($service_types) ? $service_types : [];
+        }
+    }
+
+    /** GET FRONTEND VENUES */
+    if (!function_exists('get_venues_with_service_slug')) {
+        function get_venues_with_service_slug()
+        {
+            $venues = Venue::orderBy('id', 'ASC')->get();
+
+            // Loop through each venue
+            foreach ($venues as $venue) {
+                $serviceSlugs = [];
+
+                // Loop through each service event of the venue
+                foreach ($venue->serviceEvents as $serviceEvent) {
+                    // Add service slug to the array
+                    $serviceSlugs[] = $serviceEvent->serviceType->service_slug;
+                }
+
+                // Add service slugs array to venue object
+                $venue->service_slugs = $serviceSlugs;
+            }
+
+            return !empty($venues) ? $venues : [];
         }
     }
 }

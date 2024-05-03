@@ -62,7 +62,7 @@
                                     @if ($venue->venueImages->isNotEmpty())
                                         <img src="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
                                             alt="{{ $venue->venueImages->first()->image }}" class="img-fluid"
-                                            style="max-height: 100%; object-fit: contain;">
+                                            style="max-height: 100%; object-fit: contain;" >
                                     @else
                                         <img src="/images/venues/Venue_Image/default-image.jpg" alt="Default Image" class="img-fluid"
                                             style="max-height: 100%; object-fit: contain;">

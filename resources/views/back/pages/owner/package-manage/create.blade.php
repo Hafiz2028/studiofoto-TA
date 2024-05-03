@@ -86,7 +86,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="description">Deskripsi Paket Foto</label>
-                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
+                                    <textarea class="form-control summernote @error('description') is-invalid @enderror" id="description" name="description"
                                         rows="2"
                                         placeholder="Contoh : Paket ini memiliki berbagai macam tambahan foto dan cetak foto dengan berbagai ukuran..."
                                         style="height: 100px;"></textarea>
@@ -95,33 +95,36 @@
                                     @enderror
                                 </div>
                             </div>
-
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Maksimal Waktu Pemotretan</label>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" checked>
-                                        <label class="custom-control-label">30 Menit</label>
+                                        <input type="radio" class="custom-control-input" id="time_30" name="time_status"
+                                            value="0" checked>
+                                        <label class="custom-control-label" for="time_30">30 Menit</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input">
-                                        <label class="custom-control-label">60 Menit</label>
+                                        <input type="radio" class="custom-control-input" id="time_60" name="time_status"
+                                            value="1">
+                                        <label class="custom-control-label" for="time_60">60 Menit</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input">
-                                        <label class="custom-control-label">90 Menit</label>
+                                        <input type="radio" class="custom-control-input" id="time_90" name="time_status"
+                                            value="2">
+                                        <label class="custom-control-label" for="time_90">90 Menit</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input">
-                                        <label class="custom-control-label">120 Menit</label>
+                                        <input type="radio" class="custom-control-input" id="time_120"
+                                            name="time_status" value="3">
+                                        <label class="custom-control-label" for="time_120">120 Menit</label>
                                     </div>
-                                    @error('time')
+                                    @error('time_status')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="form-group">
+                                <div class="form-group mb-0">
                                     <label for="add_on_switch">Add On</label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="add_on_switch"
@@ -135,7 +138,7 @@
                                         <div class="addon-item custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input addon-checkbox"
                                                 id="add_on_{{ $addOnPackage->id }}" name="add_ons[]"
-                                                value="{{ $addOnPackage->id }}">
+                                                value="{{ $addOnPackage->id }}" data-id="{{ $addOnPackage->id }}">
                                             <label class="custom-control-label"
                                                 for="add_on_{{ $addOnPackage->id }}">{{ $addOnPackage->name }}</label>
                                             <div class="addon-inputs" style="display: none;">
@@ -150,7 +153,6 @@
                                     @endforeach
                                 </div>
                             </div>
-
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="dp_percentage">Metode Pembayaran Tambahan</label>
@@ -191,17 +193,21 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Harga Paket</label>
-                                    <input type="number" class="form-control @error('price') is-invalid @enderror"
-                                        id="price" name="price"
-                                        placeholder="Tambahkan Harga Paket..." value="{{ old('price') }}"
-                                        required>
-                                    <p class="alert alert-info">Jika ada Add On, buat Harga Paket menjadi Harga + Add On.<br>Harga belum termasuk harga Cetak Foto.</p>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Rp</span>
+                                        </div>
+                                        <input type="text" id="price" name="price"
+                                            class="form-control @error('price') is-invalid @enderror"
+                                            placeholder="Tambahkan Harga Paket..." value="{{ old('price') }}" required>
+                                    </div>
+                                    <p class="alert alert-info">Jika ada Add On, tambahkan harga Add On ke Harga
+                                        Paket.<br>Harga belum termasuk harga Cetak Foto.</p>
                                     @error('price')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
-
                             <div class="col-lg-12 col-md-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Cetak Foto</label>
@@ -236,7 +242,8 @@
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" class="custom-control-input"
                                                             id="print_photo_{{ $printServiceEvent->id }}"
-                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}">
+                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
+                                                            data-price="{{ $printServiceEvent->price }}">
                                                         <label class="custom-control-label"
                                                             for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
                                                             (Harga Rp
@@ -248,17 +255,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Perkiraan Harga</label><br>
+                                    <p id="estimated_price" class="alert alert-secondary"
+                                        style="display: inline-block; width: fit-content;">Rp {{ old('price') ?: '0' }}
+                                    </p>
+                                </div>
+                            </div>
 
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Perkiraan Harga</label>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Judul Paket Foto</label>
-                                </div>
-                            </div>
                             <div class="col-lg-12 mt-2">
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary float-right">Tambah Paket</button>
@@ -367,8 +372,19 @@
             });
         });
     </script>
+    {{-- time status --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const radioButtons = document.querySelectorAll('input[name="time_status"]');
 
-
+            radioButtons.forEach(function(radioButton) {
+                radioButton.addEventListener('change', function() {
+                    const selectedStatus = this.value;
+                    console.log("Selected time status:", selectedStatus);
+                });
+            });
+        });
+    </script>
     {{-- add on paket --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -418,8 +434,79 @@
                     input.value = '';
                 });
             }
+
+            function collectSelectedAddOns() {
+                const selectedAddOns = [];
+                const addOnCheckboxes = document.querySelectorAll('.addon-checkbox:checked');
+                addOnCheckboxes.forEach(function(checkbox) {
+                    const addOnId = checkbox.getAttribute('data-id');
+                    const qtyInput = document.getElementById('total_qty_' + addOnId);
+                    const qty = qtyInput ? parseInt(qtyInput.value) : 0;
+                    selectedAddOns.push({
+                        add_on_package_id: addOnId,
+                        sum: qty
+                    });
+                });
+                return selectedAddOns;
+            }
         });
     </script>
+    {{-- harga  --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const priceInput = document.getElementById('price');
+            priceInput.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+                value = value.replace(/\B(?=(\d{3})+(?!\d))/g,
+                    ' ');
+                this.value = value;
+            });
+        });
+    </script>
+    {{-- perkiraan harga --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const estimatedPrice = document.getElementById('estimated_price');
+            const packagePriceInput = document.getElementById('price');
+            const printServiceEventCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
+
+            function calculateEstimatedPrice() {
+                // Ambil nilai dari input harga paket
+                let packagePriceText = packagePriceInput.value.replace(/\s/g, ''); // Bersihkan spasi
+                let packagePrice = parseFloat(packagePriceText || 0);
+
+                let selectedPrintPhotoPrices = [];
+
+                printServiceEventCheckboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        selectedPrintPhotoPrices.push(parseFloat(checkbox.dataset.price));
+                    }
+                });
+
+                let estimatedPriceText = 'Rp ' + packagePrice.toLocaleString('id-ID');
+
+                if (selectedPrintPhotoPrices.length > 0) {
+                    let maxPrintPhotoPrice = Math.max(...selectedPrintPhotoPrices);
+                    estimatedPriceText += ' - Rp ' + (packagePrice + maxPrintPhotoPrice).toLocaleString(
+                        'id-ID');
+                }
+
+                estimatedPrice.textContent = estimatedPriceText;
+            }
+
+            // Panggil fungsi saat halaman dimuat
+            calculateEstimatedPrice();
+
+            // Panggil fungsi saat checkbox berubah
+            printServiceEventCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', calculateEstimatedPrice);
+            });
+
+            // Panggil fungsi saat input harga paket berubah
+            packagePriceInput.addEventListener('input', calculateEstimatedPrice);
+        });
+    </script>
+
 
     {{-- validasi --}}
     <script>

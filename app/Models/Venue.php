@@ -17,8 +17,9 @@ class Venue extends Model
         'dp_percentage',
         'information',
         'phone_number',
-        'latitude',
-        'longitude',
+        'district',
+        'village',
+        'map_link',
         'reject_note',
         'owner_id'
 

@@ -44,8 +44,9 @@ class PackageController extends Controller
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
             $addOnPackages = AddOnPackage::all();
+            $serviceEventName = $service->name;
             $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
-            return view('back.pages.owner.package-manage.create', compact('venue', 'service', 'addOnPackages', 'printServiceEvents'));
+            return view('back.pages.owner.package-manage.create', compact('venue', 'service', 'serviceEventName', 'addOnPackages', 'printServiceEvents'));
         } catch (\Exception $e) {
             return redirect()->back();
         }

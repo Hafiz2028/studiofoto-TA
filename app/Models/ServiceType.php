@@ -14,7 +14,6 @@ class ServiceType extends Model
     protected $fillable =[
         'service_name',
         'service_slug',
-        // 'ordering'
 
     ];
     public function sluggable(): array
