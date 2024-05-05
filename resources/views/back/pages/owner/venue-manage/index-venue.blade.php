@@ -62,10 +62,13 @@
                                     @if ($venue->venueImages->isNotEmpty())
                                         <img src="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
                                             alt="{{ $venue->venueImages->first()->image }}" class="img-fluid"
-                                            style="max-height: 100%; object-fit: contain;" >
-                                    @else
-                                        <img src="/images/venues/Venue_Image/default-image.jpg" alt="Default Image" class="img-fluid"
                                             style="max-height: 100%; object-fit: contain;">
+                                    @else
+                                        <div class="default-image"
+                                            style="background-image: url('/images/venues/Venue_Image/default-venue.png');
+                                    background-size: cover; background-position: center; background-repeat: no-repeat;
+                                    width: 100%; height: 100%;">
+                                        </div>
                                     @endif
                                     <div class="da-overlay da-slide-bottom">
                                         <div class="da-social">

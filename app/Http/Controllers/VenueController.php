@@ -13,6 +13,7 @@ use App\Models\PaymentMethod;
 use App\Models\PaymentMethodDetail;
 use App\Models\OpeningHour;
 use App\Models\VenueImage;
+use Illuminate\Support\Facades\Http;
 use App\Models\Owner;
 use App\Models\Day;
 use App\Models\Hour;
@@ -110,9 +111,9 @@ class VenueController extends Controller
         }
         $service_events = ServiceEvent::where('venue_id', $venue->id)->get();
         $venue_image = VenueImage::where('venue_id', $venue->id)->get();
-        return view('back.pages.owner.venue-manage.show-venue', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image','service_events'));
+        return view('back.pages.owner.venue-manage.show-venue', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image', 'service_events'));
     }
-    
+
     public function edit(Venue $venue)
     {
 
@@ -131,5 +132,4 @@ class VenueController extends Controller
     public function destroy(Venue $venue)
     {
     }
-
 }

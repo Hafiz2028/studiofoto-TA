@@ -94,42 +94,65 @@
                 <div class="card-body">
                     <section id="lokasi_venue" role="tabpanel" aria-labelledby="lokasi_venue" class="tab-panel">
                         <br>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="address">Alamat:</label>
-                                    <input type="text" id="address"
-                                        class="form-control @error('address') is-invalid @enderror" name="address"
-                                        placeholder="Masukkan alamat" value="{{ old('address') }}"
-                                        wire:model.lazy="address">
-                                    @error('address')
-                                        <span class="text-danger ml-2">{{ $message }}</span>
-                                    @enderror
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label for="district">Kecamatan:</label>
+                                        <select id="districtSelect" name="district_id" wire:model="selectedDistrictId"
+                                            wire:change="getVillages" class="form-control">
+                                            <option value="">Pilih Kecamatan</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->id }}">{{ $district->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('district_id')
+                                            <span class="text-danger ml-2">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="kecamatan">Kecamatan:</label>
-                                    <select id="kecamatan" class="form-control">
-                                    </select>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label for="village">Kelurahan:</label>
+                                        <select id="villageSelect" name="village_id" wire:model.defer="village_id" wire:change="saveVillageId($event.target.value)"
+                                            class="form-control">
+                                            <option value="">Pilih Kelurahan</option>
+                                            @foreach ($villages as $village)
+                                                <option value="{{ $village->id }}">{{ $village->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('village_id')
+                                            <span class="text-danger ml-2">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="latitude">Latitude:</label>
-                                    <input type="text" id="latitude"
-                                        class="form-control @error('latitude') is-invalid @enderror"
-                                        placeholder="Latitude" name="latitude" wire:model="latitude">
-                                    @error('latitude')
-                                        <span class="text-danger ml-2">{{ $message }}</span>
-                                    @enderror
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label for="address">Alamat Lengkap:</label>
+                                        <input type="text" id="address"
+                                            class="form-control @error('address') is-invalid @enderror" name="address"
+                                            placeholder="Patokan Venue, seperti nama jalan atau bangunan terkenal..." value="{{ old('address') }}"
+                                            wire:model.lazy="address">
+                                        @error('address')
+                                            <span class="text-danger ml-2">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="longitude">Longitude:</label>
-                                    <input type="text" id="longitude"
-                                        class="form-control @error('longitude') is-invalid @enderror"
-                                        placeholder="Longitude" name="longitude" wire:model="longitude">
-                                    @error('longitude')
-                                        <span class="text-danger ml-2">{{ $message }}</span>
-                                    @enderror
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label for="map_link">Link Google Maps:</label>
+                                        <input type="text" id="map_link"
+                                            class="form-control @error('map_link') is-invalid @enderror"
+                                            placeholder="Tambahkan Link Lokasi Venue pada Google Maps..."
+                                            name="map_link" wire:model="map_link">
+                                        @error('map_link')
+                                            <span class="text-danger ml-2">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -386,7 +409,8 @@
                                                                 <input type="file"
                                                                     class="form-control @error('venueImages.' . $imageIndex) is-invalid @enderror"
                                                                     name="venueImages.{{ $imageIndex }}"
-                                                                    wire:model="venueImages.{{ $imageIndex }}" accept="image/*">
+                                                                    wire:model="venueImages.{{ $imageIndex }}"
+                                                                    accept="image/*">
                                                                 <button
                                                                     class="btn btn-outline-danger btn-sm mt-2 w-100"
                                                                     type="button"

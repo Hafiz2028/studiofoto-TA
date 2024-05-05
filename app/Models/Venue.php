@@ -17,8 +17,7 @@ class Venue extends Model
         'dp_percentage',
         'information',
         'phone_number',
-        'district',
-        'village',
+        'village_id',
         'map_link',
         'reject_note',
         'owner_id'
@@ -27,6 +26,10 @@ class Venue extends Model
     public function owner()
     {
         return $this->belongsTo(Owner::class, 'owner_id', 'id');
+    }
+    public function village()
+    {
+        return $this->belongsTo(Village::class, 'village_id', 'id');
     }
 
     public function serviceEvents()

@@ -19,15 +19,21 @@ use App\Models\PaymentMethod;
 use App\Models\VenueImage;
 use App\Models\Day;
 use App\Models\Hour;
+use App\Models\District;
+use App\Models\Village;
 use App\Models\OpeningHour;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class AddVenueTabs extends Component
 {
     use WithFileUploads;
     public $venue;
-    public $name, $phone_number, $information, $imb, $address, $latitude, $longitude;
+
+    public $name, $phone_number, $information, $imb, $address, $village_id, $map_link;
+    public $selectedDistrictId, $villages = [];
 
     // variable step 3
     public $selectedPaymentMethod = [];
@@ -45,16 +51,18 @@ class AddVenueTabs extends Component
 
     public $errorBag = null;
     public $totalSteps = 5;
-    public $currentStep = 2;
+    public $currentStep = 1;
 
     public function render()
     {
         $validationErrors = [];
+        $districts = District::all();
         if ($this->currentStep == 3) {
             $validationErrors = $this->getErrorBag()->get('bank_accounts.*');
         }
         return view('livewire.venue.add-venue-tabs', [
             'validationErrors' => $validationErrors,
+            'districts' => $districts,
         ]);
     }
 
@@ -66,15 +74,14 @@ class AddVenueTabs extends Component
             $this->payment_methods = PaymentMethod::all();
             $this->days = Day::all();
             $this->hours = Hour::all();
-
             if ($this->venue && $this->venue->exists) {
                 $this->name = $this->venue->name;
                 $this->phone_number = $this->venue->phone_number;
                 $this->information = $this->venue->information;
                 $this->imb = $this->venue->imb;
                 $this->address = $this->venue->address;
-                $this->latitude = $this->venue->latitude;
-                $this->longitude = $this->venue->longitude;
+                $this->village_id = $this->venue->village_id;
+                $this->map_link = $this->venue->map_link;
                 $venueImages = $this->venue->venueImages()->select('id', 'image')->get();
                 $this->venueImages = $venueImages->map(function ($image) {
                     return [
@@ -96,15 +103,40 @@ class AddVenueTabs extends Component
                         $this->opening_hours[$day->id][$hour->id] = $openingHourStatus === 2; // Checkbox dicentang jika status 2
                     }
                 }
+                $village = Village::with('district')->find($this->village_id);
+                if ($village) {
+                    $this->selectedDistrictId = $village->district->id;
+                }
+
             } else {
                 $this->venue = new Venue();
                 $this->initializeSchedules();
                 $this->initializeSelectedPaymentMethods();
                 $this->bank_accounts = [];
+                $this->village_id = null;
             }
+            $this->getVillages();
             $this->errorBag = null;
         }
     }
+
+    public function getVillages()
+    {
+        if (!empty($this->selectedDistrictId)) {
+            $this->villages = Village::where('district_id', $this->selectedDistrictId)->get();
+        } else {
+            $this->villages = [];
+        }
+    }
+    public function updatedSelectedDistrictId($value)
+    {
+        $this->getVillages();
+    }
+    public function saveVillageId($villageId)
+    {
+        $this->village_id = $villageId;
+    }
+
     //inisialisasi false
     protected function initializeSchedules()
     {
@@ -437,17 +469,15 @@ class AddVenueTabs extends Component
         } elseif ($this->currentStep == 2) {
             $rules = [
                 'address' => 'required|string|max:255',
-                'latitude' => 'required|numeric',
-                'longitude' => 'required|numeric',
+                'village_id' => 'required',
+                'map_link' => 'required',
             ];
             $messages = [
                 'address.required' => 'Alamat Venue harus diisi.',
                 'address.string' => 'Alamat venue harus berupa teks.',
                 'address.max' => 'Alamat tidak boleh lebih dari 255 karakter.',
-                'latitude.required' => 'Latitude harus diisi.',
-                'latitude.numeric' => 'Latitude harus berupa angka.',
-                'longitude.required' => 'Longitude harus diisi.',
-                'longitude.numeric' => 'Longitude harus berupa angka.',
+                'village_id.required' => 'Kelurahan venue harus diisi.',
+                'map_link.required' => 'Link Lokasi Venue harus diisi.',
             ];
         } elseif ($this->currentStep == 3) {
 
@@ -488,11 +518,17 @@ class AddVenueTabs extends Component
                 $messages["opening_hours.required"] = "Pilih Minimal Satu Jadwal Hari dan Satu Jadwal Operasional Venue.";
             }
         }
+        // dd($this->village_id);
         // dd($rules, $messages);
         // dd($this->opening_hours);
+
         $this->validate($rules, $messages);
         return true;
     }
+
+
+
+
 
     public function saveOpeningHours($venue)
     {
@@ -551,8 +587,6 @@ class AddVenueTabs extends Component
             dd('Failed to save bank account details: ' . $e->getMessage());
         }
     }
-
-
     protected function validateVenueImages()
     {
         $rules = [
@@ -585,8 +619,8 @@ class AddVenueTabs extends Component
                 'phone_number' => $this->phone_number,
                 'information' => $this->information,
                 'address' => $this->address,
-                'latitude' => $this->latitude,
-                'longitude' => $this->longitude,
+                'village_id' => $this->village_id,
+                'map_link' => $this->map_link,
                 'imb' => $newImbName,
             ]);
             if (!$venue) {
@@ -599,7 +633,6 @@ class AddVenueTabs extends Component
             $this->addError('venue_id', $e->getMessage());
         }
     }
-
     public function updatedVenueImages($value, $index)
     {
         if (!empty($value)) {
@@ -624,11 +657,6 @@ class AddVenueTabs extends Component
     {
         $this->venueImages[] = null;
     }
-    // public function loadVenueImages($venueId)
-    // {
-    //     $venue = Venue::findOrFail($venueId);
-    //     $this->venueImages = $venue->images()->pluck('path')->toArray();
-    // }
     public function removeImage($imageIndex)
     {
         try {
@@ -654,7 +682,6 @@ class AddVenueTabs extends Component
                 $imagePath = public_path('images/venues/Venue_Image/' . $image->image);
                 if (File::exists($imagePath)) {
                     File::delete($imagePath);
-                    // dd('Image deleted:', $imagePath);
                 }
                 $image->delete();
             }
@@ -737,7 +764,7 @@ class AddVenueTabs extends Component
             return redirect()->route('owner.venue.index');
         } catch (\Exception $e) {
             $this->addError('venue_id', $e->getMessage());
-            DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
             dd('Failed to update Venue: ' . $e->getMessage());
         }
     }

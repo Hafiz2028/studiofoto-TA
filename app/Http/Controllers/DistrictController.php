@@ -14,11 +14,9 @@ class DistrictController extends Controller
         $districtId = $request->input('district_id');
 
         try {
-            // Fetch districts directly from the API
             $responseDistricts = Http::get("https://apiwilayah.metrosoftware.id/api-wilayah-indonesia/api/districts/{$regencyId}.json");
             $districts = $responseDistricts->json();
 
-            // Villages will be fetched via proxy
             $villages = [];
             if ($districtId) {
                 $villages = $this->fetchVillages($districtId);
@@ -26,7 +24,6 @@ class DistrictController extends Controller
 
             return view('back.layout.districts', compact('districts', 'villages'));
         } catch (\Exception $e) {
-            // Return view with error message if there's an exception
             return view('back.layout.districts')->with('error', 'Failed to load data: ' . $e->getMessage());
         }
     }
@@ -34,11 +31,9 @@ class DistrictController extends Controller
     private function fetchVillages($districtId)
     {
         try {
-            // Proxy request to fetch villages
             $responseVillages = Http::get("https://apiwilayah.metrosoftware.id/api-wilayah-indonesia/api/villages/{$districtId}.json");
             return $responseVillages->json();
         } catch (\Exception $e) {
-            // Return empty array if there's an exception
             return [];
         }
     }
@@ -47,7 +42,6 @@ class DistrictController extends Controller
     {
         $selectedDistrict = $request->input('district_id');
         $selectedVillage = $request->input('village_id');
-        // Process selected data
         return redirect()->back()->with('success', 'Data successfully submitted');
     }
 }

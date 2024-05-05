@@ -1,9 +1,9 @@
 @extends('back.layout.auth-layout')
-@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Admin Login')
+@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Customer Login')
 @section('content')
 <div class="login-box bg-white box-shadow border-radius-10">
     <div class="login-title">
-        <h2 class="text-center text-primary">Admin Login</h2>
+        <h2 class="text-center text-primary">Customer Login</h2>
     </div>
     <form action="{{ route('admin.login_handler') }}" method="POST">
         @csrf

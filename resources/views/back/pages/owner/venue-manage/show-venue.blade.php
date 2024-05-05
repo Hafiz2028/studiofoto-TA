@@ -128,11 +128,26 @@
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
                                             {{ ucwords($venue->phone_number) }}</p>
                                     </h6>
-                                    <h6 class="mb-2">
+                                    <h6 class="mb-2" style="display: flex; align-items: flex-start;">
                                         <span style="display: inline-block; width: 135px;">Alamat Venue</span>
-                                        : <p style="display: inline-block; margin: 0; font-weight: normal;">
-                                            {{ ucwords($venue->address) }}</p>
+                                        : <p
+                                            style="display: inline-block; margin: 0; font-weight: normal; margin-left: 10px;">
+                                            {{ ucwords(strtolower($venue->village->district->name)) }},
+                                            {{ ucwords(strtolower($venue->village->name)) }},<br>{{ ucwords(strtolower($venue->address)) }}
+                                        </p>
                                     </h6>
+                                    <div class="col-lg-12 text-center">
+                                        <h6 class="mb-3 mt-3">
+                                            @if (strpos($venue->map_link, 'maps') !== false)
+                                                <a class="btn btn-outline-dark btn-block" href="{{ $venue->map_link }}"
+                                                    target="_blank">Cek Lokasi Venue</a>
+                                            @else
+                                                <button type="button" class="btn btn-outline-dark btn-block"
+                                                    onclick="showAlert()">Cek Lokasi Venue</button>
+                                                <p class="text-danger">Maaf, link tidak valid untuk lokasi venue.</p>
+                                            @endif
+                                        </h6>
+                                    </div>
                                     <h6 class="mb-3 mt-3">
                                         <span style="display: inline-block; width: 135px;">Deskripsi</span>
                                         :
@@ -179,11 +194,12 @@
                                         <ul class="ml-3" style="list-style-type: none;">
                                             @foreach ($service_events as $service_event)
                                                 <li>
-                                                    <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}" class="btn btn-check-out">
+                                                    <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}"
+                                                        class="btn btn-check-out">
                                                         <span class="text">{{ $service_event->name }}</span>
                                                         <span class="hover-text">Lihat Layanan</span>
                                                         <span class="icon"><i
-                                                        class="fas fa-angle-double-right"></i></span>
+                                                                class="fas fa-angle-double-right"></i></span>
                                                     </a>
                                                 </li>
                                             @endforeach
@@ -199,7 +215,6 @@
                                     @endif
                                 </div>
                             </div>
-                            <p class="text-center">MAP STUDIO FOTO</p>
                         </div>
                     </div>
                 </div>
@@ -467,5 +482,15 @@
         $(document).ready(function() {
             $('[data-toggle="tooltip"]').tooltip();
         });
+    </script>
+    <script>
+        function showAlert() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Link tidak valid atau tidak mengarah ke Google Maps!',
+                confirmButtonText: 'Tutup'
+            });
+        }
     </script>
 @endpush

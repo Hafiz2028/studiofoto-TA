@@ -49,20 +49,13 @@ if (!function_exists('sendEmail')) {
         {
             $venues = Venue::orderBy('id', 'ASC')->get();
 
-            // Loop through each venue
             foreach ($venues as $venue) {
                 $serviceSlugs = [];
-
-                // Loop through each service event of the venue
                 foreach ($venue->serviceEvents as $serviceEvent) {
-                    // Add service slug to the array
                     $serviceSlugs[] = $serviceEvent->serviceType->service_slug;
                 }
-
-                // Add service slugs array to venue object
                 $venue->service_slugs = $serviceSlugs;
             }
-
             return !empty($venues) ? $venues : [];
         }
     }

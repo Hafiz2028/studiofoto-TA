@@ -21,4 +21,10 @@ class FrontEndController extends Controller
         ];
         return view('front.pages.search',$data);
     }
+    public function detailVenue(Request $request){
+        $data = [
+            'pageTitle' => 'FotoYuk | Search Venue Page'
+        ];
+        return view('front.pages.search',$data);
+    }
 }

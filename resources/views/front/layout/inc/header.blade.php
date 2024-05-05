@@ -22,7 +22,7 @@
                             <a href="#"><i class="fa fa-user"></i> Login as</a>
                             <span class="arrow_carrot-down"></span>
                             <ul>
-                                <li><a href="#">Owner</a></li>
+                                <li><a href="{{route('owner.login')}}">Owner</a></li>
                                 <li><a href="#">Customer</a></li>
                             </ul>
                         </div>

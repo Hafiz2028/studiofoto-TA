@@ -44,21 +44,28 @@
             </div> --}}
             @if (count(get_venues_with_service_slug()) > 0)
                 @foreach (get_venues_with_service_slug() as $venue)
-                <div class="col-lg-3 col-md-4 col-sm-6 mix @foreach ($venue->serviceEvents as $serviceEvent){{ $serviceEvent->serviceType->service_slug }} @endforeach">
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart" data-toogle="tooltip" title="Favorite"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">{{ $venue->name}}</a></h6>
-                            <h5>$30.00</h5>
+                    <div
+                        class="col-lg-3 col-md-4 col-sm-6 mix @foreach ($venue->serviceEvents as $serviceEvent){{ $serviceEvent->serviceType->service_slug }} @endforeach">
+                        <div class="featured__item">
+                            <div class="featured__item__pic set-bg"
+                                @if ($venue->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
+                                    alt="{{ $venue->venueImages->first()->image }}"
+                                    @else
+                                    data-setbg="/images/venues/Venue_Image/default-venue.png"
+                                    alt="Tidak Ada Gambar Venue" @endif href="" >
+                                <ul class="featured__item__pic__hover">
+                                    <li><a href="#"><i class="fa fa-heart" data-toogle="tooltip"
+                                                title="Favorite Venue"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                </ul>
+                            </div>
+                            <div class="featured__item__text">
+                                <h6><a href="#">{{ $venue->name }}</a></h6>
+                                <h5>$30.00</h5>
+                            </div>
                         </div>
                     </div>
-                </div>
                 @endforeach
             @endif
 
