@@ -3,6 +3,8 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use App\Models\ServiceType;
+use App\Models\District;
+use App\Models\Village;
 use App\Models\Venue;
 
 /** SEND EMAIL FUNCTION USING PHPMAILER LIBRARY */
@@ -43,11 +45,12 @@ if (!function_exists('sendEmail')) {
         }
     }
 
-    /** GET FRONTEND VENUES */
+
+    /** GET FRONTEND VENUES By District */
     if (!function_exists('get_venues_with_service_slug')) {
         function get_venues_with_service_slug()
         {
-            $venues = Venue::orderBy('id', 'ASC')->get();
+            $venues = Venue::where('status', 1)->orderBy('id', 'DESC')->get();
 
             foreach ($venues as $venue) {
                 $serviceSlugs = [];

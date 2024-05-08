@@ -28,9 +28,9 @@ class Owner extends Authenticatable
         'handphone',
         'ktp',
         'address',
-        'avatar',
+        'picture',
         'email_verified_at',
-        'status',
+        'verified',
     ];
 
     /**
@@ -49,13 +49,22 @@ class Owner extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'=> 'hashed',
+        'password' => 'hashed',
     ];
-    public function getPictureAttribute($value){
-        if($value){
-            return asset('/images/users/owners/'.$value);
-        }else{
+    public function getPictureAttribute($value)
+    {
+        if ($value) {
+            return asset('/images/users/owners/' . $value);
+        } else {
             return asset('/images/users/default-avatar.png');
+        }
+    }
+    public function getKtpAttribute($value)
+    {
+        if ($value) {
+            return asset('/images/users/owners/KTP_owner/' . $value);
+        } else {
+            return asset('/images/users/owners/KTP_owner/ktp.png');
         }
     }
     public function chats()
@@ -67,5 +76,4 @@ class Owner extends Authenticatable
     {
         return $this->hasMany(Venue::class, 'owner_id', 'id');
     }
-
 }

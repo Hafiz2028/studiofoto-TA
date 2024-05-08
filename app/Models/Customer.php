@@ -29,7 +29,7 @@ class Customer extends Authenticatable
         'address',
         'avatar',
         'email_verified_at',
-        'status',
+        'verified',
     ];
     public function chats()
     {
@@ -54,4 +54,12 @@ class Customer extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'=> 'hashed',
     ];
+    public function getPictureAttribute($value)
+    {
+        if ($value) {
+            return asset('/images/users/customers/' . $value);
+        } else {
+            return asset('/images/users/default-avatar.png');
+        }
+    }
 }

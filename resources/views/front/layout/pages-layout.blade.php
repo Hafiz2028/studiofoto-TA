@@ -40,7 +40,7 @@
     <!-- Header Section End -->
 
     <!-- Hero Section Begin -->
-    @if(Request::is('/'))
+    @if (Request::is('/'))
         @include('front.layout.inc.hero', ['class' => 'hero'])
     @else
         @include('front.layout.inc.hero', ['class' => 'hero hero-normal'])
@@ -78,8 +78,12 @@
     <script src="/front/js/mixitup.min.js"></script>
     <script src="/front/js/owl.carousel.min.js"></script>
     <script src="/front/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
     @livewireScripts()
     @stack('scripts')
+
 
 
 </body>

@@ -16,13 +16,9 @@ use App\Http\Controllers\FrontEndController;
 */
 
 Route::controller(FrontEndController::class)->group(function () {
-    Route::get('/', 'homePage')->name('home-page');
+    Route::get('/', 'home')->name('home');
     Route::get('/search', 'searchPage')->name('search-page');
 });
-
-
-Route::get('/districts', [DistrictController::class, 'getDistricts'])->name('districts');
-Route::post('/submit', [DistrictController::class, 'submit'])->name('submit');
 
 Route::view('/example-page', 'example-page');
 Route::view('/example-auth', 'example-auth');

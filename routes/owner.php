@@ -15,19 +15,31 @@ Route::prefix('owner')->name('owner.')->group(function () {
     Route::middleware(['guest:owner', 'PreventBackHistory'])->group(function () {
 
         //route saat owner tdk autentikasi
-        Route::view('/login', 'back.pages.owner.auth.login')->name('login');
-        Route::post('/login_handler', [OwnerController::class, 'loginHandler'])->name('login_handler');
-        Route::view('/forgot-password', 'back.pages.owner.auth.forgot-password')->name('forgot-password');
-        Route::post('/send-password-reset-link', [OwnerController::class, 'sendPasswordResetLink'])->name('send-password-reset-link');
-        Route::get('/password/reset/{token}', [OwnerController::class, 'resetPassword'])->name('reset-password');
-        Route::post('/reset-password-handler', [OwnerController::class, 'resetPasswordHandler'])->name('reset-password-handler');
+        Route::controller(OwnerController::class)->group(function () {
+            Route::get('/login', 'login')->name('login');
+            Route::post('/login_handler', 'loginHandler')->name('login-handler');
+            Route::get('/register', 'register')->name('register');
+            Route::post('/create','createOwner')->name('create');
+            Route::get('/account/verify/{token}','verifyAccount')->name('verify');
+            Route::get('/register-success','registerSuccess')->name('register-success');
+            Route::get('/forgot-password', 'forgotPassword')->name('forgot-password');
+            Route::post('/send-password-reset-link', 'sendPasswordResetLink')->name('send-password-reset-link');
+            Route::get('/password/reset/{token}', 'showResetForm')->name('reset-password');
+            Route::post('/reset-password-handler', 'resetPasswordHandler')->name('reset-password-handler');
+
+        });
     });
     Route::middleware(['auth:owner', 'PreventBackHistory'])->group(function () {
         //route saat admin autentikasi
-        Route::view('/home', 'back.pages.owner.home')->name('home');
-        Route::post('/logout_handler', [OwnerController::class, 'logoutHandler'])->name('logout_handler');
-        Route::get('/profile', [OwnerController::class, 'profileView'])->name('profile');
-        Route::post('/change-profile-picture', [OwnerController::class, 'changeProfilePicture'])->name('change-profile-picture');
+        Route::controller(OwnerController::class)->group(function () {
+            Route::get('/', 'home')->name('home');
+            Route::post('/logout', 'logoutHandler')->name('logout');
+            Route::get('/profile', 'profileView')->name('profile');
+            Route::post('/change-profile-picture', 'changeProfilePicture')->name('change-profile-picture');
+            Route::post('/change-ktp-image','changeKtpImage')->name('change-ktp-image');
+
+
+        });
 
         //sidebar route
         //menu venue's manage

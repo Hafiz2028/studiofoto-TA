@@ -13,10 +13,109 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
+use App\Models\VerificationToken;
 
 class OwnerController extends Controller
 {
+    public $now;
+
+    public function __construct()
+    {
+        // Mendapatkan waktu saat ini dengan zona waktu 'Asia/Jakarta'
+        $this->now = Carbon::now()->tz('Asia/Jakarta');
+    }
     //auth
+    public function login(Request $request)
+    {
+        $data = [
+            'pageTitle' => 'Login Owner',
+        ];
+        return view('back.pages.owner.auth.login', $data);
+    }
+    public function register(Request $request)
+    {
+        $data = [
+            'pageTitle' => 'Register Owner',
+        ];
+        return view('back.pages.owner.auth.register', $data);
+    }
+    public function home(Request $request)
+    {
+        $data = [
+            'pageTitle' => 'Owner Home Page',
+        ];
+        return view('back.pages.owner.home', $data);
+    }
+    public function createOwner(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'username' => 'required|unique:owners',
+            'email' => 'required|email|unique:owners',
+            'password' => 'min:5|required_with:password_confirmation|same:password_confirmation',
+            'password_confirmation' => 'min:5',
+        ]);
+        $owner = new Owner();
+        $owner->name = $request->name;
+        $owner->username = $request->username;
+        $owner->email = $request->email;
+        $owner->password = Hash::make($request->password);
+        $saved = $owner->save();
+        if ($saved) {
+            $token = base64_encode(Str::random(64));
+            VerificationToken::create([
+                'user_type' => 'owner',
+                'email' => $request->email,
+                'token' => $token
+            ]);
+
+            $actionLink = route('owner.verify', ['token' => $token]);
+            $data['action_link'] = $actionLink;
+            $data['owner_name'] = $request->name;
+            $data['owner_username'] = $request->username;
+            $data['owner_email'] = $request->email;
+
+            $mail_body = view('email-templates.owner-verify-template', $data)->render();
+            $mailConfig = array(
+                'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                'mail_from_name' => env('EMAIL_FROM_NAME'),
+                'mail_recipient_email' => $request->email,
+                'mail_recipient_name' => $request->name,
+                'mail_subject' => 'Verify Owner Account',
+                'mail_body' => $mail_body,
+            );
+            if (sendEmail($mailConfig)) {
+                return redirect()->route('owner.register-success');
+            } else {
+                return redirect()->route('owner.register')->with('fail', 'Something went wrong while sending verification link.');
+            }
+        } else {
+            return redirect()->route('owner.register')->with('fail', 'Something went wrong.');
+        }
+    }
+
+    public function verifyAccount(Request $request, $token)
+    {
+        $verifyToken = VerificationToken::where('token', $token)->first();
+        if (!is_null($verifyToken)) {
+            $owner = Owner::where('email', $verifyToken->email)->first();
+            if (!$owner->verified) {
+                $owner->verified = 1;
+                $owner->email_verified_at = Carbon::now();
+                $owner->save();
+                return redirect()->route('owner.login')->with('success', 'Your E-mail is verified. Login with your account and complete your account profile.');
+            } else {
+                return redirect()->route('owner.login')->with('info', 'Your E-Mail is already verified. You already can Login with this account.');
+            }
+        } else {
+            return redirect()->route('owner.register')->with('fail', 'Invalid Token.');
+        }
+    }
+    public function registerSuccess(Request $request)
+    {
+        return view('back.pages.owner.register-success');
+    }
+
     public function loginHandler(Request $request)
     {
         $fieldType = filter_var($request->login_id, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
@@ -25,7 +124,7 @@ class OwnerController extends Controller
                 'login_id' => 'required|email|exists:owners,email',
                 'password' => 'required|min:5|max:45'
             ], [
-                'login_id,required' => 'Email or Username is required',
+                'login_id.required' => 'Email or Username is required',
                 'login_id.email' => 'Invalid email address',
                 'login_id.exists' => 'Email is not exists in system',
                 'password.required' => 'Password is required'
@@ -43,23 +142,67 @@ class OwnerController extends Controller
         $creds = array(
             $fieldType => $request->login_id,
             'password' => $request->password
-
         );
+
         if (Auth::guard('owner')->attempt($creds)) {
-            return redirect()->route('owner.home');
+            $user = auth('owner')->user();
+            if (!$user->verified) {
+                auth('owner')->logout();
+                $verifyToken = VerificationToken::where('email', $user->email)->first();
+                if (!$verifyToken || $verifyToken->updated_at->lt(Carbon::now()->subMinutes(15))) {
+                    $token = base64_encode(Str::random(64));
+                    if (!$verifyToken) {
+                        VerificationToken::create([
+                            'user_type' => 'owner',
+                            'email' => $user->email,
+                            'token' => $token,
+                        ]);
+                    } else {
+                        $verifyToken->update(['token' => $token, 'updated_at' => $this->now->toDateTimeString()]);
+                    }
+                    $actionLink = route('owner.verify', ['token' => $token]);
+                    $data['action_link'] = $actionLink;
+                    $data['owner_name'] = $user->name;
+                    $data['owner_username'] = $user->username;
+                    $data['owner_email'] = $user->email;
+                    $mail_body = view('email-templates.owner-verify-template', $data)->render();
+                    $mailConfig = array(
+                        'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                        'mail_from_name' => env('EMAIL_FROM_NAME'),
+                        'mail_recipient_email' => $user->email,
+                        'mail_recipient_name' => $user->name,
+                        'mail_subject' => 'Verify Owner Account',
+                        'mail_body' => $mail_body,
+                    );
+                    if (sendEmail($mailConfig)) {
+                        return redirect()->route('owner.login')->with('fail', 'Your Account is not verified. We have sent a new verification link to your email. Please check your email and click on the link to verify your account.');
+                    } else {
+                        return redirect()->route('owner.login')->with('fail', 'Your Account is not verified. Something went wrong while sending verification link. Please contact support for assistance.');
+                    }
+                } else {
+                    return redirect()->route('owner.login')->with('info', 'A verification link was sent to your email address within the last 15 minutes. Please check your email and verify your account.');
+                }
+                return redirect()->route('owner.login')->with('info', 'We Send Verification Link to Your Email, please check your latest email and verfify your account.');
+            } else {
+                return redirect()->route('owner.home')->with('success', "Welcome to Owner's Home Page");
+            }
         } else {
-            session()->flash('fail', 'wrong password');
-            return redirect()->route('owner.login');
+            return redirect()->route('owner.login')->withInput()->with('fail', 'wrong password');
         }
     }
     //logout
     public function logoutHandler(Request $request)
     {
         Auth::guard('owner')->logout();
-        session()->flash('fail', 'You are logged out');
-        return redirect()->route('owner.login');
+        return redirect()->route('owner.login')->with('fail', 'You are logged out');
     }
-
+    public function forgotPassword(Request $request)
+    {
+        $data = [
+            'pageTitle' => 'Forgot Password'
+        ];
+        return view('back.pages.owner.auth.forgot', $data);
+    }
     //send email reset password start
     public function sendPasswordResetLink(Request $request)
     {
@@ -79,34 +222,31 @@ class OwnerController extends Controller
 
         //check if there is an existing reset password token
         $oldToken = DB::table('password_reset_tokens')
-            ->where(['email' => $request->email, 'guard' => constGuards::OWNER])
+            ->where(['email' => $owner->email, 'guard' => constGuards::OWNER])
             ->first();
 
         if ($oldToken) {
             //update token
             DB::table('password_reset_tokens')
-                ->where(['email' => $request->email, 'guard' => constGuards::OWNER])
+                ->where(['email' => $owner->email, 'guard' => constGuards::OWNER])
                 ->update([
                     'token' => $token,
                     'created_at' => Carbon::now()
                 ]);
         } else {
             DB::table('password_reset_tokens')->insert([
-                'email' => $request->email,
+                'email' => $owner->email,
                 'guard' => constGuards::OWNER,
                 'token' => $token,
                 'created_at' => Carbon::now()
             ]);
         }
 
-        $actionLink = route('owner.reset-password', ['token' => $token, 'email' => $request->email]);
+        $actionLink = route('owner.reset-password', ['token' => $token, 'email' => urlencode($owner->email)]);
 
-        $data = array(
-            'actionLink' => $actionLink,
-            'owner' => $owner
-        );
-
-        $mail_body = view('email-templates.admin-forgot-email-template', $data)->render();
+        $data['actionLink'] = $actionLink;
+        $data['owner'] = $owner;
+        $mail_body = view('email-templates.owner-forgot-email-template', $data)->render();
 
         $mailConfig = array(
             'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
@@ -118,34 +258,27 @@ class OwnerController extends Controller
         );
 
         if (sendEmail($mailConfig)) {
-            session()->flash('success', 'We have e-mailed your password reset link.');
-            return redirect()->route('owner.forgot-password');
+            return redirect()->route('owner.forgot-password')->with('success', 'We have e-mailed your password reset link.');
         } else {
-            session()->flash('fail', 'Something went wrong!');
-            return redirect()->route('owner.forgot-password');
+            return redirect()->route('owner.forgot-password')->with('fail', 'Something went wrong!');
         }
     }
 
     //reset password & email start
-    public function resetPassword(Request $request, $token = null)
+    public function showResetForm(Request $request, $token = null)
     {
-        $check_token = DB::table('password_reset_tokens')
+        $get_token = DB::table('password_reset_tokens')
             ->where(['token' => $token, 'guard' => constGuards::OWNER])
             ->first();
-        if ($check_token) {
-            //check if token is not expired
-            $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $check_token->created_at)->diffInMinutes(Carbon::now());
-
+        if ($get_token) {
+            $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $get_token->created_at)->diffInMinutes(Carbon::now());
             if ($diffMins > constDefaults::tokenExpiredMinutes) {
-                //if token is expired
-                session()->flash('fail', 'Token expired, request another reset password link.');
-                return redirect()->route('owner.forgot-password', ['token' => $token]);
+                return redirect()->route('owner.forgot-password', ['token' => $token])->with('fail', 'Token expired, request another reset password link.');
             } else {
-                return view('back.pages.owner.auth.reset-password')->with(['token' => $token]);
+                return view('back.pages.owner.auth.reset')->with(['token' => $token]);
             }
         } else {
-            session()->flash('fail', 'Invalid token!, request another reset password link');
-            return redirect()->route('owner.forgot-password', ['token' => $token]);
+            return redirect()->route('owner.forgot-password', ['token' => $token])->with('fail', 'Invalid token!, request another reset password link');;
         }
     }
 
@@ -176,12 +309,9 @@ class OwnerController extends Controller
         ])->delete();
 
         //send email to notify owner
-        $data = array(
-            'owner' => $owner,
-            'new_password' => $request->new_password
-        );
-
-        $mail_body = view('email-templates.admin-reset-email-template', $data)->render();
+        $data['owner'] = $owner;
+        $data['new_password'] = $request->new_password;
+        $mail_body = view('email-templates.owner-reset-email-template', $data);
 
         $mailConfig = array(
             'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
@@ -219,8 +349,8 @@ class OwnerController extends Controller
         $upload = $file->move(public_path($path), $filename);
 
         if ($upload) {
-            if ($old_picture != null && File::exists(public_path($path . $old_picture))) {
-                File::delete(public_path($path . $old_picture));
+            if ($old_picture != null && File::exists(public_path($file_path))) {
+                File::delete(public_path($file_path));
             }
             $owner->update(['picture' => $filename]);
             return response()->json(['status' => 1, 'msg' => 'Your profile picture has been successfully uploaded']);
@@ -228,6 +358,33 @@ class OwnerController extends Controller
             return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
         }
     }
+    public function changeKtpImage(Request $request)
+    {
+        $owner = Owner::findOrFail(auth('owner')->id());
+        $path = 'images/users/owners/KTP_owner';
+        $file = $request->file('ownerKtpImageFile');
+        $old_ktp = $owner->getAttributes()['ktp'];
+        $file_path = $path . $old_ktp;
+        $filename = 'OWNER_KTP_IMG_' . rand(2, 1000) . $owner->id . time() . uniqid() . '.jpg';
+
+        $upload = $file->move(public_path($path), $filename);
+
+        if ($upload) {
+            if ($old_ktp != null && File::exists(public_path($file_path))) {
+                File::delete(public_path($file_path));
+            }
+            $owner->update(['ktp' => $filename]);
+            return response()->json(['status' => 1, 'msg' => 'Your ID picture has been successfully uploaded']);
+        } else {
+            return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
+        }
+    }
+
+
+
+
+
+
 
     /**
      * Display a listing of the resource.

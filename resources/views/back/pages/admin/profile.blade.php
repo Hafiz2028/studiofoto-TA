@@ -25,7 +25,7 @@
     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
         <div class="pd-20 card-box height-100-p">
             <div class="profile-photo">
-                <a href="javascript:;" onclick="event.preventDefault();document.getElementById('adminProfilePictureFile').click();" class="edit-avatar"><i class="fa fa-pencil"></i></a>
+                <a href="javascript:;" onclick="event.preventDefault();document.getElementById('adminProfilePictureFile').click();" class="edit-avatar"><i class="fas fa-pencil-alt"></i></a>
                 <img src="{{ $admin->picture }}" alt="" class="avatar-photo" id="adminProfilePicture">
                 <input type="file" name="adminProfilePictureFile" id="adminProfilePictureFile" class="d-none" style="opacity:0"
                 >
@@ -39,7 +39,7 @@
     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 mb-30">
         <div class="card-box height-100-p overflow-hidden">
 
-            @livewire('admin-profile-tabs') 
+            @livewire('admin-profile-tabs')
 
         </div>
     </div>

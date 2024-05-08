@@ -3,17 +3,9 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-title">
-                    <h2>Featured Product</h2>
+                    <h2>Service Event Type</h2>
                 </div>
                 <div class="featured__controls">
-                    {{-- <ul>
-                        <li class="active" data-filter="*">All</li>
-                        <li data-filter=".oranges">Oranges</li>
-                        <li data-filter=".fresh-meat">Fresh Meat</li>
-                        <li data-filter=".vegetables">Vegetables</li>
-                        <li data-filter=".fastfood">Fastfood</li>
-                    </ul> --}}
-
                     <ul>
                         <li class="active" data-filter="*">All</li>
                         @if (count(get_service_types()) > 0)
@@ -44,25 +36,42 @@
             </div> --}}
             @if (count(get_venues_with_service_slug()) > 0)
                 @foreach (get_venues_with_service_slug() as $venue)
-                    <div
-                        class="col-lg-3 col-md-4 col-sm-6 mix @foreach ($venue->serviceEvents as $serviceEvent){{ $serviceEvent->serviceType->service_slug }} @endforeach">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mix">
                         <div class="featured__item">
                             <div class="featured__item__pic set-bg"
                                 @if ($venue->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
                                     alt="{{ $venue->venueImages->first()->image }}"
-                                    @else
+                                    style="background-image: url('/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}');"
+                                @else
                                     data-setbg="/images/venues/Venue_Image/default-venue.png"
-                                    alt="Tidak Ada Gambar Venue" @endif href="" >
+                                    alt="Tidak Ada Gambar Venue" @endif>
                                 <ul class="featured__item__pic__hover">
                                     <li><a href="#"><i class="fa fa-heart" data-toogle="tooltip"
                                                 title="Favorite Venue"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                    @if (auth()->guard('customer')->check())
+                                        <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
+                                            <i class="fa fa-info" data-toogle="tooltip" title="Detail Studio Foto"></i></a>
+                                        @else
+                                        <li><a id="openDetailVenue" data-toogle="tooltip" title="Detail Studio Foto"><i class="fa fa-info"></i></a>
+                                    @endif
+                                    </li>
                                     <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
                                 </ul>
                             </div>
                             <div class="featured__item__text">
-                                <h6><a href="#">{{ $venue->name }}</a></h6>
-                                <h5>$30.00</h5>
+                                @if (auth()->guard('customer')->check())
+                                    <h6><a
+                                            href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
+                                    </h6>
+                                @else
+                                    <h6><a id="openDetailVenue">{{ $venue->name }}</a>
+                                    </h6>
+                                @endif
+                                <h5 style="font-size: 16px; color: #333; margin-top: 10px;">
+                                    <span
+                                        style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
+                                        from</span> Rp. 50.000
+                                </h5>
                             </div>
                         </div>
                     </div>
@@ -72,3 +81,29 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const openDetailVenue = document.getElementById('openDetailVenue');
+
+        openDetailVenue.addEventListener('click', function() {
+            Swal.fire({
+                title: 'Belum Login',
+                text: 'Silahkan untuk melakukan login atau register akun.',
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonText: 'Login',
+                confirmButtonColor: '#28a745',
+                cancelButtonText: 'Register',
+                cancelButtonColor: '#2843da',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('customer.login') }}";
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = "{{ route('customer.register') }}";
+                }
+            });
+        });
+    });
+</script>

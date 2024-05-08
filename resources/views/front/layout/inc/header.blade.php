@@ -19,12 +19,28 @@
                             <a href="#"><i class="fa fa-pinterest-p"></i></a>
                         </div>
                         <div class="header__top__right__language">
-                            <a href="#"><i class="fa fa-user"></i> Login as</a>
-                            <span class="arrow_carrot-down"></span>
-                            <ul>
-                                <li><a href="{{route('owner.login')}}">Owner</a></li>
-                                <li><a href="#">Customer</a></li>
-                            </ul>
+                            @if (auth()->guard('customer')->check())
+                                <a href="#"><i class="fa fa-user"></i>
+                                    {{ auth()->guard('customer')->user()->name }}</a>
+                                <span class="arrow_carrot-down"></span>
+                                <ul>
+                                    <li><a href="{{ route('customer.profile') }}">Profile</a></li>
+                                    <li>
+                                        <form method="post" action="{{ route('customer.logout') }}">
+                                            @csrf
+                                            <button type="submit"
+                                                style="background: none; border: none; padding: 5px 10px; font: inherit; cursor: pointer; color: white; text-decoration: none; font-size: smaller;">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            @else
+                                <a href="#"><i class="fa fa-user"></i> Login as</a>
+                                <span class="arrow_carrot-down"></span>
+                                <ul>
+                                    <li><a href="{{ route('owner.login') }}">Owner</a></li>
+                                    <li><a href="{{ route('customer.login') }}">Customer</a></li>
+                                </ul>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -35,28 +51,32 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="header__logo">
-                    <a href="./index.html"><img src="/front/img/logo.png" alt=""></a>
+                    <a href="{{ route('home') }}"><img src="/front/img/logo.png" alt=""></a>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-7">
                 <nav class="header__menu">
                     <ul>
-                        <li class="{{ Route::is('home-page') ? 'active' : '' }}"><a href="{{route('home-page')}}">Home</a></li>
-                        <li class="{{ Route::is('search-page') ? 'active' : '' }}"><a href="{{route('search-page')}}">Search</a></li>
-                        <li><a href="#">Booking</a>
-                            <ul class="header__menu__dropdown">
-                                <li><a href="./shop-details.html">Shop Details</a></li>
-                                <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                                <li><a href="./checkout.html">Check Out</a></li>
-                                <li><a href="./blog-details.html">Blog Details</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="./blog.html">History</a></li>
-                        <li><a href="./contact.html">Chat</a></li>
+                        <li class="{{ Route::is('home') ? 'active' : '' }}"><a href="{{ route('home') }}">Home</a></li>
+                        <li class="{{ Route::is('search-page') ? 'active' : '' }}"><a
+                                href="{{ route('search-page') }}">Search</a></li>
+                        @if (auth()->guard('customer')->check())
+                            <li><a href="#">Booking</a>
+                                <ul class="header__menu__dropdown">
+                                    <li><a href="./shop-details.html">Shop Details</a></li>
+                                    <li><a href="./shoping-cart.html">Shoping Cart</a></li>
+                                    <li><a href="./checkout.html">Check Out</a></li>
+                                    <li><a href="./blog-details.html">Blog Details</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="./blog.html">History</a></li>
+                            <li><a href="./contact.html">Chat</a></li>
+                            <li><a href="./contact.html">Profile</a></li>
+                        @endif
                     </ul>
                 </nav>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <div class="header__cart">
                     <ul>
                         <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>

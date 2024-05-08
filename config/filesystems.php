@@ -30,6 +30,13 @@ return [
 
     'disks' => [
 
+        'profile_picture' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
@@ -39,7 +46,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => public_path('images/venues'),
-            'url' => env('APP_URL').'/images/venues',
+            'url' => env('APP_URL') . '/images/venues',
             'visibility' => 'public',
             'throw' => false,
         ],

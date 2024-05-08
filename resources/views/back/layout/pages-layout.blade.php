@@ -5,9 +5,8 @@
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
     <title>@yield('pageTitle')</title>
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Site favicon -->
-    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
     <link rel="apple-touch-icon" sizes="180x180" href="/back/vendors/images/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/back/vendors/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/back/vendors/images/favicon-16x16.png" />
@@ -57,7 +56,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script>
-    {{-- @kropifyStyles --}}
+    @kropifyStyles
     @livewireStyles
     @stack('stylesheets')
 </head>
@@ -439,7 +438,7 @@
     <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
     <script src="/extra-assets/summernote/summernote-bs4.min.js"></script>
     <script>
-        window.addEventListener('showToaster', function(event) {
+        window.addEventListener('showToastr', function(event) {
             toastr.remove();
             if (event.detail[0].type === 'info') {
                 toastr.info(event.detail[0].message);
@@ -463,7 +462,7 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-    {{-- @kropifyScripts --}}
+    @kropifyScripts
     @livewireScripts
     @stack('scripts')
 </body>

@@ -19,11 +19,10 @@ class CreateCustomersTable extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('handphone', 50);
+            $table->string('handphone', 50)->nullable();
             $table->string('address')->nullable();
             $table->string('picture')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('status',['Pending','Active'])->default('Pending');
             $table->timestamps();
         });
     }
