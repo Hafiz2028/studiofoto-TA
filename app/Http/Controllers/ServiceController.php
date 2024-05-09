@@ -118,7 +118,8 @@ class ServiceController extends Controller
             $service = ServiceEvent::findOrFail($serviceId);
             $serviceImages = ServiceEventImage::where('service_event_id', $serviceId)->get();
             $packages = ServicePackage::where('service_event_id', $serviceId)->get();
-            return view('back.pages.owner.service-manage.show', compact('venue', 'service', 'serviceImages','packages'));
+            $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
+            return view('back.pages.owner.service-manage.show', compact('venue', 'service', 'serviceImages','packages','printServiceEvents'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('error.page')->with('error_message', 'Data tidak ditemukan.');
         } catch (\Illuminate\Contracts\View\View | \Throwable $e) {

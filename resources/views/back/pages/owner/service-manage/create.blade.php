@@ -65,18 +65,7 @@
                     @endif
                     <div class="container">
                         <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 mt-3">
-                                <div id="imagePreviewContainer" class="overflow-auto" style="display: inline-block;">
-                                    <label>Preview Paket Foto & Hasil Foto Layanan : </label><br>
-                                    <div id="catalogPreview" class="image-preview mr-3" style="display: inline-block;">
-                                    </div>
-                                    <div id="imagesPreview" class="image-preview mr-3" style="display: inline-block;"></div>
-                                    <br><label>Preview Hasil Foto Tambahan : </label><br>
-                                    <div id="additionalPreviews" class="image-preview mr-3"
-                                        style="display: inline-block; white-space: nowrap;"></div>
-                                </div>
-                                <hr>
-                            </div>
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Nama Layanan</label>
@@ -210,6 +199,18 @@
                         <div class="col-lg-12 col-md-12 col-sm-12">
                             <div id="additionalImages" class="row">
                             </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 mt-3">
+                            <div id="imagePreviewContainer" class="overflow-auto" style="display: inline-block;">
+                                <label>Preview Paket Foto & Hasil Foto Layanan : </label><br>
+                                <div id="catalogPreview" class="image-preview mr-3" style="display: inline-block;">
+                                </div>
+                                <div id="imagesPreview" class="image-preview mr-3" style="display: inline-block;"></div>
+                                <br><label>Preview Hasil Foto Tambahan : </label><br>
+                                <div id="additionalPreviews" class="image-preview mr-3"
+                                    style="display: inline-block; white-space: nowrap;"></div>
+                            </div>
+                            <hr>
                         </div>
                         <div class="row">
                             <div class="col-lg-12 mt-2">

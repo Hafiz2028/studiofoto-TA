@@ -24,7 +24,6 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::post('/logout', 'logoutHandler')->name('logout');
             Route::get('/profile', 'profileView')->name('profile');
             Route::post('/change-profile-picture', 'changeProfilePicture')->name('change-profile-picture');
-            Route::post('/change-ktp-image', 'changeKtpImage')->name('change-ktp-image');
         });
         Route::controller(FrontEndController::class)->group(function () {
             Route::get('/', 'home')->name('home');

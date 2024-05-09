@@ -51,7 +51,7 @@
         <div class="product-detail-wrap mb-30">
             <div class="row mb-3">
                 {{-- card detail venue --}}
-                <div class="col-lg-12 col-md-8 col-sm-12">
+                <div class="col-lg-8 col-md-8 col-sm-12">
                     <div class="card card-primary shadow">
                         <div class="card-header bg-info text-white">
                             <h3 class="text-white mb-0 text-center">Detail Layanan</h3>
@@ -116,6 +116,40 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-4 col-md-8 col-sm-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-info text-white">
+                            <h2 class="card-title text-center text-white mb-3">Paket Foto Layanan</h2>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Ukuran Foto</th>
+                                        <th>Harga</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if ($printServiceEvents->count() > 0)
+                                        @foreach ($printServiceEvents as $index => $printServiceEvent)
+                                            <tr>
+                                                <td>{{ $printServiceEvent->printPhoto->size }}</td>
+                                                <td>Rp {{ number_format($printServiceEvent->price, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="2">
+                                                <div class="alert alert-danger text-center">Tidak Ada Paket Foto Layanan Ini
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -136,7 +170,10 @@
                                     <th>#</th>
                                     <th>Nama Paket</th>
                                     <th>Tipe Layanan</th>
-                                    <th>Gambar</th>
+                                    <th>Minimal Pembayaran</th>
+                                    <th>Harga</th>
+                                    <th>Waktu</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -144,14 +181,16 @@
                                     @foreach ($packages as $index => $package)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ $package->nama }}</td> <!-- Ganti 'nama' dengan kolom yang sesuai -->
+                                            <td>{{ $package->name }}</td>
                                             <td>{{ $package->tipe_layanan }}</td>
-                                            <td>{{ $package->gambar }}</td>
+                                            <td>{{ $package->dp_percentage }}</td>
+                                            <td>{{ $package->price }}</td>
+                                            <td>{{ $package->time_status }}</td>
                                         </tr>
                                     @endforeach
                                 @else
                                     <tr>
-                                        <td colspan="4">
+                                        <td colspan="7">
                                             <div class="alert alert-danger text-center">Tidak Ada List Paket Harga Layanan
                                                 Ini</div>
                                         </td>
@@ -163,23 +202,20 @@
                 </div>
             </div>
 
-
             <div class="card shadow">
                 <div class="card-header bg-info">
                     <h2 class="card-title text-center text-white">Foto Layanan</h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body d-flex flex-wrap justify-content-start align-items-start">
                     @if ($serviceImages->isEmpty())
                         <div class="alert alert-danger text-center">Tidak Ada Foto Layanan</div>
                     @else
-                        <div class="row">
-                            @foreach ($serviceImages as $index => $image)
-                                <div class="col-lg-3 col-md-3 col-sm-6 mb-4">
-                                    <img src="/images/venues/Service_Image/{{ $image->image }}" alt="{{ $image->image }}"
-                                        class="img-fluid rounded">
-                                </div>
-                            @endforeach
-                        </div>
+                        @foreach ($serviceImages as $index => $image)
+                            <div class="col-lg-3 col-md-3 col-sm-6 mb-4">
+                                <img src="/images/venues/Service_Image/{{ $image->image }}" alt="{{ $image->image }}"
+                                    class="img-fluid rounded">
+                            </div>
+                        @endforeach
                     @endif
                 </div>
             </div>

@@ -18,30 +18,20 @@
                             <a href="#"><i class="fa fa-linkedin"></i></a>
                             <a href="#"><i class="fa fa-pinterest-p"></i></a>
                         </div>
-                        <div class="header__top__right__language">
-                            @if (auth()->guard('customer')->check())
-                                <a href="#"><i class="fa fa-user"></i>
-                                    {{ auth()->guard('customer')->user()->name }}</a>
-                                <span class="arrow_carrot-down"></span>
-                                <ul>
-                                    <li><a href="{{ route('customer.profile') }}">Profile</a></li>
-                                    <li>
-                                        <form method="post" action="{{ route('customer.logout') }}">
-                                            @csrf
-                                            <button type="submit"
-                                                style="background: none; border: none; padding: 5px 10px; font: inherit; cursor: pointer; color: white; text-decoration: none; font-size: smaller;">Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            @else
+
+
+                        @if (auth()->guard('customer')->check())
+                            @livewire('customer-header-profile-info')
+                        @else
+                            <div class="header__top__right__language">
                                 <a href="#"><i class="fa fa-user"></i> Login as</a>
                                 <span class="arrow_carrot-down"></span>
                                 <ul>
                                     <li><a href="{{ route('owner.login') }}">Owner</a></li>
                                     <li><a href="{{ route('customer.login') }}">Customer</a></li>
                                 </ul>
-                            @endif
-                        </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -71,7 +61,7 @@
                             </li>
                             <li><a href="./blog.html">History</a></li>
                             <li><a href="./contact.html">Chat</a></li>
-                            <li><a href="./contact.html">Profile</a></li>
+                            <li><a href="{{ route('customer.profile') }}">Profile</a></li>
                         @endif
                     </ul>
                 </nav>
@@ -91,3 +81,9 @@
         </div>
     </div>
 </header>
+<script>
+    function toggleDropdown() {
+        var dropdownMenu = document.getElementById("dropdown-menu");
+        dropdownMenu.style.display = dropdownMenu.style.display === "none" ? "block" : "none";
+    }
+</script>

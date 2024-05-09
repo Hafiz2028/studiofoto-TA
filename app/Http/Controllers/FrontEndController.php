@@ -15,6 +15,11 @@ class FrontEndController extends Controller
         $data = [
             'pageTitle' => 'FotoYuk | Home Page'
         ];
+
+        if ($request->user('customer')) {
+            $data['customer'] = $request->user('customer');
+        }
+
         return view('front.pages.home', $data);
     }
     public function searchPage(Request $request)
@@ -22,6 +27,11 @@ class FrontEndController extends Controller
         $data = [
             'pageTitle' => 'FotoYuk | Search Venue Page'
         ];
+
+        if ($request->user('customer')) {
+            $data['customer'] = $request->user('customer');
+        }
+
         return view('front.pages.search', $data);
     }
     public function detailVenue(Request $request, $id)

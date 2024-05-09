@@ -735,8 +735,8 @@ class AddVenueTabs extends Component
                 'phone_number' => $this->phone_number,
                 'information' => $this->information,
                 'address' => $this->address,
-                'latitude' => $this->latitude,
-                'longitude' => $this->longitude,
+                'village_id' => $this->village_id,
+                'map_link' => $this->map_link,
             ];
             $imbChanged = $this->imb instanceof UploadedFile && $this->imb->isValid();
             $venue->update($updatedData);

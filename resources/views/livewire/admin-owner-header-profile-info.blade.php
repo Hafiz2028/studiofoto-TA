@@ -36,7 +36,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                     <a class="dropdown-item" href="{{ route('owner.profile') }}"><i class="dw dw-user1"></i> Profile</a>
-                    <a class="dropdown-item" href="{{ route('owner.logout') }}" 
+                    <a class="dropdown-item" href="{{ route('owner.logout') }}"
                         onclick="event.preventDefault();document.getElementById('ownerLogoutForm').submit
                                 ();"><i
                             class="dw dw-logout"></i> Log Out</a>
@@ -45,5 +45,6 @@
             </div>
         </div>
     @endif
+
 
 </div>

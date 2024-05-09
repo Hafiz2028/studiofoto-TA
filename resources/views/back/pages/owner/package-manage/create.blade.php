@@ -201,8 +201,7 @@
                                             class="form-control @error('price') is-invalid @enderror"
                                             placeholder="Tambahkan Harga Paket..." value="{{ old('price') }}" required>
                                     </div>
-                                    <p class="alert alert-info">Jika ada Add On, tambahkan harga Add On ke Harga
-                                        Paket.<br>Harga belum termasuk harga Cetak Foto.</p>
+                                    <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
                                     @error('price')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -338,7 +337,6 @@
             });
         });
     </script>
-
     {{-- print foto --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -506,8 +504,6 @@
             packagePriceInput.addEventListener('input', calculateEstimatedPrice);
         });
     </script>
-
-
     {{-- validasi --}}
     <script>
         function validatePaymentInputs() {
