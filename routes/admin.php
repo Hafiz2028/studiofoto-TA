@@ -6,6 +6,8 @@ use App\Http\Controllers\VenueController;
 use App\Http\Controllers\Admin\ServiceVenueController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\ServiceController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -50,7 +52,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/reject/{id}', [VenueController::class, 'rejectVenue'])->name('reject-venue');
             Route::get('/detail/{id}',[VenueController::class, 'detailVenue'])->name('detail-venue');
         });
-
+        Route::resource('venue', VenueController::class);
+        Route::resource('venue.services', ServiceController::class);
+        Route::resource('venue.services.packages', PackageController::class);
         //menu Venue's Service
         Route::prefix('service')->name('service.')->group(function () {
             Route::controller(ServiceVenueController::class)->group(function () {

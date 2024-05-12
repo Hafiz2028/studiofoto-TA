@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Models\ServiceEvent;
 use App\Models\ServiceEventImage;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\TryCatch;
+use App\Http\Controllers\Controller;
 
 class ServiceController extends Controller
 {
@@ -42,7 +44,7 @@ class ServiceController extends Controller
             $serviceTypes = ServiceType::all();
             $printPhotos = PrintPhoto::all();
 
-            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes','printPhotos'));
+            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes', 'printPhotos'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -118,8 +120,8 @@ class ServiceController extends Controller
             $service = ServiceEvent::findOrFail($serviceId);
             $serviceImages = ServiceEventImage::where('service_event_id', $serviceId)->get();
             $packages = ServicePackage::where('service_event_id', $serviceId)->get();
-            $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
-            return view('back.pages.owner.service-manage.show', compact('venue', 'service', 'serviceImages','packages','printServiceEvents'));
+            $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->orderBy('print_photo_id')->get();
+            return view('back.pages.owner.service-manage.show', compact('venue', 'service', 'serviceImages', 'packages', 'printServiceEvents'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('error.page')->with('error_message', 'Data tidak ditemukan.');
         } catch (\Illuminate\Contracts\View\View | \Throwable $e) {
@@ -128,11 +130,148 @@ class ServiceController extends Controller
     }
     public function edit($venueId, $serviceId)
     {
-        //
+        try {
+            $venue = Venue::findOrFail($venueId);
+            $service = ServiceEvent::findOrFail($serviceId);
+            $serviceTypes = ServiceType::all();
+            $printPhotos = PrintPhoto::all();
+            $printServiceEvents = PrintServiceEvent::where('service_event_id', $service->id)->get();
+            $serviceEventImages = ServiceEventImage::where('service_event_id', $service->id)->get();
+            session()->put('temp_catalog', $service->catalog);
+            return view('back.pages.owner.service-manage.update', compact('venue', 'serviceTypes', 'printPhotos', 'service', 'printServiceEvents', 'serviceEventImages'));
+        } catch (\Exception $e) {
+            return redirect()->back();
+        }
     }
     public function update(Request $request, $venueId, $serviceId)
     {
-        //
+        try {
+            // Validasi data yang dikirimkan melalui formulir
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'service_type_id' => 'required|exists:service_types,id',
+                'description' => 'nullable|string',
+                'prices.*' => 'required|numeric',
+            ]);
+            // dd($validatedData);
+            // Temukan venue dan layanan yang akan diperbarui
+            $venue = Venue::findOrFail($venueId);
+            $service = ServiceEvent::findOrFail($serviceId);
+            $oldData = $service->toArray();
+            // Update data layanan
+            $service->name = $validatedData['name'];
+            $service->service_type_id = $validatedData['service_type_id'];
+            $service->description = $validatedData['description'];
+
+
+            if ($request->has('print_photos_switch')) {
+                $print_photos_switch = $request->input('print_photos_switch');
+                if ($print_photos_switch) {
+                    $printPhotos = $request->input('print_photos', []);
+                    $prices = $request->input('prices', []);
+
+                    // Ambil semua print photos yang sudah ada untuk service event ini
+                    $existingPrintPhotos = PrintServiceEvent::where('service_event_id', $service->id)
+                        ->pluck('print_photo_id')
+                        ->toArray();
+
+                    foreach ($printPhotos as $printPhotoId) {
+                        if (isset($prices[$printPhotoId])) {
+                            $price = $prices[$printPhotoId];
+                            PrintServiceEvent::updateOrCreate(
+                                ['print_photo_id' => $printPhotoId, 'service_event_id' => $service->id],
+                                ['price' => $price]
+                            );
+                        } else {
+                            if (in_array($printPhotoId, $existingPrintPhotos)) {
+                                PrintServiceEvent::where('print_photo_id', $printPhotoId)
+                                    ->where('service_event_id', $service->id)
+                                    ->delete();
+                            } else {
+                                dd("Harga tidak valid atau tidak ditemukan untuk Print Photo ID: $printPhotoId");
+                            }
+                        }
+                    }
+                    PrintServiceEvent::where('service_event_id', $service->id)
+                        ->whereNotIn('print_photo_id', $printPhotos)
+                        ->delete();
+                } else {
+                    dd('Data cetak foto akan dihapus');
+                }
+            } else {
+                PrintServiceEvent::where('service_event_id', $service->id)->delete();
+            }
+
+            // Proses katalog
+            if ($request->hasFile('new_catalog')) {
+                if ($service->catalog) {
+                    $catalogPath = public_path('/images/venues/Katalog/' . $service->catalog);
+                    if (File::exists($catalogPath)) {
+                        File::delete($catalogPath);
+                    }
+                }
+                // Simpan katalog baru
+                $catalogFileName = 'MENU_' . $service->name . '_' . $service->id . '_' . time() . '_' . $request->new_catalog->getClientOriginalName();
+                $request->new_catalog->storeAs('/Katalog', $catalogFileName, 'public');
+                $service->catalog = $catalogFileName;
+            }
+
+
+            //update foto
+            // if ($request->has('deleted_image_ids')) {
+            //     $deletedImageIds = json_decode($request->deleted_image_ids);
+            //     if ($deletedImageIds !== null) {
+            //         foreach ($deletedImageIds as $cloneNumber) {
+            //             // Gunakan cloneNumber untuk mengidentifikasi gambar yang akan dihapus
+            //             $image = ServiceEventImage::where('service_event_id', $service->id)
+            //                 ->where('clone_number', $cloneNumber)
+            //                 ->first();
+            //             if ($image) {
+            //                 $imagePath = public_path('/images/venues/Service_Image/' . $image->image);
+            //                 if (File::exists($imagePath)) {
+            //                     File::delete($imagePath);
+            //                 }
+            //                 $image->delete();
+            //             }
+            //         }
+            //     } else {
+            //         // Debugging: Tampilkan pesan jika format data tidak sesuai
+            //         dd("Format data deleted_image_ids tidak sesuai");
+            //     }
+            // }
+
+            // Proses gambar
+            if ($request->hasFile('image_venue')) {
+                foreach ($request->file('image_venue') as $image) {
+                    $imageFileName = 'SERVICE_' . $service->id . '_' . time() . '_' . $image->getClientOriginalName();
+                    $image->storeAs('/Service_Image', $imageFileName, 'public');
+                    $serviceEventImage = ServiceEventImage::where('service_event_id', $service->id)
+                        ->where('image', $imageFileName)
+                        ->first();
+                    if ($serviceEventImage) {
+                        $serviceEventImage->update(['image' => $imageFileName]);
+                    } else {
+                        ServiceEventImage::create([
+                            'service_event_id' => $service->id,
+                            'image' => $imageFileName
+                        ]);
+                    }
+                }
+            }
+
+
+
+            $service->save();
+            $newData = $service->toArray();
+            $updatedData = array_diff_assoc($newData, $oldData);
+            Log::info('Data updated: ' . json_encode($updatedData));
+
+            // return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Layanan berhasil diperbarui.');
+            return redirect()->back()->with('success', 'Layanan berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Gagal memperbarui layanan: ' . $e->getMessage()); // Log pesan kesalahan
+            return redirect()->back()->with('error', 'Gagal memperbarui layanan. Silakan coba lagi. Pesan Kesalahan: ' . $e->getMessage());
+        }
     }
     public function destroy($venueId, $serviceId)
     {

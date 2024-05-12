@@ -525,11 +525,6 @@ class AddVenueTabs extends Component
         $this->validate($rules, $messages);
         return true;
     }
-
-
-
-
-
     public function saveOpeningHours($venue)
     {
         try {
@@ -598,40 +593,6 @@ class AddVenueTabs extends Component
             'venueImages.*.max' => 'Ukuran file Foto Studio Venue maksimal adalah 5 MB.',
         ];
         $this->validate($rules, $messages);
-    }
-    public function storeVenue()
-    {
-        $this->resetErrorBag();
-        if ($this->currentStep == 5) {
-            $this->validateVenueImages();
-        }
-        if (!session()->has('imb_path')) {
-            $this->addError('imb', 'File IMB Belum di tambahkan.');
-            return;
-        }
-
-        $newImbName = session('imb_path');
-
-        try {
-            $venue = Venue::create([
-                'owner_id' => Auth::guard('owner')->id(),
-                'name' => $this->name,
-                'phone_number' => $this->phone_number,
-                'information' => $this->information,
-                'address' => $this->address,
-                'village_id' => $this->village_id,
-                'map_link' => $this->map_link,
-                'imb' => $newImbName,
-            ]);
-            if (!$venue) {
-                throw new \Exception('Failed to create Venue.');
-            }
-            $this->saveVenueData($venue);
-            session()->flash('success', 'Data venue berhasil ditambahkan bree.');
-            return redirect()->route('owner.venue.index');
-        } catch (\Exception $e) {
-            $this->addError('venue_id', $e->getMessage());
-        }
     }
     public function updatedVenueImages($value, $index)
     {
@@ -721,7 +682,6 @@ class AddVenueTabs extends Component
             dd('Failed to save venue images: ' . $e->getMessage());
         }
     }
-
     public function updateVenue($venue)
     {
         $this->resetErrorBag();
@@ -740,6 +700,9 @@ class AddVenueTabs extends Component
             ];
             $imbChanged = $this->imb instanceof UploadedFile && $this->imb->isValid();
             $venue->update($updatedData);
+            if ($venue->status === 2) {
+                $venue->update(['status' => 0]);
+            }
             if (!$imbChanged) {
                 unset($updatedData['imb']);
                 $venue->update($updatedData);
@@ -766,6 +729,38 @@ class AddVenueTabs extends Component
             $this->addError('venue_id', $e->getMessage());
             DB::rollBack();
             dd('Failed to update Venue: ' . $e->getMessage());
+        }
+    }
+    public function storeVenue()
+    {
+        $this->resetErrorBag();
+        if ($this->currentStep == 5) {
+            $this->validateVenueImages();
+        }
+        if (!session()->has('imb_path')) {
+            $this->addError('imb', 'File IMB Belum di tambahkan.');
+            return;
+        }
+        $newImbName = session('imb_path');
+        try {
+            $venue = Venue::create([
+                'owner_id' => Auth::guard('owner')->id(),
+                'name' => $this->name,
+                'phone_number' => $this->phone_number,
+                'information' => $this->information,
+                'address' => $this->address,
+                'village_id' => $this->village_id,
+                'map_link' => $this->map_link,
+                'imb' => $newImbName,
+            ]);
+            if (!$venue) {
+                throw new \Exception('Failed to create Venue.');
+            }
+            $this->saveVenueData($venue);
+            session()->flash('success', 'Data venue berhasil ditambahkan bree.');
+            return redirect()->route('owner.venue.index');
+        } catch (\Exception $e) {
+            $this->addError('venue_id', $e->getMessage());
         }
     }
 }

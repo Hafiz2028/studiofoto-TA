@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\FrontEndController;
+use App\Http\Controllers\ServiceController;
 
 /*
 |--------------------------------------------------------------------------

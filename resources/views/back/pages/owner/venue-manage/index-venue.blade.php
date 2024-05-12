@@ -76,21 +76,27 @@
                                                 <div class="form-group mt-4">
                                                     <div class="form-row">
                                                         <div class="col">
-                                                            <a class="btn btn-sm btn-outline-info btn-block"
+                                                            @if ($venue->status == 0 || $venue->status == 2)
+                                                                <a class="btn btn-md
+                                                                @if ($venue->status == 0) btn-outline-info
+                                                                @elseif ($venue->status == 2) btn-danger @endif
+                                                                btn-block"
+                                                                    @if ($venue->status == 2) onclick="editVenue({{ $venue->id }})"
+                                                                    href="javascript:void(0)"
+                                                                    @elseif ($venue->status == 0) onclick="confirmVenue()"
+                                                                    href="javascript:void(0)" @endif><i
+                                                                        class="fas fa-edit"></i>
+                                                                    Edit Venue &ensp;
+                                                                </a>
+                                                                <br>
+                                                            @endif
+                                                            <a class="btn btn-md
+                                                            @if ($venue->status == 0) btn-info
+                                                            @elseif ($venue->status == 1) btn-success
+                                                            @elseif ($venue->status == 2) btn-outline-danger @endif
+                                                            btn-block"
                                                                 href="{{ route('owner.venue.show', $venue->id) }}">
                                                                 See Venue &ensp;<i class="fas fa-angle-double-right"></i>
-                                                            </a>
-                                                            <a class="btn btn-sm
-                                                                @if ($venue->status == 0) btn-outline-info
-                                                                @elseif ($venue->status == 1) btn-outline-success
-                                                                @elseif ($venue->status == 2) btn-outline-danger @endif
-                                                                btn-block"
-                                                                @if ($venue->status == 1) href="{{ route('owner.venue.edit', $venue->id) }}"
-                                                                @elseif ($venue->status == 2) onclick="editVenue({{ $venue->id }})"
-                                                                href="javascript:void(0)"
-                                                                @elseif ($venue->status == 0) onclick="confirmVenue()"
-                                                                href="javascript:void(0)" @endif>
-                                                                Edit Venue &ensp;<i class="fas fa-angle-double-right"></i>
                                                             </a>
                                                         </div>
                                                     </div>
@@ -99,9 +105,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="da-card-content">
+                                <div class="da-card-content" style="display: flex; flex-direction: column; height: 100%;">
                                     {{-- status --}}
-                                    <div class="w-100 d-flex justify-content-center">
+                                    <div class="w-100 d-flex justify-content-center mb-2">
                                         @if ($venue->status == 0)
                                             <span class="badge badge-info" style="width:100%">Menunggu Konfirmasi</span>
                                         @elseif ($venue->status == 1)
@@ -110,15 +116,31 @@
                                             <span class="badge badge-danger" style="width:100%">Ditolak</span>
                                         @endif
                                     </div>
-                                    <h5 class="h5 mb-10 mt-3">{{ $venue->name }}</h5>
-                                    <p class="mb-0">
-                                        <span style="display: inline-block; width: 100px;">Alamat Venue</span>
-                                        : {{ ucwords($venue->address) }}
-                                    </p>
-                                    <p class="mb-0">
-                                        <span style="display: inline-block; width: 100px;">CP Venue</span>
-                                        : {{ ucwords($venue->phone_number) }}
-                                    </p>
+                                    <div class="nama-venue mb-2" style="height: 40px; overflow: hidden;">
+                                        <h5 class="h5 mb-0"
+                                            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            {{ $venue->name }}
+                                        </h5>
+                                    </div>
+                                    <div class="alamat" style="height: 45px; overflow: hidden;">
+                                        <p class="mb-0">
+                                            <span style="display: inline-block; width: 100px;">Alamat Venue</span>:
+                                        </p>
+                                        <p class="ml-3 mb-0"
+                                            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">
+                                            {{ ucwords(strtolower($venue->address)) }},
+                                            {{ ucwords(strtolower($venue->village->name)) }},
+                                            {{ ucwords(strtolower($venue->village->district->name)) }}.
+                                        </p>
+                                    </div>
+                                    <div class="cp-venue" style="overflow: hidden;">
+                                        <p class="mb-0">
+                                            <span style="display: inline-block; width: 100px;">CP Venue</span>:
+                                        </p>
+                                        <p class="ml-3" style="font-weight: bold;">
+                                            {{ ucwords($venue->phone_number) }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
@@ -142,7 +164,7 @@
 <script>
     function confirmVenue() {
         Swal.fire({
-            title: "Venue kamu belum dikonfirmasi !",
+            title: "Venue kamu belum dikonfirmasi!",
             text: "Harap menunggu admin untuk Approve venue kamu",
             icon: "info",
             confirmButtonColor: "info",
@@ -165,7 +187,7 @@
             cancelButtonText: "Tidak, Batalkan!",
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{{ route('owner.venue.edit', $venue->id) }}";
+                window.location.href = `/owner/venue/${id}/edit`;
             } else {
                 Swal.fire("Dibatalkan", "Kamu batal melengkapi data venue", "error");
             }

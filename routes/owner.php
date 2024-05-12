@@ -37,15 +37,11 @@ Route::prefix('owner')->name('owner.')->group(function () {
             Route::get('/profile', 'profileView')->name('profile');
             Route::post('/change-profile-picture', 'changeProfilePicture')->name('change-profile-picture');
             Route::post('/change-ktp-image','changeKtpImage')->name('change-ktp-image');
-
-
         });
-
         //sidebar route
         //menu venue's manage
         Route::resource('venue', VenueController::class);
         Route::get('/venue/districts', [VenueController::class, 'getDistricts'])->name('districts');
-        // Route::post('/venue/submit', [DistrictController::class, 'submit'])->name('submit');
         Route::resource('venue.services', ServiceController::class);
         Route::resource('venue.services.packages', PackageController::class);
 

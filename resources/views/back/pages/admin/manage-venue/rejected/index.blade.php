@@ -52,7 +52,7 @@
                                             <td>
                                                 <div class="table-actions">
                                                     <form
-                                                        action="{{ route('admin.venue.detail-venue', ['id' => $item->id]) }}"
+                                                        action="{{ route('admin.venue.show', ['venue' => $item->id]) }}"
                                                         method="GET">
                                                         @csrf
                                                         <button type="submit" class="btn btn-outline-info mr-2"

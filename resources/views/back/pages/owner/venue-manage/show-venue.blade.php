@@ -10,15 +10,40 @@
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('owner.home') }}">Home</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('owner.venue.index') }}">Venue's Manage</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Detail Venue
-                        </li>
+                        @if (auth()->guard('owner')->check())
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('owner.home') }}">Home</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('owner.venue.index') }}">Venue's Manage</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Detail Venue
+                            </li>
+                        @endif
+                        @if (auth()->guard('admin')->check())
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('admin.home') }}">Home</a>
+                            </li>
+                            @if ($venue->status == 0)
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('admin.venue.need-approval') }}">Need Approval Venue</a>
+                                </li>
+                            @endif
+                            @if ($venue->status == 1)
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('admin.venue.approved') }}">Approved Venue</a>
+                                </li>
+                            @endif
+                            @if ($venue->status == 2)
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('admin.venue.rejected') }}">Rejected Venue</a>
+                                </li>
+                            @endif
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Detail Venue
+                            </li>
+                        @endif
                     </ol>
                 </nav>
             </div>
@@ -32,16 +57,20 @@
                     <div class="alert alert-danger text-center">
                         <strong style="font-size: 20px;">PERHATIAN</strong><br> Venue ini telah ditolak.
                         @if (!empty($venue->reject_note))
-                            <br>
-                            <span class="text-center"><strong>Alasan penolakan:</strong><br><br>
+                            <br><br>
+                            <span class="text-center"><strong>Alasan penolakan:</strong><br>
                                 {{ ucwords($venue->reject_note) }}</span>
                         @endif
-                        <br><br>
-                        <a href="" class="btn btn-outline-danger">Hapus Venue
-                        </a>
-                        <a href="{{ route('owner.venue.edit', $venue->id) }}" class="btn btn-success">Perbaiki Venue <i
-                                class="fas fa-angle-double-right"></i>
-                        </a>
+                        @if (auth()->guard('owner')->check())
+                            <br><br>
+                            <a href="javascript:;" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0"
+                                id="deleteVenueBtn">
+                                <i class="fas fa-trash"></i> Hapus Venue
+                            </a>
+                            <a href="{{ route('owner.venue.edit', $venue->id) }}" class="btn btn-success">Perbaiki Venue <i
+                                    class="fas fa-angle-double-right"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -50,11 +79,60 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="card-box">
-                    <div class="alert alert-info text-center">
-                        <strong style="font-size: 20px;">PERHATIAN</strong><br>
-                        <p class="pb-0 mb-0">Venue ini Belum Di Approve oleh Admin. <br>Silahkan untuk menunggu.
-                        </p>
-                    </div>
+                    @if (auth()->guard('owner')->check())
+                        <div class="alert alert-info text-center">
+                            <strong style="font-size: 20px;">PERHATIAN</strong><br>
+                            <p class="pb-0 mb-0">Venue ini Belum Di Approve oleh Admin. <br>Silahkan untuk menunggu.
+                            </p>
+                        </div>
+                    @elseif (auth()->guard('admin')->check())
+                        <div class="alert alert-info text-center">
+                            <strong style="font-size: 20px;">PERHATIAN</strong><br>
+                            {{-- Acc Modal & Button --}}
+                            <p class="pb-0 mb-0">Venue ini Belum Dikonfirmasi oleh Admin. <br>
+                                <br>
+                                <button class="btn btn-success mr-2" data-toggle="modal"
+                                    data-target="#acceptModal{{ $venue->id }}">Konfirmasi Sekarang <i
+                                        class="fas fa-angle-double-right"></i>
+                                </button></a>
+                            </p>
+                            <div class="modal fade" id="acceptModal{{ $venue->id }}" tabindex="-1" role="dialog"
+                                aria-labelledby="acceptModalLabel{{ $venue->id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title text-white" id="acceptModalLabel{{ $venue->id }}">
+                                                Approve Venue</h5>
+                                            <button type="button" class="close text-white" data-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Apakah anda yakin untuk Approve Venue
+                                            <b>{{ $venue->name }}</b> dari Owner
+                                            <b>{{ $venue->owner->name }}</b> ini?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger"
+                                                data-dismiss="modal">Cancel</button>
+                                            <form id="approve-form"
+                                                action="{{ route('admin.venue.approve-venue', ['id' => $venue->id]) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-outline-success">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -62,26 +140,31 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="card-box">
-                    <div
-                        class="alert alert-success d-flex justify-content-between align-items-center flex-column flex-sm-row">
-                        <div>
-                            <strong style="font-size: 20px;">SELAMAT</strong><br>
-                            <p class="pb-0 mb-0">Venue telah di Approve oleh Admin.</p>
+                    @if (auth()->guard('owner')->check())
+                        <div
+                            class="alert alert-success d-flex justify-content-between align-items-center flex-column flex-sm-row">
+                            <div>
+                                <strong style="font-size: 20px;">SELAMAT</strong><br>
+                                <p class="pb-0 mb-0">Venue telah di Approve oleh Admin.</p>
+                            </div>
+                            <div class="actions-buttons d-flex justify-content-sm-end mt-3 mt-sm-0">
+
+                                <a href="javascript:;" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0"
+                                    id="deleteVenueBtn">
+                                    <i class="fas fa-trash"></i> Hapus Venue
+                                </a>
+
+                                <a href="{{ route('owner.venue.edit', $venue->id) }}"
+                                    class="btn btn-outline-info mr-2 mr-sm-1 mb-2 mb-sm-0">
+                                    <i class="fas fa-edit"></i> Update Venue
+                                </a>
+                                <a href="{{ route('owner.venue.services.create', $venue->id) }}"
+                                    class="btn btn-success mb-2 mb-sm-0">
+                                    <i class="fas fa-plus"></i> Tambah Event Layanan
+                                </a>
+                            </div>
                         </div>
-                        <div class="actions-buttons d-flex justify-content-sm-end mt-3 mt-sm-0">
-                            <a href="route" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0">
-                                <i class="fas fa-trash"></i> Hapus Venue
-                            </a>
-                            <a href="{{ route('owner.venue.edit', $venue->id) }}"
-                                class="btn btn-outline-info mr-2 mr-sm-1 mb-2 mb-sm-0">
-                                <i class="fas fa-edit"></i> Update Venue
-                            </a>
-                            <a href="{{ route('owner.venue.services.create', $venue->id) }}"
-                                class="btn btn-primary mb-2 mb-sm-0">
-                                <i class="fas fa-plus"></i> Tambah Event Layanan Studio
-                            </a>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -109,40 +192,41 @@
                                         @endif
                                     </div>
                                     <h6 class="mb-2">
-                                        <span style="display: inline-block; width: 135px;">Pemilik</span>
+                                        <span style="display: inline-block; width: 130px;">Owner</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
                                             {{ ucwords($venue->owner->name) }}</p>
                                     </h6>
                                     <h6 class="mb-2">
-                                        <span style="display: inline-block; width: 135px;">CP Pemilik</span>
+                                        <span style="display: inline-block; width: 130px;">CP Owner</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
                                             {{ ucwords($venue->owner->handphone) }}</p>
                                     </h6>
                                     <h6 class="mb-2">
-                                        <span style="display: inline-block; width: 135px;">Alamat Pemilik</span>
+                                        <span style="display: inline-block; width: 130px;">Alamat Owner</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
                                             {{ ucwords($venue->owner->address) }}</p>
                                     </h6>
                                     <h6 class="mb-2">
-                                        <span style="display: inline-block; width: 135px;">CP Venue</span>
+                                        <span style="display: inline-block; width: 130px;">CP Venue</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
                                             {{ ucwords($venue->phone_number) }}</p>
                                     </h6>
                                     <h6 class="mb-2" style="display: flex; align-items: flex-start;">
                                         <span style="display: inline-block; width: 135px;">Alamat Venue</span>
-                                        : <p
-                                            style="display: inline-block; margin: 0; font-weight: normal; margin-left: 10px;">
+                                        : <p class="ml-1 mb-0"
+                                            style="display: inline-block; font-weight: normal; width: 200px;">
+                                            {{ ucwords(strtolower($venue->address)) }},
                                             {{ ucwords(strtolower($venue->village->district->name)) }},
-                                            {{ ucwords(strtolower($venue->village->name)) }},<br>{{ ucwords(strtolower($venue->address)) }}
+                                            {{ ucwords(strtolower($venue->village->name)) }},
                                         </p>
                                     </h6>
                                     <div class="col-lg-12 text-center">
                                         <h6 class="mb-3 mt-3">
                                             @if (strpos($venue->map_link, 'maps') !== false)
-                                                <a class="btn btn-outline-dark btn-block" href="{{ $venue->map_link }}"
-                                                    target="_blank">Cek Lokasi Venue</a>
+                                                <a class="btn btn-outline-primary btn-block"
+                                                    href="{{ $venue->map_link }}" target="_blank">Cek Lokasi Venue</a>
                                             @else
-                                                <button type="button" class="btn btn-outline-dark btn-block"
+                                                <button type="button" class="btn btn-outline-primary btn-block"
                                                     onclick="showAlert()">Cek Lokasi Venue</button>
                                                 <p class="text-danger">Maaf, link tidak valid untuk lokasi venue.</p>
                                             @endif
@@ -192,25 +276,48 @@
                                     </h6>
                                     @if ($venue->status == 1)
                                         <ul class="ml-3" style="list-style-type: none;">
-                                            @foreach ($service_events as $service_event)
-                                                <li>
-                                                    <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}"
-                                                        class="btn btn-check-out">
-                                                        <span class="text">{{ $service_event->name }}</span>
-                                                        <span class="hover-text">Lihat Layanan</span>
-                                                        <span class="icon"><i
-                                                                class="fas fa-angle-double-right"></i></span>
+                                            @if (!count($service_events) > 0)
+                                                <div class="alert alert-info text-center">
+                                                    Tidak ada Layanan Venue, Tambah layanan.<br>
+                                                    <a href="{{ route('owner.venue.services.create', $venue->id) }}"
+                                                        class="btn btn-success mb-2 mb-sm-0">
+                                                        <i class="fas fa-plus"></i> Layanan
                                                     </a>
-                                                </li>
-                                            @endforeach
+                                                </div>
+                                            @else
+                                                @foreach ($service_events as $service_event)
+                                                    @if (auth()->guard('owner')->check())
+                                                        <li>
+                                                            <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}"
+                                                                class="btn btn-check-out">
+                                                                <span class="text">{{ $service_event->name }}</span>
+                                                                <span class="hover-text">Lihat Layanan</span>
+                                                                <span class="icon"><i
+                                                                        class="fas fa-angle-double-right"></i></span>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                    @if (auth()->guard('admin')->check())
+                                                        <li>
+                                                            <a href="{{ route('admin.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}"
+                                                                class="btn btn-check-out">
+                                                                <span class="text">{{ $service_event->name }}</span>
+                                                                <span class="hover-text">Lihat Layanan</span>
+                                                                <span class="icon"><i
+                                                                        class="fas fa-angle-double-right"></i></span>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            @endif
                                         </ul>
                                     @elseif ($venue->status == 0)
                                         <div class="alert alert-warning text-center ml-4 mr-4">
-                                            Venue Belum di Approve
+                                            Venue Belum di Approve.
                                         </div>
                                     @elseif ($venue->status == 2)
                                         <div class="alert alert-danger text-center ml-4 mr-4">
-                                            Venue Ditolak
+                                            Venue Ditolak.
                                         </div>
                                     @endif
                                 </div>
@@ -492,5 +599,51 @@
                 confirmButtonText: 'Tutup'
             });
         }
+    </script>
+    {{-- modal hapus --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('deleteVenueBtn').addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Hapus Venue',
+                    text: "Apakah Anda yakin ingin menghapus venue ini? Venue yang dihapus tidak bisa dikembalikan.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    cancelButtonText: 'Batal',
+                    cancelButtonColor: '#28a745',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Hapus'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("{{ route('owner.venue.destroy', $venue) }}", {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error('Gagal menghapus venue');
+                            }
+                        }).then(data => {
+                            Swal.fire({
+                                title: 'Hapus Venue',
+                                text: "Venue Berhasil dihapus.",
+                                icon: 'success',
+                                showConfirmButton: true,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            }).then(() => {
+                                window.location.href =
+                                    "{{ route('owner.venue.index') }}";
+                            });
+                        }).catch(error => {
+                            console.error('Terjadi kesalahan:', error);
+                        });
+                    }
+                });
+            });
+        });
     </script>
 @endpush

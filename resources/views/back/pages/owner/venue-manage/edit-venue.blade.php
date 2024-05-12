@@ -16,6 +16,9 @@
                         <li class="breadcrumb-item">
                             <a href="{{ route('owner.venue.index')}}">Venue's Manage</a>
                         </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('owner.venue.show',$venue->id)}}">Detail Venue</a>
+                        </li>
                         <li class="breadcrumb-item active" aria-current="page">
                             Edit Venue
                         </li>
@@ -27,7 +30,7 @@
 
     <div class="pd-20 card-box mb-30">
         <br>
-        @livewire('venue.add-venue-tabs', ['venue' => $venue]) 
+        @livewire('venue.add-venue-tabs', ['venue' => $venue])
     </div>
 
 

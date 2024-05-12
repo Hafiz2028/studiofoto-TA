@@ -52,7 +52,7 @@
                                             <td>
                                                 <div class="table-actions">
                                                     <form
-                                                        action="{{ route('admin.venue.detail-venue', ['id' => $item->id]) }}"
+                                                        action="{{ route('admin.venue.show', ['venue' => $item->id]) }}"
                                                         method="GET">
                                                         @csrf
                                                         <button type="submit" class="btn btn-outline-info mr-2"
@@ -68,7 +68,7 @@
                                                         data-toggle="modal" data-target="#rejectModal{{ $item->id }}">
                                                         <i class="fa fa-times"></i>
                                                     </button>
-                                                    {{-- Acc Modal --}}
+                                                    {{-- Acc Modal --}} 
                                                     <div class="modal fade" id="acceptModal{{ $item->id }}"
                                                         tabindex="-1" role="dialog"
                                                         aria-labelledby="acceptModalLabel{{ $item->id }}"

@@ -3,6 +3,7 @@
 @section('pageTitle', isset($pageTitle) ? $pageTitle : "Add Venue")
 @section('content')
 
+
     <div class="page-header">
         <div class="row">
             <div class="col-md-12 col-sm-12">

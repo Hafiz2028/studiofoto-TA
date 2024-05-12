@@ -157,7 +157,7 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label>Paket Foto Layanan</label>
+                                    <label>Katalog Harga Layanan</label>
                                     <div class="custom-file">
                                         <input type="file"
                                             class="custom-file-input @error('catalog') is-invalid @enderror"
@@ -202,7 +202,7 @@
                         </div>
                         <div class="col-lg-12 col-md-12 col-sm-12 mt-3">
                             <div id="imagePreviewContainer" class="overflow-auto" style="display: inline-block;">
-                                <label>Preview Paket Foto & Hasil Foto Layanan : </label><br>
+                                <label>Preview Katalog Harga & Hasil Foto Layanan : </label><br>
                                 <div id="catalogPreview" class="image-preview mr-3" style="display: inline-block;">
                                 </div>
                                 <div id="imagesPreview" class="image-preview mr-3" style="display: inline-block;"></div>

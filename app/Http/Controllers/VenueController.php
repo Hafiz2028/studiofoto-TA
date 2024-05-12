@@ -40,8 +40,18 @@ class VenueController extends Controller
     }
     public function needApproval()
     {
-        $venue = Venue::all();
+        $venue = Venue::where('status', 0)->get();
         return view('back.pages.admin.manage-venue.need-approval.index', compact('venue'));
+    }
+    public function approved()
+    {
+        $venue = Venue::where('status', 1)->get();
+        return view('back.pages.admin.manage-venue.approved.index', compact('venue'));
+    }
+    public function rejected()
+    {
+        $venue = Venue::where('status', 2)->get();
+        return view('back.pages.admin.manage-venue.rejected.index', compact('venue'));
     }
     public function approveVenue($id)
     {
@@ -65,16 +75,6 @@ class VenueController extends Controller
         } else {
             return redirect()->route('admin.venue.need-approval')->with('fail', 'Venue gagal di Reject, coba lagi');
         }
-    }
-    public function approved()
-    {
-        $venue = Venue::all();
-        return view('back.pages.admin.manage-venue.approved.index', compact('venue'));
-    }
-    public function rejected()
-    {
-        $venue = Venue::all();
-        return view('back.pages.admin.manage-venue.rejected.index', compact('venue'));
     }
     public function detailVenue($id)
     {
@@ -113,23 +113,32 @@ class VenueController extends Controller
         $venue_image = VenueImage::where('venue_id', $venue->id)->get();
         return view('back.pages.owner.venue-manage.show-venue', compact('venue', 'payment_method_detail', 'uniqueDays', 'openingHours', 'venue_image', 'service_events'));
     }
-
     public function edit(Venue $venue)
     {
 
         try {
+            $venue = Venue::findOrFail($venue->id);
             return view('back.pages.owner.venue-manage.edit-venue', compact('venue'));
         } catch (\Exception $e) {
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Gagal menampilkan halaman edit venue');
         }
     }
+    public function destroy(Venue $venue)
+    {
+        try {
+            $venueName = $venue->name;
+            $venue->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+
     public function update(Request $request, Venue $venue)
     {
     }
     public function store(Request $request)
-    {
-    }
-    public function destroy(Venue $venue)
     {
     }
 }

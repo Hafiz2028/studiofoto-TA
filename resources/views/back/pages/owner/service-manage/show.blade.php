@@ -10,42 +10,75 @@
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('owner.home') }}">Home</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('owner.venue.index') }}">Venue's Manage</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('owner.venue.show', $venue->id) }}">Detail Venue</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Detail Layanan
-                        </li>
+                        @if (auth()->guard('owner')->check())
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('owner.home') }}">Home</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('owner.venue.index') }}">Venue's Manage</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('owner.venue.show', $venue->id) }}">Detail Venue</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Detail Layanan
+                            </li>
+                        @endif
+                        @if (auth()->guard('admin')->check())
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('admin.home') }}">Home</a>
+                            </li>
+                            @if ($venue->status == 0)
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('admin.venue.need-approval') }}">Need Approval Venue</a>
+                                </li>
+                            @endif
+                            @if ($venue->status == 1)
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('admin.venue.approved') }}">Approved Venue</a>
+                                </li>
+                            @endif
+                            @if ($venue->status == 2)
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('admin.venue.rejected') }}">Rejected Venue</a>
+                                </li>
+                            @endif
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('admin.venue.show', $venue->id) }}">Detail Venue</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Detail Layanan
+                            </li>
+                        @endif
                     </ol>
                 </nav>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12 col-sm-12">
-            <div class="card-box">
-                <div class="d-flex justify-content-end align-items-center flex-column flex-sm-row">
-                    <div class="actions-buttons">
-                        <a href="route" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0">
-                            <i class="fas fa-trash"></i> Hapus Layanan
-                        </a>
-                        <a href="{{ route('owner.venue.services.edit', ['venue' => $venue->id, 'service' => $service->id]) }}"
-                            class="btn btn-outline-info mr-2 mr-sm-1 mb-2 mb-sm-0">
-                            <i class="fas fa-edit"></i> Update Layanan
-                        </a>
+    @if (auth()->guard('owner')->check())
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="card-box p-2">
+                    <div class="d-flex justify-content-end align-items-center flex-column flex-sm-row">
+                        <div class="actions-buttons">
+                            <a href="route" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0">
+                                <i class="fas fa-trash"></i> Hapus Layanan
+                            </a>
+                            <a href="{{ route('owner.venue.services.edit', ['venue' => $venue->id, 'service' => $service->id]) }}"
+                                class="btn btn-outline-info mr-2 mr-sm-1 mb-2 mb-sm-0">
+                                <i class="fas fa-edit"></i> Update Layanan
+                            </a>
+                            <a href="{{ route('owner.venue.services.packages.create', ['venue' => $venue->id, 'service' => $service->id]) }}"
+                                class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Paket Foto
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
+    @endif
 
     <div class="product-wrap">
         <div class="product-detail-wrap mb-30">
@@ -83,7 +116,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="mb-3 mt-3">
-                                        <span style="display: inline-block; width: 170px;">Paket Harga Layanan</span>
+                                        <span style="display: inline-block; width: 170px;">Katalog Harga Layanan</span>
                                         :
                                     </h6>
                                     <div class="card-body text-center">
@@ -107,7 +140,7 @@
                                             </div>
                                         @else
                                             <div class="alert alert-danger mt-2" role="alert">
-                                                <span class="text-nowrap">Tidak Ada</span>
+                                                <span class="text-nowrap">Tidak Ada Katalog.</span>
                                             </div>
                                         @endif
                                     </div>
@@ -140,7 +173,7 @@
                                     @else
                                         <tr>
                                             <td colspan="2">
-                                                <div class="alert alert-danger text-center">Tidak Ada Paket Foto Layanan Ini
+                                                <div class="alert alert-info text-center">Tidak Ada Cetak Foto Layanan
                                                 </div>
                                             </td>
                                         </tr>
@@ -157,13 +190,13 @@
                     <div class="card-header bg-info">
                         <h2 class="card-title text-center text-white mb-0">List Paket Foto Layanan</h2>
                     </div>
-                    <div class="card-body d-flex justify-content-end"> <!-- Tambahkan class d-flex justify-content-end -->
-                        <a href="{{ route('owner.venue.services.packages.create', ['venue' => $venue->id, 'service' => $service->id]) }}"
-                            class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Paket Foto
-                        </a>
-                    </div>
-                    <div class="card-body">
+                    <div class="card-body pt-0">
+                        @if (auth()->guard('owner')->check())
+                            <a href="{{ route('owner.venue.services.packages.create', ['venue' => $venue->id, 'service' => $service->id]) }}"
+                                class="btn btn-primary float-right my-3">
+                                <i class="fas fa-plus"></i> Paket Foto
+                            </a>
+                        @endif
                         <table class="table table-bordered">
                             <thead class="thead-light">
                                 <tr>
@@ -191,8 +224,7 @@
                                 @else
                                     <tr>
                                         <td colspan="7">
-                                            <div class="alert alert-danger text-center">Tidak Ada List Paket Harga Layanan
-                                                Ini</div>
+                                            <div class="alert alert-info text-center">Tidak Ada List Paket Harga.</div>
                                         </td>
                                     </tr>
                                 @endif
@@ -206,16 +238,18 @@
                 <div class="card-header bg-info">
                     <h2 class="card-title text-center text-white">Foto Layanan</h2>
                 </div>
-                <div class="card-body d-flex flex-wrap justify-content-start align-items-start">
+                <div class="card-body d-flex flex-wrap justify-content-center align-items-start">
                     @if ($serviceImages->isEmpty())
-                        <div class="alert alert-danger text-center">Tidak Ada Foto Layanan</div>
+                        <div class="alert alert-info text-center w-100">Tidak Ada Foto Layanan</div>
                     @else
-                        @foreach ($serviceImages as $index => $image)
-                            <div class="col-lg-3 col-md-3 col-sm-6 mb-4">
-                                <img src="/images/venues/Service_Image/{{ $image->image }}" alt="{{ $image->image }}"
-                                    class="img-fluid rounded">
-                            </div>
-                        @endforeach
+                        <div class="d-flex flex-wrap justify-content-start">
+                            @foreach ($serviceImages as $index => $image)
+                                <div class="col-lg-3 col-md-3 col-sm-6 mb-4">
+                                    <img src="/images/venues/Service_Image/{{ $image->image }}"
+                                        alt="{{ $image->image }}" class="img-fluid rounded">
+                                </div>
+                            @endforeach
+                        </div>
                     @endif
                 </div>
             </div>
