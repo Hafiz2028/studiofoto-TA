@@ -54,12 +54,30 @@ if (!function_exists('sendEmail')) {
 
             foreach ($venues as $venue) {
                 $serviceSlugs = [];
+                $minPrice = PHP_INT_MAX;
                 foreach ($venue->serviceEvents as $serviceEvent) {
                     $serviceSlugs[] = $serviceEvent->serviceType->service_slug;
+                    foreach ($serviceEvent->servicePackages as $package) {
+                        if ($package->price < $minPrice) {
+                            $minPrice = $package->price;
+                        }
+                    }
                 }
                 $venue->service_slugs = $serviceSlugs;
+                $venue->min_price = $minPrice != PHP_INT_MAX ? $minPrice : null;
             }
             return !empty($venues) ? $venues : [];
+        }
+    }
+
+    /** GET VENUE's DETAIL */
+    if (!function_exists('getVenueData')) {
+        function getVenueData($venueId)
+        {
+            $venue = Venue::with(['serviceEvents.servicePackages', 'venueImages', 'serviceEvents.serviceEventImages'])
+                ->findOrFail($venueId);
+
+            return $venue;
         }
     }
 }

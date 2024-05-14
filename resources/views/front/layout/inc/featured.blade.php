@@ -36,7 +36,8 @@
             </div> --}}
             @if (count(get_venues_with_service_slug()) > 0)
                 @foreach (get_venues_with_service_slug() as $venue)
-                    <div class="col-lg-3 col-md-4 col-sm-6 mix">
+                    <div
+                        class="col-lg-3 col-md-4 col-sm-6 mix @if (!empty($venue->service_slugs)) @foreach ($venue->service_slugs as $service_slug){{ $service_slug }} @endforeach @endif">
                         <div class="featured__item">
                             <div class="featured__item__pic set-bg"
                                 @if ($venue->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
@@ -45,18 +46,20 @@
                                 @else
                                     data-setbg="/images/venues/Venue_Image/default-venue.png"
                                     alt="Tidak Ada Gambar Venue" @endif>
-                                <ul class="featured__item__pic__hover">
+                                {{-- <ul class="featured__item__pic__hover">
                                     <li><a href="#"><i class="fa fa-heart" data-toogle="tooltip"
                                                 title="Favorite Venue"></i></a></li>
                                     @if (auth()->guard('customer')->check())
                                         <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
-                                            <i class="fa fa-info" data-toogle="tooltip" title="Detail Studio Foto"></i></a>
+                                                <i class="fa fa-info" data-toogle="tooltip"
+                                                    title="Detail Studio Foto" data-placement="auto"></i></a>
                                         @else
-                                        <li><a id="openDetailVenue" data-toogle="tooltip" title="Detail Studio Foto"><i class="fa fa-info"></i></a>
+                                        <li><a id="openDetailVenue" data-toogle="tooltip" title="Detail Studio Foto"><i
+                                                    class="fa fa-info"></i></a>
                                     @endif
                                     </li>
                                     <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                </ul>
+                                </ul> --}}
                             </div>
                             <div class="featured__item__text">
                                 @if (auth()->guard('customer')->check())
@@ -70,7 +73,7 @@
                                 <h5 style="font-size: 16px; color: #333; margin-top: 10px;">
                                     <span
                                         style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
-                                        from</span> Rp. 50.000
+                                        from</span> Rp. {{ number_format($venue->min_price ?? 0, 2, ',', '.') }}
                                 </h5>
                             </div>
                         </div>

@@ -1,11 +1,11 @@
 @extends('back.layout.pages-layout')
-@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Add Package')
+@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Edit Package')
 @section('content')
 
     <div class="page-header">
         <div class="clearfix">
             <div class="pull-left">
-                <h4 class="text-dark">Add Package</h4>
+                <h4 class="text-dark">Edit Package</h4>
             </div>
         </div>
         <nav aria-label="breadcrumb" role="navigation">
@@ -24,7 +24,7 @@
                         Service</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
-                    Add Package
+                    Edit Package
                 </li>
             </ol>
         </nav>
@@ -35,7 +35,7 @@
             <div class="pd-20 card-box mb-30">
                 <div class="clearfix">
                     <div class="pull-left">
-                        <h4 class="text-primary">Add Package</h4>
+                        <h4 class="text-primary">Edit Package</h4>
                     </div>
                     <div class="pull-right">
                         <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service->id]) }}"
@@ -46,21 +46,25 @@
                 </div>
                 <hr>
 
-                <form id="payment_form"
-                    action="{{ route('owner.venue.services.packages.store', ['venue' => $venue->id, 'service' => $service->id]) }}"
+
+                <form
+                    action="{{ route('owner.venue.services.packages.update', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
                     method="POST" enctype="multipart/form-data" class="mt-3">
+                    @method('PUT')
+                    @csrf
                     <input type="hidden" name="venue_id" value="{{ $venue->id }}">
                     <input type="hidden" name="service_id" value="{{ $service->id }}">
-                    @csrf
+                    <input type="hidden" name="package_id" value="{{ $package->id }}">
                     <x-alert.form-alert />
+
                     <div class="container">
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name">Nama Paket Foto</label>
+                                    <label for="name">Nama Layanan</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         id="name" name="name" placeholder="Contoh: Wisuda 1, Diamond 1"
-                                        value="{{ old('name') }}" required>
+                                        value="{{ $package->name }}" required>
                                     @error('name')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -72,7 +76,7 @@
                                     <textarea class="form-control @error('information') is-invalid @enderror" id="information" name="information"
                                         rows="4"
                                         placeholder="Contoh : Paket ini memiliki berbagai macam tambahan foto dan cetak foto dengan berbagai ukuran..."
-                                        style="height: 130px;"></textarea>
+                                        style="height: 130px;">{{ $package->information }}</textarea>
                                     @error('information')
                                         <span class="text-danger ml-2">{{ $message }}</span>
                                     @enderror
@@ -83,22 +87,22 @@
                                     <label for="name">Maksimal Waktu Pemotretan</label>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" id="time_30" name="time_status"
-                                            value="0" checked>
+                                            value="0" {{ $package->time_status == 0 ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="time_30">30 Menit</label>
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" id="time_60" name="time_status"
-                                            value="1">
+                                            value="1" {{ $package->time_status == 1 ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="time_60">60 Menit</label>
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" id="time_90" name="time_status"
-                                            value="2">
+                                            value="2" {{ $package->time_status == 2 ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="time_90">90 Menit</label>
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" id="time_120" name="time_status"
-                                            value="3">
+                                            value="3" {{ $package->time_status == 3 ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="time_120">120 Menit</label>
                                     </div>
                                     @error('time_status')
@@ -111,25 +115,27 @@
                                     <label for="add_on_switch">Add On</label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="add_on_switch"
-                                            name="add_on_switch">
+                                            name="add_on_switch" {{ $package->addOnPackageDetails->isNotEmpty() ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="add_on_switch">Aktifkan Tambahan</label>
                                     </div>
                                 </div>
-                                <div id="add_on_options" style="display: none;">
+                                <div id="add_on_options" style="{{ $package->addOnPackageDetails->isNotEmpty() ? '' : 'display: none;' }}">
                                     <label for="add_ons">Tambahkan Total Add On untuk paket ini </label><br>
                                     @foreach ($addOnPackages as $addOnPackage)
                                         <div class="addon-item custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input addon-checkbox"
                                                 id="add_on_{{ $addOnPackage->id }}" name="add_ons[]"
-                                                value="{{ $addOnPackage->id }}" data-id="{{ $addOnPackage->id }}">
+                                                value="{{ $addOnPackage->id }}" data-id="{{ $addOnPackage->id }}"
+                                                {{ $package->addOnPackageDetails->contains('add_on_package_id', $addOnPackage->id) ? 'checked' : '' }}>
                                             <label class="custom-control-label"
                                                 for="add_on_{{ $addOnPackage->id }}">{{ $addOnPackage->name }}</label>
-                                            <div class="addon-inputs" style="display: none;">
+                                            <div class="addon-inputs" style="{{ $package->addOnPackageDetails->contains('add_on_package_id', $addOnPackage->id) ? '' : 'display: none;' }}">
                                                 <div class="addon-controls">
                                                     <input type="number" id="total_qty_{{ $addOnPackage->id }}"
                                                         name="total_qty_{{ $addOnPackage->id }}"
                                                         class="form-control addon-qty"
                                                         placeholder="Jumlah {{ $addOnPackage->name }} (qty)"
+                                                        value="{{ $getQtyByAddOnPackageId($addOnPackage->id) }}"
                                                         onchange="updateSum('{{ $addOnPackage->id }}')">
                                                 </div>
                                             </div>
@@ -145,30 +151,37 @@
                                     <label for="dp_percentage">Metode Pembayaran Tambahan</label>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="full_payment_option" name="dp_percentage"
-                                            class="custom-control-input" value="full_payment" checked>
+                                            class="custom-control-input" value="full_payment"
+                                            {{ $package->dp_status == 0 ? 'checked' : '' }}>
                                         <!-- Tambahkan atribut checked di sini -->
                                         <label class="custom-control-label" for="full_payment_option">Hanya Pembayaran
                                             Lunas</label>
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="dp_option" name="dp_percentage"
-                                            class="custom-control-input" value="dp">
+                                            class="custom-control-input" value="dp"
+                                            {{ $package->dp_status == 1 ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="dp_option">DP %</label>
                                         <input type="number" id="dp_input" name="dp_input" class="form-control"
-                                            style="display: none;" min="1" max="100">
+                                            min="1" max="100"
+                                            {{ $package->dp_status == 1 ? '' : 'style=display:none' }}
+                                            value="{{ $package->dp_status == 1 ? $package->dp_percentage * 100 : '' }}">
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="min_payment_option" name="dp_percentage"
-                                            class="custom-control-input" value="min_payment">
+                                            class="custom-control-input" value="min_payment"
+                                            {{ $package->dp_status == 2 ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="min_payment_option">Minimal
                                             Pembayaran</label>
-                                        <div id="min_payment_input_group" style="display: none;">
+                                        <div id="min_payment_input_group"
+                                            style="{{ $package->dp_status == 2 ? '' : 'display: none;' }}">
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Rp</span>
                                                 </div>
                                                 <input type="text" id="min_payment_input" name="min_payment_input"
-                                                    class="form-control">
+                                                    class="form-control"
+                                                    value="{{ $package->dp_status == 2 ? $package->dp_percentage * $package->price : '' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -184,9 +197,9 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">Rp</span>
                                         </div>
-                                        <input type="text" id="price" name="price"
+                                        <input type="number" id="package_price" name="price"
                                             class="form-control @error('price') is-invalid @enderror"
-                                            placeholder="Tambahkan Harga Paket..." value="{{ old('price') }}" required>
+                                            placeholder="Tambahkan Harga Paket..." value="{{ $package->price}}" required>
                                     </div>
                                     <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
                                     @error('price')
@@ -199,12 +212,12 @@
                                     <label for="print_photos_switch">Cetak Foto</label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="print_photos_switch"
-                                            name="print_photos_switch">
+                                            name="print_photos_switch" {{ $package->printPhotoDetails->isNotEmpty() ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
                                             Foto</label>
                                     </div>
                                 </div>
-                                <div id="print_photos_options" style="display: none;">
+                                <div id="print_photos_options" style="{{ $package->printPhotoDetails->isNotEmpty() ? '' : 'display: none;' }}">
                                     <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
                                     <div class="row mb-2">
                                         <div class="col-md-12">
@@ -229,7 +242,7 @@
                                                         <input type="checkbox" class="custom-control-input"
                                                             id="print_photo_{{ $printServiceEvent->id }}"
                                                             name="print_photos[]" value="{{ $printServiceEvent->id }}"
-                                                            data-price="{{ $printServiceEvent->price }}">
+                                                            data-price="{{ $printServiceEvent->price }}" {{ $package->printPhotoDetails->contains('print_service_event_id', $printServiceEvent->id) ? 'checked' : '' }}>
                                                         <label class="custom-control-label"
                                                             for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
                                                             (Harga Rp
@@ -245,30 +258,22 @@
                                 <div class="form-group">
                                     <label>Perkiraan Harga</label><br>
                                     <p id="estimated_price" class="alert alert-secondary"
-                                        style="display: inline-block; width: fit-content;">Rp {{ old('price') ?: '0' }}
+                                        style="display: inline-block; width: fit-content;">Rp {{ $package->price ?: '0' }}
                                     </p>
                                 </div>
                             </div>
                             <div class="col-lg-12 mt-2">
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary float-right">Tambah Paket</button>
+                                    <button type="submit" class="btn btn-primary float-right">Update Package</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
+
 @endsection
 @push('styles')
     <style>
@@ -323,15 +328,6 @@
             if (!minPaymentOption.checked) {
                 priceInput.value = '';
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const minPaymentInput = document.getElementById('min_payment_input');
-            minPaymentInput.addEventListener('input', function() {
-                let value = this.value.replace(/\D/g, '');
-                value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                this.value = value;
-            });
         });
     </script>
     {{-- print foto --}}
@@ -458,12 +454,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const estimatedPrice = document.getElementById('estimated_price');
-            const packagePriceInput = document.getElementById('price');
+            const packagePriceInput = document.getElementById('package_price');
             const printServiceEventCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
 
             function calculateEstimatedPrice() {
-                // Ambil nilai dari input harga paket
-                let packagePriceText = packagePriceInput.value.replace(/\s/g, ''); // Bersihkan spasi
+                let packagePriceText = packagePriceInput.value.replace(/\s/g, '');
                 let packagePrice = parseFloat(packagePriceText || 0);
 
                 let selectedPrintPhotoPrices = [];

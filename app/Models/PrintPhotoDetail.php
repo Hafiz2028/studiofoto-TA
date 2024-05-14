@@ -11,11 +11,11 @@ class PrintPhotoDetail extends Model
     protected $fillable = [
         'print_service_event_id',
         'service_package_id',
-        ];
+    ];
 
-    public function serviceEvent()
+    public function printServiceEvent()
     {
-        return $this->belongsTo(ServiceEvent::class, 'service_event_id', 'id');
+        return $this->belongsTo(PrintServiceEvent::class, 'print_service_event_id', 'id');
     }
 
     public function servicePackage()

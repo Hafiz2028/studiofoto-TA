@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
-    <link rel="stylesheet" href="/extra-assets/summernote/summernote-bs4.min.css">
+    {{-- <link rel="stylesheet" href="/extra-assets/summernote/summernote-bs4.min.css"> --}}
 
 
 
@@ -438,7 +438,7 @@
 
     <script src="/extra-assets/ijaboCropTool/ijaboCropTool.min.js"></script>
     <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
-    <script src="/extra-assets/summernote/summernote-bs4.min.js"></script>
+    {{-- <script src="/extra-assets/summernote/summernote-bs4.min.js"></script> --}}
     <script>
         window.addEventListener('showToastr', function(event) {
             toastr.remove();
@@ -455,12 +455,12 @@
             }
         });
     </script>
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             $('.summernote').summernote();
             height:200
         });
-    </script>
+    </script> --}}
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>

@@ -6,7 +6,7 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="title">
-                    <h4>Detail Layanan</h4>
+                    <h4>Detail Service</h4>
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
@@ -21,7 +21,7 @@
                                 <a href="{{ route('owner.venue.show', $venue->id) }}">Detail Venue</a>
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">
-                                Detail Layanan
+                                Detail Service
                             </li>
                         @endif
                         @if (auth()->guard('admin')->check())
@@ -62,7 +62,9 @@
                 <div class="card-box p-2">
                     <div class="d-flex justify-content-end align-items-center flex-column flex-sm-row">
                         <div class="actions-buttons">
-                            <a href="route" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0">
+                            <a href="javascript:;"
+                                class="btn btn-outline-danger btn-lg deleteServiceBtn mr-2 mr-sm-1 mb-2 mb-sm-0"
+                                data-service-id="{{ $service->id }}">
                                 <i class="fas fa-trash"></i> Hapus Layanan
                             </a>
                             <a href="{{ route('owner.venue.services.edit', ['venue' => $venue->id, 'service' => $service->id]) }}"
@@ -202,10 +204,10 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Nama Paket</th>
-                                    <th>Tipe Layanan</th>
-                                    <th>Minimal Pembayaran</th>
+                                    <th>Metode Pembayaran</th>
                                     <th>Harga</th>
-                                    <th>Waktu</th>
+                                    <th>Add On</th>
+                                    <th>Waktu Foto</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -215,10 +217,130 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $package->name }}</td>
-                                            <td>{{ $package->tipe_layanan }}</td>
-                                            <td>{{ $package->dp_percentage }}</td>
-                                            <td>{{ $package->price }}</td>
-                                            <td>{{ $package->time_status }}</td>
+                                            <td class="align-middle text-center">
+                                                @switch($package->dp_status)
+                                                    @case(0)
+                                                        <span class="badge badge-secondary">Tidak terima DP</span>
+                                                    @break
+
+                                                    @case(1)
+                                                        <span class="badge badge-success">DP
+                                                            {{ number_format($package->dp_percentage * 100) }}%</span>
+                                                    @break
+
+                                                    @case(2)
+                                                        <span class="badge badge-success">Min. Bayar Rp
+                                                            {{ number_format($package->dp_percentage * $package->price, 0, ',', ' ') }}</span>
+                                                    @break
+
+                                                    @default
+                                                        <span class="badge badge-danger">Tidak Valid</span>
+                                                @endswitch
+                                            </td>
+                                            <td>Rp {{ number_format($package->price, 0, ',', ' ') }}</td>
+                                            <td style="text-align: justify;">
+                                                @if ($package->addOnPackageDetails->isNotEmpty())
+                                                    @foreach ($package->addOnPackageDetails as $index => $addOnDetail)
+                                                        {{ $addOnDetail->sum }} {{ $addOnDetail->addOnPackage->name }}
+                                                        @if (!$loop->last)
+                                                            <br>&
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    Tidak ada
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @switch($package->time_status)
+                                                    @case(0)
+                                                        30 Menit
+                                                    @break
+
+                                                    @case(1)
+                                                        60 Menit
+                                                    @break
+
+                                                    @case(2)
+                                                        90 Menit
+                                                    @break
+
+                                                    @case(3)
+                                                        120 Menit
+                                                    @break
+
+                                                    @default
+                                                        Tidak Valid
+                                                @endswitch
+                                            </td>
+                                            <td>
+                                                <a href="#" class="btn btn-outline-secondary btn-lg"
+                                                    onclick="showPackageDetail({{ $package->id }})" style="width: 50px;"
+                                                    data-toggle="tooltip" data-placement="auto" title="Detail Paket">
+                                                    <i class="fas fa-info"></i>
+                                                </a>
+                                                <div class="modal fade" id="detailPackageModal" tabindex="-1"
+                                                    role="dialog" aria-labelledby="detailPackageModalLabel"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg modal-dialog-centered"
+                                                        role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header bg-info text-white">
+                                                                <h5 class="modal-title text-white"
+                                                                    id="detailPackageModalLabel">
+                                                                    Detail {{ $package->name }} <i
+                                                                        class="fas fa-info-circle ml-2"></i>
+                                                                </h5>
+                                                                <button type="button" class="close text-white"
+                                                                    data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="container-fluid">
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <div class="card">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title">Informasi
+                                                                                        Paket
+                                                                                    </h6>
+                                                                                    <hr>
+                                                                                    <div id="packageInfo"></div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="card">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title">Daftar Cetak
+                                                                                        Foto</h6>
+                                                                                    <hr>
+                                                                                    <ul id="printPhotoList"
+                                                                                        class="list-group"></ul>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Tutup</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ route('owner.venue.services.packages.edit', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
+                                                    style="width: 50px;" class="btn btn-outline-info btn-lg"
+                                                    data-toggle="tooltip" data-placement="auto" title="Edit Paket">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="javascript:;"
+                                                    class="btn btn-outline-danger btn-lg deletePackageBtn"
+                                                    data-package-id="{{ $package->id }}" style="width: 50px;">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @else
@@ -261,4 +383,160 @@
 @push('stylesheets')
 @endpush
 @push('scripts')
+    <script>
+        function showPackageDetail(packageId) {
+            $.ajax({
+                url: '{{ route('owner.venue.services.packages.showDetail', ['venue' => $venue->id, 'service' => $service->id, 'package' => ':package']) }}'
+                    .replace(':package', packageId),
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    $('#packageInfo').html('<p>' + response.information + '</p>');
+
+                    // Kosongkan tabel sebelum menambahkan data
+                    $('#printPhotoList').empty();
+
+                    // Buat header tabel
+                    var tableHtml = '<table class="table">';
+                    tableHtml += '<thead>';
+                    tableHtml += '<tr>';
+                    tableHtml += '<th scope="col">Size</th>';
+                    tableHtml += '<th scope="col">Harga (Rp)</th>';
+                    tableHtml += '</tr>';
+                    tableHtml += '</thead>';
+                    tableHtml += '<tbody>';
+
+                    // Tambahkan baris untuk setiap cetak foto
+                    response.printPhotoDetails.forEach(function(printPhoto) {
+                        var formattedPrice = printPhoto.price.toLocaleString('id-ID');
+                        tableHtml += '<tr>';
+                        tableHtml += '<td>' + printPhoto.size + '</td>';
+                        tableHtml += '<td>' + formattedPrice + '</td>';
+                        tableHtml += '</tr>';
+                    });
+
+                    tableHtml += '</tbody>';
+                    tableHtml += '</table>';
+
+                    // Tambahkan tabel ke dalam elemen dengan ID printPhotoList
+                    $('#printPhotoList').append(tableHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+            $('#detailPackageModal').modal('show');
+        }
+    </script>
+    {{-- modal hapus paket --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.deletePackageBtn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const packageId = this.getAttribute('data-package-id');
+                    Swal.fire({
+                        title: 'Hapus Package',
+                        text: "Apakah Anda yakin ingin menghapus Paket ini? Paket yang dihapus tidak bisa dikembalikan.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        cancelButtonText: 'Batal',
+                        cancelButtonColor: '#28a745',
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Hapus'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch("{{ route('owner.venue.services.packages.destroy', ['venue' => $venue->id, 'service' => $service->id, 'package' => ':package']) }}"
+                                .replace(':package', packageId), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    }
+                                }).then(response => {
+                                if (response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error('Gagal menghapus paket');
+                                }
+                            }).then(data => {
+                                Swal.fire({
+                                    title: 'Hapus Package',
+                                    text: "Paket Berhasil dihapus.",
+                                    icon: 'success',
+                                    showConfirmButton: true,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            }).catch(error => {
+                                console.error('Terjadi kesalahan:', error);
+                                Swal.fire({
+                                    title: 'Gagal Hapus Package',
+                                    text: "Terjadi kesalahan saat menghapus paket.",
+                                    icon: 'error',
+                                    showConfirmButton: true,
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    {{-- modal hapus layanan --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.deleteServiceBtn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const serviceId = this.getAttribute('data-service-id');
+                    Swal.fire({
+                        title: 'Hapus Service',
+                        text: "Apakah Anda yakin ingin menghapus Layanan ini? Layanan yang dihapus tidak bisa dikembalikan.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        cancelButtonText: 'Batal',
+                        cancelButtonColor: '#28a745',
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Hapus'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch("{{ route('owner.venue.services.destroy', ['venue' => $venue->id, 'service' => ':service']) }}"
+                                .replace(':service', serviceId), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    }
+                                }).then(response => {
+                                if (response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error('Gagal menghapus paket');
+                                }
+                            }).then(data => {
+                                Swal.fire({
+                                    title: 'Hapus Service',
+                                    text: "Layanan Berhasil dihapus.",
+                                    icon: 'success',
+                                    showConfirmButton: true,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                }).then(() => {
+                                    window.location.href =
+                                        "{{ route('owner.venue.show', $venue->id) }}";
+                                });
+                            }).catch(error => {
+                                console.error('Terjadi kesalahan:', error);
+                                Swal.fire({
+                                    title: 'Gagal Hapus Service',
+                                    text: "Terjadi kesalahan saat menghapus paket.",
+                                    icon: 'error',
+                                    showConfirmButton: true,
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 @endpush

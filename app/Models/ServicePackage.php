@@ -11,7 +11,9 @@ class ServicePackage extends Model
     protected $fillable = [
         'name',
         'information',
+        'dp_status',
         'dp_percentage',
+        'time_status',
         'price',
         'service_event_id',
     ];

@@ -153,12 +153,9 @@ class ServiceController extends Controller
                 'description' => 'nullable|string',
                 'prices.*' => 'required|numeric',
             ]);
-            // dd($validatedData);
-            // Temukan venue dan layanan yang akan diperbarui
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
             $oldData = $service->toArray();
-            // Update data layanan
             $service->name = $validatedData['name'];
             $service->service_type_id = $validatedData['service_type_id'];
             $service->description = $validatedData['description'];
@@ -201,8 +198,6 @@ class ServiceController extends Controller
             } else {
                 PrintServiceEvent::where('service_event_id', $service->id)->delete();
             }
-
-            // Proses katalog
             if ($request->hasFile('new_catalog')) {
                 if ($service->catalog) {
                     $catalogPath = public_path('/images/venues/Katalog/' . $service->catalog);
@@ -215,31 +210,19 @@ class ServiceController extends Controller
                 $request->new_catalog->storeAs('/Katalog', $catalogFileName, 'public');
                 $service->catalog = $catalogFileName;
             }
-
-
-            //update foto
-            // if ($request->has('deleted_image_ids')) {
-            //     $deletedImageIds = json_decode($request->deleted_image_ids);
-            //     if ($deletedImageIds !== null) {
-            //         foreach ($deletedImageIds as $cloneNumber) {
-            //             // Gunakan cloneNumber untuk mengidentifikasi gambar yang akan dihapus
-            //             $image = ServiceEventImage::where('service_event_id', $service->id)
-            //                 ->where('clone_number', $cloneNumber)
-            //                 ->first();
-            //             if ($image) {
-            //                 $imagePath = public_path('/images/venues/Service_Image/' . $image->image);
-            //                 if (File::exists($imagePath)) {
-            //                     File::delete($imagePath);
-            //                 }
-            //                 $image->delete();
-            //             }
-            //         }
-            //     } else {
-            //         // Debugging: Tampilkan pesan jika format data tidak sesuai
-            //         dd("Format data deleted_image_ids tidak sesuai");
-            //     }
-            // }
-
+            if ($request->has('deletedImageIds')) {
+                $deletedImageIds = json_decode($request->input('deletedImageIds'));
+                if (!empty($deletedImageIds)) {
+                    $imagesToDelete = ServiceEventImage::whereIn('id', $deletedImageIds)->pluck('image')->toArray();
+                    ServiceEventImage::whereIn('id', $deletedImageIds)->delete();
+                    foreach ($imagesToDelete as $imageName) {
+                        $imagePath = public_path('images/venues/Service_Image/' . $imageName);
+                        if (file_exists($imagePath)) {
+                            unlink($imagePath);
+                        }
+                    }
+                }
+            }
             // Proses gambar
             if ($request->hasFile('image_venue')) {
                 foreach ($request->file('image_venue') as $image) {
@@ -258,16 +241,11 @@ class ServiceController extends Controller
                     }
                 }
             }
-
-
-
             $service->save();
             $newData = $service->toArray();
             $updatedData = array_diff_assoc($newData, $oldData);
             Log::info('Data updated: ' . json_encode($updatedData));
-
-            // return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Layanan berhasil diperbarui.');
-            return redirect()->back()->with('success', 'Layanan berhasil diperbarui.');
+            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Layanan berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui layanan: ' . $e->getMessage()); // Log pesan kesalahan
             return redirect()->back()->with('error', 'Gagal memperbarui layanan. Silakan coba lagi. Pesan Kesalahan: ' . $e->getMessage());
@@ -275,6 +253,13 @@ class ServiceController extends Controller
     }
     public function destroy($venueId, $serviceId)
     {
-        //
+        try {
+            $venue = Venue::findOrFail($venueId);
+            $service = ServiceEvent::findOrFail($serviceId);
+            $service->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 }

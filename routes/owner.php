@@ -44,6 +44,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/venue/districts', [VenueController::class, 'getDistricts'])->name('districts');
         Route::resource('venue.services', ServiceController::class);
         Route::resource('venue.services.packages', PackageController::class);
+        Route::get('/venue/{venue}/services/{service}/packages/{package}', [PackageController::class, 'showDetail'])->name('venue.services.packages.showDetail');
 
         Route::resource('booking', BookingController::class);
     });

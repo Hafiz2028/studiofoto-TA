@@ -37,9 +37,22 @@ class FrontEndController extends Controller
     public function detailVenue(Request $request, $id)
     {
         $venue = Venue::findOrFail($id);
+        $minPrice = PHP_INT_MAX;
+        $maxPrice = 0;
+        foreach ($venue->serviceEvents as $serviceEvent) {
+            foreach ($serviceEvent->servicePackages as $package) {
+                $minPrice = min($minPrice, $package->price);
+                $maxPrice = max($maxPrice, $package->price);
+            }
+            foreach ($serviceEvent->printServiceEvents as $printEvent) {
+                $maxPrice += $printEvent->price;
+            }
+        }
         $data = [
             'pageTitle' => 'FotoYuk | Detail Venue Page',
             'venue' => $venue,
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
         ];
         return view('front.pages.detail', $data);
     }

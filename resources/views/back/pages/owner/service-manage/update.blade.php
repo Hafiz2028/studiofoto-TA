@@ -162,8 +162,8 @@
                                 <div class="form-group">
                                     <label for="description">Deskripsi Layanan</label>
                                     <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
-                                        rows="4" placeholder="Isi deskripsi untuk venue"></textarea>
-                                    @error('information')
+                                        rows="4" placeholder="Isi deskripsi untuk venue">{{ $service->description }}</textarea>
+                                    @error('description')
                                         <span class="text-danger ml-2">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -182,6 +182,8 @@
                                 </div>
 
                                 <div class="row" id="imageContainer">
+                                    <input type="hidden" name="deletedImageIds" id="deletedImageIdsInput"
+                                        value="">
                                     <!-- Gambar-gambar dari perulangan -->
                                     @foreach ($serviceEventImages as $key => $serviceEventImage)
                                         <div class="col-lg-3 col-md-4 col-sm-6 clone-{{ $key + 1 }}"
@@ -225,6 +227,7 @@
             </div>
         </div>
     </div>
+    
 @endsection
 @push('styles')
     <style>
@@ -265,6 +268,7 @@
 @push('scripts')
     {{-- update input foto --}}
     <script>
+        var deletedImageIds = [];
         function addPhoto() {
             var imageContainer = $("#imageContainer");
             var lastClone = imageContainer.find("[id^='clone-']").last();
@@ -281,10 +285,10 @@
             var fileInputDiv = $("<div class='fileinput fileinput-new' data-provides='fileinput'></div>");
             var defaultImage = $(
                 "<div class='fileinput-new img-thumbnail default-photo' style='width: 300px; height: 200px; position: relative; overflow: hidden;'>\
-                    <img id='previewImage-" +
+                                                    <img id='previewImage-" +
                 newCloneNumber +
                 "' src='/images/venues/upload.png' style='width:auto; height:100%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);' alt='Preview Image'>\
-                </div>"
+                                                </div>"
             );
             fileInputDiv.append(defaultImage);
             var fileInputSpan = $(
@@ -293,10 +297,16 @@
             fileInputDiv.append(fileInputSpan);
             var deleteButton = $(
                 "<a href='javascript:void(0);' onclick='delClone(this)' class='btn btn-outline-danger btn-block'>\
-                    <i class='fas fa-trash'></i> Delete\
-                </a>"
+                                                    <i class='fas fa-trash'></i> Delete\
+                                                </a>"
             );
             fileInputDiv.append(deleteButton);
+            var imageToDeleteInput = $("<input type='hidden' name='image_to_delete[]'>");
+            var imageToKeepInput = $("<input type='hidden' name='image_to_keep[]'>");
+            fileInputDiv.append(imageToDeleteInput);
+            fileInputDiv.append(imageToKeepInput);
+
+
 
             fileInputSize.append(fileInputDiv);
             if (lastClone.length === 0) {
@@ -318,6 +328,41 @@
             });
         }
 
+        function delClone(button) {
+            var cloneDiv = $(button).closest("[id^='clone-']");
+            var cloneId = cloneDiv.attr("id");
+            var imageToKeepInput = cloneDiv.find("input[name='image_to_keep[]']");
+            var imageId = imageToKeepInput.val();
+
+            // Simpan ID foto yang dihapus
+            if (!imageId) {
+                var imageToDeleteInput = cloneDiv.find("input[name='image_to_delete[]']");
+                imageId = imageToDeleteInput.val();
+            }
+
+            // Jika imageId ditemukan, tambahkan ke dalam deletedImageIds
+            if (imageId) {
+                deletedImageIds.push(imageId);
+            }
+
+            // Hapus dari tampilan HTML
+            cloneDiv.remove();
+
+            // Update IDs and classes for remaining clones
+            updateCloneIds();
+
+            $('#deletedImageIdsInput').val(JSON.stringify(deletedImageIds));
+        }
+
+        function updateCloneIds() {
+            var imageContainer = $("#imageContainer");
+            imageContainer.children("[id^='clone-']").each(function(index) {
+                var cloneNumber = index + 1;
+                var newId = "clone-" + cloneNumber;
+                $(this).attr("id", newId).removeClass().addClass("col-lg-3 col-md-4 col-sm-6 clone-" +
+                    cloneNumber);
+            });
+        }
 
         function previewImage(input, index) {
             console.log("Preview image function called for index: " + index);
@@ -369,34 +414,6 @@
             } else {
                 updateButtonText(input);
             }
-        }
-
-        function delClone(button) {
-            var cloneDiv = $(button).closest("[id^='clone-']");
-            var cloneId = cloneDiv.attr("id");
-            var cloneNumber = cloneDiv.data("id");
-
-            if (cloneId.startsWith("clone-")) {
-                cloneDiv.remove();
-            }
-
-            // Update IDs and classes for remaining clones in #imageContainer
-            var imageContainer = $("#imageContainer");
-            imageContainer.children("[id^='clone-']").each(function(index) {
-                var cloneNumber = index + 1;
-                var newId = "clone-" + cloneNumber;
-                $(this).attr("id", newId).removeClass().addClass("col-lg-3 col-md-4 col-sm-6 clone-" +
-                    cloneNumber);
-            });
-
-            // Update IDs and classes for remaining clones in #additionalImageInput
-            var additionalImageInput = $("#additionalImageInput");
-            additionalImageInput.children("[id^='clone-']").each(function(index) {
-                var cloneNumber = index + 1;
-                var newId = "clone-" + cloneNumber;
-                $(this).attr("id", newId).removeClass().addClass("col-lg-3 col-md-4 col-sm-6 clone-" +
-                    cloneNumber);
-            });
         }
     </script>
 

@@ -186,7 +186,7 @@ class CustomerController extends Controller
                 }
                 return redirect()->route('customer.login')->with('info', 'We Send Verification Link to Your Email, please check your latest email and verfify your account.');
             } else {
-                return redirect()->route('customer.home')->with('success', "Welcome to FotoYuk Marketplace! Hope you found your Studio :D");
+                return redirect()->route('home')->with('success', "Welcome to FotoYuk Marketplace! Hope you found your Studio :D");
             }
         } else {
             return redirect()->route('customer.login')->withInput()->with('fail', 'wrong password');

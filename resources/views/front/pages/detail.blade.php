@@ -26,24 +26,31 @@
             <div class="col-lg-6 col-md-6">
                 <div class="product__details__pic">
                     <div class="product__details__pic__item">
-                        <img class="product__details__pic__item--large"
-                            src="/front/img/product/details/product-details-1.jpg" alt="">
+                        @if ($venue->venueImages->isNotEmpty())
+                            <img class="product__details__pic__item--large"
+                                src="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}" alt="">
+                        @else
+                            <img class="product__details__pic__item--large"
+                                src="/images/venues/Venue_Image/default-venue.png" alt="">
+                        @endif
                     </div>
                     <div class="product__details__pic__slider owl-carousel">
-                        <img data-imgbigurl="/front/img/product/details/product-details-2.jpg"
-                            src="/front/img/product/details/thumb-1.jpg" alt="">
-                        <img data-imgbigurl="/front/img/product/details/product-details-3.jpg"
-                            src="/front/img/product/details/thumb-2.jpg" alt="">
-                        <img data-imgbigurl="/front/img/product/details/product-details-5.jpg"
-                            src="/front/img/product/details/thumb-3.jpg" alt="">
-                        <img data-imgbigurl="/front/img/product/details/product-details-4.jpg"
-                            src="/front/img/product/details/thumb-4.jpg" alt="">
+                        @foreach ($venue->venueImages as $image)
+                            <img data-imgbigurl="/images/venues/Venue_Image/{{ $image->image }}"
+                                src="/images/venues/Venue_Image/{{ $image->image }}" alt="">
+                        @endforeach
+                        @foreach ($venue->serviceEvents as $serviceEvent)
+                            @foreach ($serviceEvent->serviceEventImages as $image)
+                                <img data-imgbigurl="/images/venues/Service_Image/{{ $image->image }}"
+                                    src="/images/venues/Service_Image/{{ $image->image }}" alt="">
+                            @endforeach
+                        @endforeach
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="product__details__text">
-                    <h3>Vetgetable’s Package</h3>
+                    <h3>{{$venue->name}}</h3>
                     {{-- <div class="product__details__rating">
                         <i class="fa fa-star"></i>
                         <i class="fa fa-star"></i>
@@ -52,10 +59,10 @@
                         <i class="fa fa-star-half-o"></i>
                         <span>(18 reviews)</span>
                     </div> --}}
-                    <div class="product__details__price">Rp 500.000 - Rp 1.000.000</div>
-                    <p>Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vestibulum ac diam sit amet quam
-                        vehicula elementum sed sit amet dui. Sed porttitor lectus nibh. Vestibulum ac diam sit amet
-                        quam vehicula elementum sed sit amet dui. Proin eget tortor risus.</p>
+                    <div class="product__details__price">
+                        Rp {{ number_format($minPrice, 0, ',', '.') }} - Rp {{ number_format($maxPrice, 0, ',', '.') }}
+                    </div>
+                    <p>{{$venue->information}}</p>
                     {{-- <div class="product__details__quantity">
                         <div class="quantity">
                             <div class="pro-qty">
