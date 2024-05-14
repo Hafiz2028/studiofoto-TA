@@ -140,6 +140,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="dp_percentage">Metode Pembayaran Tambahan</label>
@@ -178,6 +179,50 @@
                                 </div>
                             </div>
                             <div class="col-lg-6">
+                                <div class="form-group mb-0">
+                                    <label for="add_on_switch">Total Orang & Harga Total Paket</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Rp</span>
+                                        </div>
+                                        <input type="text" id="price" name="price"
+                                            class="form-control @error('price') is-invalid @enderror"
+                                            placeholder="Harga Paket..." value="{{ old('price') }}" required>
+                                    </div>
+                                    <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="add_on_switch"
+                                            name="add_on_switch">
+                                        <label class="custom-control-label" for="add_on_switch">Aktifkan Opsi Total Orang Tambahan</label>
+                                    </div>
+                                </div>
+                                <div id="add_on_options" style="display: none;">
+                                    <label for="add_ons">Tambahkan Total Add On untuk paket ini </label><br>
+                                    @foreach ($addOnPackages as $addOnPackage)
+                                        <div class="addon-item custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input addon-checkbox"
+                                                id="add_on_{{ $addOnPackage->id }}" name="add_ons[]"
+                                                value="{{ $addOnPackage->id }}" data-id="{{ $addOnPackage->id }}">
+                                            <label class="custom-control-label"
+                                                for="add_on_{{ $addOnPackage->id }}">{{ $addOnPackage->name }}</label>
+                                            <div class="addon-inputs" style="display: none;">
+                                                <div class="addon-controls">
+                                                    <input type="number" id="total_qty_{{ $addOnPackage->id }}"
+                                                        name="total_qty_{{ $addOnPackage->id }}"
+                                                        class="form-control addon-qty"
+                                                        placeholder="Jumlah {{ $addOnPackage->name }} (qty)"
+                                                        onchange="updateSum('{{ $addOnPackage->id }}')">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('add_ons')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            {{-- <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Harga Paket</label>
                                     <div class="input-group">
@@ -193,7 +238,9 @@
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
+
+
                             <div class="col-lg-12 col-md-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Cetak Foto</label>

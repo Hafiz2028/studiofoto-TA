@@ -46,20 +46,32 @@
                                 @else
                                     data-setbg="/images/venues/Venue_Image/default-venue.png"
                                     alt="Tidak Ada Gambar Venue" @endif>
-                                {{-- <ul class="featured__item__pic__hover">
-                                    <li><a href="#"><i class="fa fa-heart" data-toogle="tooltip"
-                                                title="Favorite Venue"></i></a></li>
+                                <ul class="featured__item__pic__hover">
+                                    <li>
+                                        @if (filter_var($venue->map_link, FILTER_VALIDATE_URL))
+                                            <a href="{{ $venue->map_link }}" target="_blank"
+                                                onclick="return openLink(event, '{{ $venue->map_link }}')">
+                                                <i class="fa fa-map-marker" data-toggle="tooltip"
+                                                    title="Check on Map"></i>
+                                            </a>
+                                        @else
+                                            <a href="#" onclick="alert('Link tidak valid'); return false;">
+                                                <i class="fa fa-map-marker" data-toggle="tooltip"
+                                                    title="Check on Map"></i>
+                                            </a>
+                                        @endif
+                                    </li>
                                     @if (auth()->guard('customer')->check())
                                         <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
-                                                <i class="fa fa-info" data-toogle="tooltip"
-                                                    title="Detail Studio Foto" data-placement="auto"></i></a>
+                                                <i class="fa fa-info" data-toogle="tooltip" title="Detail Studio Foto"
+                                                    data-placement="auto"></i></a>
                                         @else
                                         <li><a id="openDetailVenue" data-toogle="tooltip" title="Detail Studio Foto"><i
                                                     class="fa fa-info"></i></a>
                                     @endif
-                                    </li>
-                                    <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                </ul> --}}
+                                    {{-- </li>
+                                    <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li> --}}
+                                </ul>
                             </div>
                             <div class="featured__item__text">
                                 @if (auth()->guard('customer')->check())
@@ -109,4 +121,11 @@
             });
         });
     });
+</script>
+<script>
+    function openLink(event, url) {
+        event.preventDefault();
+        window.open(url, '_blank');
+        return false;
+    }
 </script>

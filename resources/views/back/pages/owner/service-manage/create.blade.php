@@ -78,7 +78,16 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 col-lg-12">
-
+                                <div class="form-group">
+                                    <label for="description">Deskripsi Layanan</label>
+                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
+                                        rows="4" placeholder="Isi deskripsi untuk venue"></textarea>
+                                    @error('information')
+                                        <span class="text-danger ml-2">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-6">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Print Foto Layanan</label>
                                     <div class="custom-control custom-switch">
@@ -103,39 +112,35 @@
                                     </div>
                                     <div class="row">
                                         @php
-                                            $columnCount = 3;
+                                            $columnCount = 14;
                                             $rowCount = ceil(count($printPhotos) / $columnCount);
+
                                         @endphp
                                         @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-{{ 12 / $columnCount }}">
-                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printPhotos)); $j++)
-                                                    @php $printPhoto = $printPhotos[$j]; @endphp
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input"
-                                                            id="print_photo_{{ $printPhoto->id }}" name="print_photos[]"
-                                                            value="{{ $printPhoto->id }}">
-                                                        <label class="custom-control-label"
-                                                            for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->size }}</label>
-                                                    </div>
+                                            <div class="col-md-6">
+                                                @for ($j = 0; $j < $columnCount; $j++)
+                                                    @php $index = $i * $columnCount + $j; @endphp
+                                                    @if ($index < count($printPhotos))
+                                                        @php $printPhoto = $printPhotos[$index]; @endphp
+
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input"
+                                                                id="print_photo_{{ $printPhoto->id }}"
+                                                                name="print_photos[]" value="{{ $printPhoto->id }}">
+                                                            <label class="custom-control-label"
+                                                                for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->size }}</label>
+                                                        </div>
+                                                    @endif
                                                 @endfor
                                             </div>
                                         @endfor
                                     </div>
                                 </div>
+                            </div>
 
-                            </div>
-                        </div>
+                </div>
                         <div class="row">
-                            <div class="col-md-6 col-lg-12">
-                                <div class="form-group">
-                                    <label for="description">Deskripsi Layanan</label>
-                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
-                                        rows="4" placeholder="Isi deskripsi untuk venue"></textarea>
-                                    @error('information')
-                                        <span class="text-danger ml-2">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
+
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
@@ -521,7 +526,7 @@
                     const priceInput = document.createElement('input');
                     priceInput.setAttribute('type', 'text');
                     priceInput.setAttribute('class', 'form-control');
-                    priceInput.setAttribute('placeholder', 'Harga cetak ukuran ini...');
+                    priceInput.setAttribute('placeholder', 'Harga cetak ukuran...');
                     priceInput.setAttribute('name', 'price_' + checkbox.value);
                     priceInput.setAttribute('onkeypress', 'return event.charCode >= 48 && event.charCode <= 57');
 

@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 col-lg-12">
+                            <div class="col-md-6 col-lg-6">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Print Foto Layanan</label>
                                     <div class="custom-control custom-switch">
@@ -124,15 +124,17 @@
                                                         <input type="checkbox" class="custom-control-input"
                                                             id="print_photo_{{ $printPhoto->id }}" name="print_photos[]"
                                                             value="{{ $printPhoto->id }}"
-                                                            @if ($printServiceEvents->contains('print_photo_id', $printPhoto->id)) checked @endif>
+                                                            {{ $printServiceEvents->contains('print_photo_id', $printPhoto->id) ? 'checked' : '' }}>
                                                         <label class="custom-control-label"
                                                             for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->size }}</label>
-                                                        <div class="input-group" style="margin-top: 5px;">
+                                                        <div class="input-group"
+                                                            style="margin-top: 5px;{{ $printServiceEvents->isNotEmpty() ? '' : 'display:none;' }}">
                                                             <span class="input-group-text">Rp</span>
                                                             <input type="text" class="form-control"
                                                                 placeholder="Harga cetak ukuran ini..."
                                                                 name="prices[{{ $printPhoto->id }}]"
-                                                                value="{{ $printServiceEvents->firstWhere('print_photo_id', $printPhoto->id)->price ?? '' }}">
+                                                                value="{{ $printServiceEvents->firstWhere('print_photo_id', $printPhoto->id)->price ?? '' }}"
+                                                                {{ $printServiceEvents->contains('print_photo_id', $printPhoto->id) ? '' : 'disabled' }}>
                                                         </div>
                                                     </div>
                                                 @endfor
@@ -141,6 +143,8 @@
                                     </div>
                                 </div>
                             </div>
+
+                            
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-6 col-lg-6">
@@ -227,7 +231,7 @@
             </div>
         </div>
     </div>
-    
+
 @endsection
 @push('styles')
     <style>
@@ -269,6 +273,7 @@
     {{-- update input foto --}}
     <script>
         var deletedImageIds = [];
+
         function addPhoto() {
             var imageContainer = $("#imageContainer");
             var lastClone = imageContainer.find("[id^='clone-']").last();
@@ -285,10 +290,10 @@
             var fileInputDiv = $("<div class='fileinput fileinput-new' data-provides='fileinput'></div>");
             var defaultImage = $(
                 "<div class='fileinput-new img-thumbnail default-photo' style='width: 300px; height: 200px; position: relative; overflow: hidden;'>\
-                                                    <img id='previewImage-" +
+                                                        <img id='previewImage-" +
                 newCloneNumber +
                 "' src='/images/venues/upload.png' style='width:auto; height:100%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);' alt='Preview Image'>\
-                                                </div>"
+                                                    </div>"
             );
             fileInputDiv.append(defaultImage);
             var fileInputSpan = $(
@@ -297,8 +302,8 @@
             fileInputDiv.append(fileInputSpan);
             var deleteButton = $(
                 "<a href='javascript:void(0);' onclick='delClone(this)' class='btn btn-outline-danger btn-block'>\
-                                                    <i class='fas fa-trash'></i> Delete\
-                                                </a>"
+                                                        <i class='fas fa-trash'></i> Delete\
+                                                    </a>"
             );
             fileInputDiv.append(deleteButton);
             var imageToDeleteInput = $("<input type='hidden' name='image_to_delete[]'>");
@@ -416,7 +421,6 @@
             }
         }
     </script>
-
     {{-- catalog --}}
     <script>
         function updateCatalogPreview(input) {
@@ -431,43 +435,6 @@
             reader.readAsDataURL(file);
         }
     </script>
-    {{-- validasi --}}
-    <script>
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const inputFile = document.getElementById('imagesInput');
-
-        //     function validateImages(input) {
-        //         const files = input.files;
-        //         const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-        //         const maxSize = 5000;
-
-        //         for (let i = 0; i < files.length; i++) {
-        //             const file = files[i];
-        //             const fileSize = file.size / 1024;
-
-        //             if (!allowedExtensions.test(file.name)) {
-        //                 alert('File harus berupa gambar (format JPG, JPEG, PNG, GIF).');
-        //                 input.value = '';
-        //                 return false;
-        //             }
-
-        //             if (fileSize > maxSize) {
-        //                 alert('Ukuran file tidak boleh melebihi 5000 KB.');
-        //                 input.value = '';
-        //                 return false;
-        //             }
-        //         }
-
-        //         return true;
-        //     }
-
-        //     inputFile.addEventListener('change', function() {
-        //         validateImages(inputFile);
-        //     });
-        // });
-    </script>
-
-
     {{-- print foto --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -476,7 +443,7 @@
             const checkAllButton = document.getElementById('check-all-button');
             const uncheckAllButton = document.getElementById('uncheck-all-button');
             const printPhotoCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
-            const serviceId = '{{ $service->id }}';
+            // const serviceId = '{{ $service->id }}';
             const printServiceEvents = @json($printServiceEvents);
 
             // Fungsi untuk menampilkan atau menyembunyikan kolom harga
@@ -490,7 +457,7 @@
                 } else {
                     if (priceInputGroup !== null) {
                         priceInputGroup.remove();
-                        deletePriceData(checkbox); // Hapus data harga saat unchecked
+                        deletePriceData(checkbox);
                     }
                 }
             }
@@ -521,7 +488,6 @@
             // Fungsi untuk menghapus data harga
             function deletePriceData(checkbox) {
                 const printPhotoId = checkbox.value;
-                // Hapus data harga dari array printServiceEvents
                 const index = printServiceEvents.findIndex(function(event) {
                     return event.print_photo_id == printPhotoId;
                 });
@@ -546,15 +512,16 @@
             printPhotosSwitch.addEventListener('change', function() {
                 if (this.checked) {
                     printPhotosOptions.style.display = 'block';
+                    printPhotoCheckboxes.forEach(function(checkbox) {
+                        showOrHidePriceInput(checkbox);
+                    });
                 } else {
                     printPhotosOptions.style.display = 'none';
-                    // Hapus semua data harga jika switch dinonaktifkan
                     printServiceEvents.splice(0, printServiceEvents.length);
-                    // Hapus semua elemen HTML yang menampilkan harga
                     printPhotoCheckboxes.forEach(function(checkbox) {
                         const priceInputGroup = checkbox.parentNode.querySelector('.input-group');
                         if (priceInputGroup !== null) {
-                            priceInputGroup.remove();
+                            // priceInputGroup.remove();
                         }
                     });
                 }
