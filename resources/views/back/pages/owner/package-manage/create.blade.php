@@ -180,20 +180,38 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group mb-0">
-                                    <label for="add_on_switch">Total Orang & Harga Total Paket</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Rp</span>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="price">Harga Paket</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Rp</span>
+                                                </div>
+                                                <input type="text" id="price" name="price" class="form-control @error('price') is-invalid @enderror" placeholder="Harga Paket..." value="{{ old('price') }}" required>
+                                                @error('price')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
                                         </div>
-                                        <input type="text" id="price" name="price"
-                                            class="form-control @error('price') is-invalid @enderror"
-                                            placeholder="Harga Paket..." value="{{ old('price') }}" required>
+                                        <div class="col-md-6">
+                                            <label for="people_sum">Total Orang</label>
+                                            <div class="input-group">
+                                                <input type="text" id="people_sum" name="people_sum" class="form-control @error('people_sum') is-invalid @enderror" placeholder="Contoh: 1, 1 - 5, 4 - 10..." value="{{ old('people_sum') }}" required>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">Orang</span>
+                                                </div>
+                                                @error('people_sum')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
                                     </div>
-                                    <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
+
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="add_on_switch"
                                             name="add_on_switch">
-                                        <label class="custom-control-label" for="add_on_switch">Aktifkan Opsi Total Orang Tambahan</label>
+                                        <label class="custom-control-label" for="add_on_switch">Aktifkan Opsi Total Orang
+                                            Tambahan</label>
                                     </div>
                                 </div>
                                 <div id="add_on_options" style="display: none;">
@@ -220,6 +238,7 @@
                                 @error('add_ons')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
+                                <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
                             </div>
 
                             {{-- <div class="col-lg-6">

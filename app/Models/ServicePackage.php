@@ -14,7 +14,6 @@ class ServicePackage extends Model
         'dp_status',
         'dp_percentage',
         'time_status',
-        'price',
         'service_event_id',
     ];
     public function serviceEvent()
