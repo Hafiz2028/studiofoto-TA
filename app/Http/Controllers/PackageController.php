@@ -2,34 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\ServiceEvent;
-use App\Models\ServiceEventImage;
-use App\Models\ServiceType;
-use App\Models\ServicePackage;
-use App\Models\AddOnPackage;
-use App\Models\AddOnPackageDetail;
-use App\Models\PrintPhoto;
-use App\Models\PrintServiceEvent;
-use App\Models\PrintPhotoDetail;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
-use App\Models\Venue;
-use App\Models\Admin;
-use App\Models\PaymentMethod;
-use App\Models\PaymentMethodDetail;
-use App\Models\OpeningHour;
-use App\Models\VenueImage;
-use App\Models\Owner;
 use App\Models\Day;
 use App\Models\Hour;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use App\Models\Admin;
+use App\Models\Owner;
+use App\Models\Venue;
+use App\Models\PrintPhoto;
+use App\Models\VenueImage;
+use App\Models\OpeningHour;
+use App\Models\ServiceType;
+use Illuminate\Support\Str;
+use App\Models\AddOnPackage;
+use App\Models\ServiceEvent;
+use Illuminate\Http\Request;
+use App\Models\PaymentMethod;
+use App\Models\ServicePackage;
+use Illuminate\Support\Carbon;
 use PhpParser\Node\Stmt\Catch_;
+use App\Models\PrintPhotoDetail;
+use App\Models\PrintServiceEvent;
+use App\Models\ServiceEventImage;
 use PhpParser\Node\Stmt\TryCatch;
+use App\Models\AddOnPackageDetail;
+use Illuminate\Support\Facades\DB;
+use App\Models\PaymentMethodDetail;
+use Illuminate\Support\Facades\Log;
+use App\Models\ServicePackageDetail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class PackageController extends Controller
 {
@@ -61,10 +62,25 @@ class PackageController extends Controller
                 'information' => 'nullable|string',
                 'dp_percentage' => 'required|in:full_payment,dp,min_payment',
                 'time_status' => 'required|in:0,1,2,3',
-                'price' => 'required|numeric',
+                'prices.*' => 'required|numeric',
+                'people_sums.*' => 'required|string',
             ], [
-                'price.numeric' => 'Harga Harus dalam bentuk angka'
+                'prices.*.required' => 'Harga paket harus diisi',
+                'prices.*.numeric' => 'Harga harus dalam bentuk angka',
+                'people_sums.*.required' => 'Total orang harus diisi',
+                'people_sums.*.string' => 'Total orang harus dalam bentuk string',
             ]);
+            if ($validatedData['dp_percentage'] === 'min_payment') {
+                $prices = $validatedData['prices'];
+                $minPaymentInputs = $request->input('min_payment_input');
+                foreach ($prices as $index => $price) {
+                    $minPaymentInput = $minPaymentInputs[$index];
+                    if ($request->input('min_payment_input') > $price) {
+
+                        return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
+                    }
+                }
+            }
 
             // Simpan data paket foto baru
             $venue = Venue::findOrFail($venueId);
@@ -74,30 +90,19 @@ class PackageController extends Controller
             $package->name = $validatedData['name'];
             $package->information = $validatedData['information'];
             $package->time_status = $validatedData['time_status'];
-            $price = str_replace(' ', '', $validatedData['price']);
-            $package->price = $price;
-            $package->dp_status = ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0);
-
-            if ($validatedData['dp_percentage'] === 'dp') {
-                $request->validate([
-                    'dp_input' => 'required|numeric|min:1|max:100',
-                ]);
-
-                $dpPercentage = $request->input('dp_input') / 100;
-                $package->dp_percentage = $dpPercentage;
-            } elseif ($validatedData['dp_percentage'] === 'min_payment') {
-                $request->validate([
-                    'min_payment_input' => 'required|numeric|min:0',
-                ]);
-                $minPaymentInput = str_replace('.', '', $request->input('min_payment_input'));
-                $minPaymentAmount = $minPaymentInput / $price;
-                $package->dp_percentage = $minPaymentAmount;
-            } else {
-                $package->dp_percentage = 0;
-            }
 
             $package->save();
 
+            // Simpan rincian paket foto
+            foreach ($validatedData['prices'] as $index => $price) {
+                $packageDetail = new ServicePackageDetail();
+                $packageDetail->service_package_id = $package->id;
+                $packageDetail->price = $price;
+                $packageDetail->dp_status = ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0);
+                $packageDetail->dp_percentage = $this->saveServicePackageDetail($validatedData['dp_percentage'], $price, $request);
+                $packageDetail->sum_person = $validatedData['people_sums'][$index];
+                $packageDetail->save();
+            }
             // Simpan data add-ons jika ditambahkan
             if ($request->has('add_ons')) {
                 foreach ($request->input('add_ons') as $addOnId) {
@@ -130,6 +135,26 @@ class PackageController extends Controller
         }
     }
 
+    private function saveServicePackageDetail($dpType, $price, $request)
+    {
+        if ($dpType === 'dp') {
+            $request->validate([
+                'dp_input' => 'required|numeric|min:1|max:100',
+            ]);
+            $dpPercentage = $request->input('dp_input') / 100;
+        } elseif ($dpType === 'min_payment') {
+            $request->validate([
+                'min_payment_input' => 'required|numeric|min:0',
+            ]);
+            $minPaymentInput = str_replace('.', '', $request->input('min_payment_input'));
+            $dpPercentage = $minPaymentInput / $price;
+        } else {
+            $dpPercentage = 0;
+        }
+
+        return $dpPercentage;
+    }
+
 
     public function edit($venueId, $serviceId, $packageId)
     {
@@ -139,19 +164,64 @@ class PackageController extends Controller
             $package = ServicePackage::findOrFail($packageId);
             $serviceTypes = ServiceType::all();
             $addOnPackages = AddOnPackage::all();
+            $packageDetails = ServicePackageDetail::where('service_package_id', $package->id)->get();
             $addOnDetail = AddOnPackageDetail::where('service_package_id', $package->id)->get();
             $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
             $printPhotoDetails = PrintPhotoDetail::where('service_package_id', $package->id)->get();
             $getQtyByAddOnPackageId = function ($addOnPackageId) use ($package) {
                 return $package->addOnPackageDetails->where('add_on_package_id', $addOnPackageId)->first()->sum ?? '';
             };
-            return view('back.pages.owner.package-manage.update', compact('venue', 'service', 'package', 'serviceTypes', 'addOnDetail', 'printPhotoDetails', 'addOnPackages', 'printServiceEvents', 'getQtyByAddOnPackageId'));
+            // $addedPackageDetails = [];
+
+            return view('back.pages.owner.package-manage.update', compact('venue', 'service', 'package', 'packageDetails', 'serviceTypes', 'addOnDetail', 'printPhotoDetails', 'addOnPackages', 'printServiceEvents', 'getQtyByAddOnPackageId'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
     }
 
+    public function showDetail($venueId, $serviceId, $packageId)
+    {
+        try {
+            $venue = Venue::findOrFail($venueId);
+            $service = ServiceEvent::findOrFail($serviceId);
 
+            $package = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto', 'servicePackageDetails')
+                ->findOrFail($packageId);
+
+            $responseData = [
+                'package' => $package,
+                'packageName' => $package->name,
+                'information' => $package->information,
+            ];
+
+            if ($package->printPhotoDetails->isNotEmpty()) {
+                $formattedPrintPhotoDetails = $package->printPhotoDetails->map(function ($printPhotoDetail) {
+                    return [
+                        'size' => $printPhotoDetail->printServiceEvent->printPhoto->size,
+                        'price' => $printPhotoDetail->printServiceEvent->price,
+                    ];
+                });
+                $responseData['printPhotoDetails'] = $formattedPrintPhotoDetails;
+            }
+
+            if ($package->servicePackageDetails->isNotEmpty()) {
+                $formattedServicePackageDetails = $package->servicePackageDetails->map(function ($servicePackageDetail) {
+                    return [
+                        'sum_person' => $servicePackageDetail->sum_person,
+                        'price' => $servicePackageDetail->price,
+                        'dp_status' => $servicePackageDetail->dp_status,
+                        'dp_percentage' => $servicePackageDetail->dp_percentage,
+                    ];
+                });
+                $responseData['servicePackageDetails'] = $formattedServicePackageDetails;
+            }
+            return response()->json($responseData);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Package not found.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to retrieve package.'], 500);
+        }
+    }
     public function update(Request $request, $venueId, $serviceId, $packageId)
     {
         try {
@@ -160,9 +230,13 @@ class PackageController extends Controller
                 'information' => 'nullable|string',
                 'dp_percentage' => 'required|in:full_payment,dp,min_payment',
                 'time_status' => 'required|in:0,1,2,3',
-                'price' => 'required|numeric',
+                'prices.*' => 'required|numeric',
+                'people_sums.*' => 'required|string',
             ], [
-                'price.numeric' => 'Harga Harus dalam bentuk angka'
+                'prices.*.required' => 'Harga paket harus diisi',
+                'prices.*.numeric' => 'Harga harus dalam bentuk angka',
+                'people_sums.*.required' => 'Total orang harus diisi',
+                'people_sums.*.string' => 'Total orang harus dalam bentuk string',
             ]);
 
             $venue = Venue::findOrFail($venueId);
@@ -172,34 +246,51 @@ class PackageController extends Controller
             $package->name = $validatedData['name'];
             $package->information = $validatedData['information'];
             $package->time_status = $validatedData['time_status'];
-            $price = str_replace(' ', '', $validatedData['price']);
-            $package->price = $price;
-            $package->dp_status = ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0);
+
+            if ($validatedData['dp_percentage'] === 'min_payment') {
+                $prices = $validatedData['prices'];
+                $minPaymentInputs = $request->input('min_payment_input');
+                foreach ($prices as $index => $price) {
+                    $minPaymentInput = $minPaymentInputs[$index];
+                    if ($request->input('min_payment_input') > $price) {
+
+                        return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
+                    }
+                }
+            }
+            $package->save();
 
 
-            if ($validatedData['dp_percentage'] === 'dp') {
-                $request->validate([
-                    'dp_input' => 'required|numeric|min:1|max:100',
-                ]);
 
-                $dpPercentage = $request->input('dp_input') / 100;
-                $package->dp_percentage = $dpPercentage;
-            } elseif ($validatedData['dp_percentage'] === 'min_payment') {
-                $request->validate([
-                    'min_payment_input' => 'required|numeric|min:0',
-                ]);
-                $minPaymentInput = str_replace('.', '', $request->input('min_payment_input'));
-                $minPaymentAmount = $minPaymentInput / $price;
-                $package->dp_percentage = $minPaymentAmount;
-            } else {
-                $package->dp_percentage = 0;
+            DB::beginTransaction();
+            $deletedQuery = ServicePackageDetail::where('service_package_id', $package->id)
+                ->whereNotIn('id', $request->input('save_package_details', []));
+            info('Query untuk menghapus: ' . $deletedQuery->toSql());
+
+            $deletedDetails = $deletedQuery->get();
+
+            foreach ($deletedDetails as $detail) {
+                info('Detail yang akan dihapus: ' . $detail->id);
             }
 
-            $package->save();
+            $deletedCount = $deletedQuery->delete();
+
+            info('Total deleted: ' . $deletedCount);
+
+
+
+            DB::commit();
+
+
+
+
+
+
+
+
 
             // Update data add-ons
             $package->addOnPackageDetails()->delete();
-
             if ($request->has('add_ons')) {
                 foreach ($request->input('add_ons') as $addOnId) {
                     $totalQty = $request->input('total_qty_' . $addOnId);
@@ -225,34 +316,13 @@ class PackageController extends Controller
                 }
             }
 
-            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto berhasil diperbarui.');
+            // return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto berhasil diperbarui.');
+            return redirect()->back()->with('success', 'paket berhasil di save.');
         } catch (\Exception $e) {
+            DB::rollback();
             return redirect()->back()->with('fail', 'Gagal memperbarui paket foto. Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
-    public function showDetail($venueId, $serviceId, $packageId)
-    {
-        try {
-            $package = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto')->findOrFail($packageId);
-            $formattedPrintPhotoDetails = $package->printPhotoDetails->map(function ($printPhotoDetail) {
-                return [
-                    'size' => $printPhotoDetail->printServiceEvent->printPhoto->size,
-                    'price' => $printPhotoDetail->printServiceEvent->price,
-                ];
-            });
-            return response()->json([
-                'package' => $package,
-                'printPhotoDetails' => $formattedPrintPhotoDetails,
-                'information' => $package->information, // Include the 'information' field
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json(['error' => 'Package not found.'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to retrieve package.'], 500);
-        }
-    }
-
     public function destroy($venueId, $serviceId, $packageId)
     {
         try {

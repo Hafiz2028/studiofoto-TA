@@ -11,9 +11,11 @@ class ServicePackageDetail extends Model
     protected $fillable = [
         'sum_person',
         'price',
+        'dp_status',
+        'dp_percentage',
         'service_package_id',
     ];
-    
+
     public function servicePackage()
     {
         return $this->belongsTo(ServicePackage::class, 'service_package_id', 'id');

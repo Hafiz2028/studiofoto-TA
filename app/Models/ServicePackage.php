@@ -11,8 +11,6 @@ class ServicePackage extends Model
     protected $fillable = [
         'name',
         'information',
-        'dp_status',
-        'dp_percentage',
         'time_status',
         'service_event_id',
     ];
@@ -29,5 +27,9 @@ class ServicePackage extends Model
     public function addOnPackageDetails()
     {
         return $this->hasMany(AddOnPackageDetail::class, 'service_package_id', 'id');
+    }
+    public function servicePackageDetails()
+    {
+        return $this->hasMany(ServicePackageDetail::class, 'service_package_id', 'id');
     }
 }

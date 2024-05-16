@@ -87,7 +87,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6 col-lg-6">
+                            <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Print Foto Layanan</label>
                                     <div class="custom-control custom-switch">
@@ -112,12 +112,12 @@
                                     </div>
                                     <div class="row">
                                         @php
-                                            $columnCount = 14;
+                                            $columnCount = 9;
                                             $rowCount = ceil(count($printPhotos) / $columnCount);
 
                                         @endphp
                                         @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 @for ($j = 0; $j < $columnCount; $j++)
                                                     @php $index = $i * $columnCount + $j; @endphp
                                                     @if ($index < count($printPhotos))

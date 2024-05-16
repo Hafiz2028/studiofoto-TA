@@ -57,7 +57,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script>
     {{-- @kropifyStyles --}}
-    @livewireStyles
+    @livewireStyles 
     @stack('stylesheets')
 </head>
 

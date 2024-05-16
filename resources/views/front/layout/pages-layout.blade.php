@@ -21,11 +21,11 @@
     <link rel="stylesheet" href="/front/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="/front/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="/front/css/style.css" type="text/css">
-    
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/extra-assets/ijaboCropTool/ijaboCropTool.min.css">
 
-    @livewireStyles()
+    @livewireStyles
     @stack('stylesheets')
 </head>
 
@@ -87,7 +87,7 @@
 
 
 
-    @livewireScripts()
+    @livewireScripts
     @stack('scripts')
 
 

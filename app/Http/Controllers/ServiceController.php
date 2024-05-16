@@ -8,6 +8,7 @@ use App\Models\ServiceEvent;
 use App\Models\ServiceEventImage;
 use App\Models\ServiceType;
 use App\Models\ServicePackage;
+use App\Models\ServicePackageDetail;
 use App\Models\PrintPhoto;
 use App\Models\PrintServiceEvent;
 use Illuminate\Support\Facades\Storage;
@@ -121,7 +122,12 @@ class ServiceController extends Controller
             $serviceImages = ServiceEventImage::where('service_event_id', $serviceId)->get();
             $packages = ServicePackage::where('service_event_id', $serviceId)->get();
             $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->orderBy('print_photo_id')->get();
-            return view('back.pages.owner.service-manage.show', compact('venue', 'service', 'serviceImages', 'packages', 'printServiceEvents'));
+            $packageDetails = [];
+            foreach ($packages as $package) {
+                $details = ServicePackageDetail::where('service_package_id', $package->id)->get();
+                $packageDetails[$package->id] = $details;
+            }
+            return view('back.pages.owner.service-manage.show', compact('venue', 'service', 'serviceImages', 'packages', 'printServiceEvents', 'packageDetails'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('error.page')->with('error_message', 'Data tidak ditemukan.');
         } catch (\Illuminate\Contracts\View\View | \Throwable $e) {

@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 col-lg-6">
+                            <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Print Foto Layanan</label>
                                     <div class="custom-control custom-switch">
@@ -113,11 +113,11 @@
                                     </div>
                                     <div class="row">
                                         @php
-                                            $columnCount = 3;
+                                            $columnCount = 9;
                                             $rowCount = ceil(count($printPhotos) / $columnCount);
                                         @endphp
                                         @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-{{ 12 / $columnCount }}">
+                                            <div class="col-md-4">
                                                 @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printPhotos)); $j++)
                                                     @php $printPhoto = $printPhotos[$j]; @endphp
                                                     <div class="custom-control custom-checkbox">
@@ -126,7 +126,7 @@
                                                             value="{{ $printPhoto->id }}"
                                                             {{ $printServiceEvents->contains('print_photo_id', $printPhoto->id) ? 'checked' : '' }}>
                                                         <label class="custom-control-label"
-                                                            for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->size }}</label>
+                                                            for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->id }}</label>
                                                         <div class="input-group"
                                                             style="margin-top: 5px;{{ $printServiceEvents->isNotEmpty() ? '' : 'display:none;' }}">
                                                             <span class="input-group-text">Rp</span>
@@ -144,7 +144,7 @@
                                 </div>
                             </div>
 
-                            
+
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-6 col-lg-6">

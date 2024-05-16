@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('service_packages', function (Blueprint $table) {
-            Schema::table('service_packages', function (Blueprint $table) {
-                $table->dropColumn('price');
-            });
+        Schema::table('service_package_details', function (Blueprint $table) {
+            $table->float('dp_percentage')->nullable()->after('price');
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('service_packages', function (Blueprint $table) {
-
+        Schema::table('service_package_details', function (Blueprint $table) {
+            $table->dropColumn(['dp_percentage']);
         });
     }
 };

@@ -114,8 +114,8 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label for="village">Kelurahan:</label>
-                                        <select id="villageSelect" name="village_id" wire:model.defer="village_id" wire:change="saveVillageId($event.target.value)"
-                                            class="form-control">
+                                        <select id="villageSelect" name="village_id" wire:model.defer="village_id"
+                                            wire:change="saveVillageId($event.target.value)" class="form-control">
                                             <option value="">Pilih Kelurahan</option>
                                             @foreach ($villages as $village)
                                                 <option value="{{ $village->id }}">{{ $village->name }}</option>
@@ -133,8 +133,8 @@
                                         <label for="address">Alamat Lengkap:</label>
                                         <input type="text" id="address"
                                             class="form-control @error('address') is-invalid @enderror" name="address"
-                                            placeholder="Patokan Venue, seperti nama jalan atau bangunan terkenal..." value="{{ old('address') }}"
-                                            wire:model.lazy="address">
+                                            placeholder="Patokan Venue, seperti nama jalan atau bangunan terkenal..."
+                                            value="{{ old('address') }}" wire:model.lazy="address">
                                         @error('address')
                                             <span class="text-danger ml-2">{{ $message }}</span>
                                         @enderror
@@ -448,25 +448,48 @@
             </ul>
         </div>
     @endif
-    <div class="actions-buttons d-flex justify-content-between bg-white pt-2 pb-2">
-        @if ($currentStep == 1)
-            <div></div>
-        @endif
 
-        @if ($currentStep == 2 || $currentStep == 3 || $currentStep == 4 || $currentStep == 5)
-            <button type="button" class="btn btn-outline-secondary" wire:click="decreaseStep()">Back</button>
-        @endif
+    @if ($venue && $venue->exists)
+        <div class="actions-buttons d-flex justify-content-between bg-white pt-2 pb-2">
+            @if ($currentStep == 1)
+                <div></div>
+                <button type="submit" class="btn btn-primary btn-lg">{{ $venue && $venue->exists ? 'Update' : 'Submit' }}</button>
+                <button type="button" class="btn btn-outline-success" wire:click="increaseStep()">Next</button>
+            @endif
 
-        @if ($currentStep == 1 || $currentStep == 2 || $currentStep == 3 || $currentStep == 4)
-            <button type="button" class="btn btn-outline-success" wire:click="increaseStep()">Next</button>
-        @endif
+            @if ($currentStep == 2 || $currentStep == 3 || $currentStep == 4 || $currentStep == 5)
+                <button type="button" class="btn btn-outline-secondary" wire:click="decreaseStep()">Back</button>
+                <button type="submit" class="btn btn-primary btn-lg">{{ $venue && $venue->exists ? 'Update' : 'Submit' }}</button>
+            @endif
 
-        @if ($currentStep == 5)
-            <button type="submit" class="btn btn-primary">
-                {{ $venue && $venue->exists ? 'Update' : 'Submit' }}
-            </button>
-        @endif
-    </div>
+            @if ($currentStep == 2 || $currentStep == 3 || $currentStep == 4)
+                <button type="button" class="btn btn-outline-success" wire:click="increaseStep()">Next</button>
+            @endif
+
+        </div>
+    @else
+        <div class="actions-buttons d-flex justify-content-between bg-white pt-2 pb-2">
+            @if ($currentStep == 1)
+                <div></div>
+            @endif
+
+            @if ($currentStep == 2 || $currentStep == 3 || $currentStep == 4 || $currentStep == 5)
+                <button type="button" class="btn btn-outline-secondary" wire:click="decreaseStep()">Back</button>
+            @endif
+
+            @if ($currentStep == 1 || $currentStep == 2 || $currentStep == 3 || $currentStep == 4)
+                <button type="button" class="btn btn-outline-success" wire:click="increaseStep()">Next</button>
+            @endif
+
+            @if ($currentStep == 5)
+                <button type="submit" class="btn btn-primary">
+                    {{ $venue && $venue->exists ? 'Update' : 'Submit' }}
+                </button>
+            @endif
+        </div>
+    @endif
+
+
 
     </form>
     @push('styles')

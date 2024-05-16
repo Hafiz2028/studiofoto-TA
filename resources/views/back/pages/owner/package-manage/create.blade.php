@@ -147,7 +147,6 @@
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="full_payment_option" name="dp_percentage"
                                             class="custom-control-input" value="full_payment" checked>
-                                        <!-- Tambahkan atribut checked di sini -->
                                         <label class="custom-control-label" for="full_payment_option">Hanya Pembayaran
                                             Lunas</label>
                                     </div>
@@ -171,6 +170,9 @@
                                                 <input type="text" id="min_payment_input" name="min_payment_input"
                                                     class="form-control">
                                             </div>
+                                            @error('min_payment_input')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                     @error('dp_percentage')
@@ -181,85 +183,44 @@
                             <div class="col-lg-6">
                                 <div class="form-group mb-0">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 col-sm-6">
                                             <label for="price">Harga Paket</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Rp</span>
                                                 </div>
-                                                <input type="text" id="price" name="price" class="form-control @error('price') is-invalid @enderror" placeholder="Harga Paket..." value="{{ old('price') }}" required>
-                                                @error('price')
+                                                <input type="text" id="price" name="prices[]"
+                                                    class="form-control @error('prices.*') is-invalid @enderror"
+                                                    placeholder="Harga Paket..." value="{{ old('prices.0') }}" required>
+                                                @error('prices.*')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 col-sm-6">
                                             <label for="people_sum">Total Orang</label>
                                             <div class="input-group">
-                                                <input type="text" id="people_sum" name="people_sum" class="form-control @error('people_sum') is-invalid @enderror" placeholder="Contoh: 1, 1 - 5, 4 - 10..." value="{{ old('people_sum') }}" required>
+                                                <input type="text" id="people_sum" name="people_sums[]"
+                                                    class="form-control @error('people_sums.*') is-invalid @enderror"
+                                                    placeholder="e.g: 1, 1 - 5, 4 - 10..."
+                                                    value="{{ old('people_sums.0') }}" required>
                                                 <div class="input-group-append">
                                                     <span class="input-group-text">Orang</span>
                                                 </div>
-                                                @error('people_sum')
+                                                @error('people_sums.*')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="add_on_switch"
-                                            name="add_on_switch">
-                                        <label class="custom-control-label" for="add_on_switch">Aktifkan Opsi Total Orang
-                                            Tambahan</label>
-                                    </div>
                                 </div>
-                                <div id="add_on_options" style="display: none;">
-                                    <label for="add_ons">Tambahkan Total Add On untuk paket ini </label><br>
-                                    @foreach ($addOnPackages as $addOnPackage)
-                                        <div class="addon-item custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input addon-checkbox"
-                                                id="add_on_{{ $addOnPackage->id }}" name="add_ons[]"
-                                                value="{{ $addOnPackage->id }}" data-id="{{ $addOnPackage->id }}">
-                                            <label class="custom-control-label"
-                                                for="add_on_{{ $addOnPackage->id }}">{{ $addOnPackage->name }}</label>
-                                            <div class="addon-inputs" style="display: none;">
-                                                <div class="addon-controls">
-                                                    <input type="number" id="total_qty_{{ $addOnPackage->id }}"
-                                                        name="total_qty_{{ $addOnPackage->id }}"
-                                                        class="form-control addon-qty"
-                                                        placeholder="Jumlah {{ $addOnPackage->name }} (qty)"
-                                                        onchange="updateSum('{{ $addOnPackage->id }}')">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                                <div class="form-group new-price-person">
+                                    <button type="button" class="btn btn-outline-info mb-1"
+                                        onclick="addNewInputGroup()">Tambahkan
+                                        Input Baru</button>
                                 </div>
-                                @error('add_ons')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
                                 <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
                             </div>
-
-                            {{-- <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="name">Harga Paket</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Rp</span>
-                                        </div>
-                                        <input type="text" id="price" name="price"
-                                            class="form-control @error('price') is-invalid @enderror"
-                                            placeholder="Tambahkan Harga Paket..." value="{{ old('price') }}" required>
-                                    </div>
-                                    <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
-                                    @error('price')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div> --}}
-
-
                             <div class="col-lg-12 col-md-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch">Cetak Foto</label>
@@ -322,6 +283,7 @@
                             </div>
                         </div>
                     </div>
+
                 </form>
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -349,6 +311,54 @@
     </style>
 @endpush
 @push('scripts')
+    {{-- input harga baru --}}
+    <script>
+        var inputIndex = 1;
+
+        function addNewInputGroup() {
+            var newInputGroup = `
+            <div class="row align-items-center">
+                <div class="col-md-6 col-sm-6">
+                    <label for="price">Harga Paket</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Rp</span>
+                        </div>
+                        <input type="text" id="price${inputIndex}" name="prices[]" class="form-control @error('prices.*') is-invalid @enderror" placeholder="Harga Paket..." value="{{ old('prices.${inputIndex}') }}" required>
+                    </div>
+                    @error('prices.*')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    <label for="people_sum">Total Orang</label>
+                    <div class="input-group">
+                        <input type="text" id="people_sum${inputIndex}" name="people_sums[]" class="form-control @error('people_sums.*') is-invalid @enderror" placeholder="Contoh: 1, 1 - 5, 4 - 10..." value="{{ old('people_sums.${inputIndex}') }}" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text">Orang</span>
+                        </div>
+                    </div>
+                    @error('people_sums.*')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="col-md-2 col-sm-2">
+                    <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center" onclick="removeInputGroup(this)"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+
+            // Append the new input group to the parent container
+            $('.form-group.new-price-person').append(newInputGroup);
+            inputIndex++;
+        }
+
+        function removeInputGroup(button) {
+            $(button).closest('.row').remove();
+        }
+    </script>
+
+
     {{-- metode pembayaran  --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -389,15 +399,6 @@
             if (!minPaymentOption.checked) {
                 priceInput.value = '';
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const minPaymentInput = document.getElementById('min_payment_input');
-            minPaymentInput.addEventListener('input', function() {
-                let value = this.value.replace(/\D/g, '');
-                value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                this.value = value;
-            });
         });
     </script>
     {{-- print foto --}}

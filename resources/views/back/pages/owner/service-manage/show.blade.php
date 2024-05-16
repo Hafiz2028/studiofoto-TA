@@ -205,7 +205,6 @@
                                     <th>#</th>
                                     <th>Nama Paket</th>
                                     <th>Metode Pembayaran</th>
-                                    <th>Harga</th>
                                     <th>Add On</th>
                                     <th>Waktu Foto</th>
                                     <th>Action</th>
@@ -218,26 +217,25 @@
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $package->name }}</td>
                                             <td class="align-middle text-center">
-                                                @switch($package->dp_status)
+                                                {{-- @switch($packageDetails[$package->id]->first()->dp_status)
                                                     @case(0)
-                                                        <span class="badge badge-secondary">Tidak terima DP</span>
+                                                        <span class="badge badge-info" style="font-size:small;">Lunas</span>
                                                     @break
 
                                                     @case(1)
-                                                        <span class="badge badge-success">DP
-                                                            {{ number_format($package->dp_percentage * 100) }}%</span>
+                                                        <span class="badge badge-success" style="font-size:small;">DP</span>
                                                     @break
 
                                                     @case(2)
-                                                        <span class="badge badge-success">Min. Bayar Rp
-                                                            {{ number_format($package->dp_percentage * $package->price, 0, ',', ' ') }}</span>
+                                                        <span class="badge badge-success" style="font-size:small;">Min.
+                                                            Pembayaran</span>
                                                     @break
 
                                                     @default
-                                                        <span class="badge badge-danger">Tidak Valid</span>
-                                                @endswitch
+                                                        <span class="badge badge-danger" style="font-size:small;">Tidak
+                                                            Valid</span>
+                                                @endswitch --}}
                                             </td>
-                                            <td>Rp {{ number_format($package->price, 0, ',', ' ') }}</td>
                                             <td style="text-align: justify;">
                                                 @if ($package->addOnPackageDetails->isNotEmpty())
                                                     @foreach ($package->addOnPackageDetails as $index => $addOnDetail)
@@ -250,44 +248,48 @@
                                                     Tidak ada
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td class="align-middle text-center">
                                                 @switch($package->time_status)
                                                     @case(0)
-                                                        30 Menit
+                                                        <span class="badge badge-success" style="font-size:small;">30 Menit</span>
                                                     @break
 
                                                     @case(1)
-                                                        60 Menit
+                                                        <span class="badge badge-primary" style="font-size:small;">60 Menit</span>
                                                     @break
 
                                                     @case(2)
-                                                        90 Menit
+                                                        <span class="badge badge-info" style="font-size:small;">90 Menit</span>
                                                     @break
 
                                                     @case(3)
-                                                        120 Menit
+                                                        <span class="badge badge-warning" style="font-size:small;">120
+                                                            Menit</span>
                                                     @break
 
                                                     @default
-                                                        Tidak Valid
+                                                        <span class="badge badge-danger" style="font-size:small;">Tidak
+                                                            Valid</span>
                                                 @endswitch
                                             </td>
                                             <td>
                                                 <a href="#" class="btn btn-outline-secondary btn-lg"
-                                                    onclick="showPackageDetail({{ $package->id }})" style="width: 50px;"
-                                                    data-toggle="tooltip" data-placement="auto" title="Detail Paket">
+                                                    onclick="showPackageDetail({{ $package->id }}, '{{ $venue->id }}', '{{ $service->id }}')"
+                                                    style="width: 50px;" data-toggle="tooltip" data-placement="auto"
+                                                    title="Detail Paket" data-venue="{{ $venue->id }}"
+                                                    data-service="{{ $service->id }}">
                                                     <i class="fas fa-info"></i>
                                                 </a>
                                                 <div class="modal fade" id="detailPackageModal" tabindex="-1"
                                                     role="dialog" aria-labelledby="detailPackageModalLabel"
                                                     aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg modal-dialog-centered"
+                                                    <div class="modal-dialog modal-xl modal-dialog-centered"
                                                         role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-header bg-info text-white">
                                                                 <h5 class="modal-title text-white"
                                                                     id="detailPackageModalLabel">
-                                                                    Detail {{ $package->name }} <i
+                                                                    Detail <span id="packageName"></span> <i
                                                                         class="fas fa-info-circle ml-2"></i>
                                                                 </h5>
                                                                 <button type="button" class="close text-white"
@@ -298,11 +300,21 @@
                                                             <div class="modal-body">
                                                                 <div class="container-fluid">
                                                                     <div class="row">
+                                                                        <div class="col-md-12 mt-3">
+                                                                            <div class="card">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title">Detail Paket
+                                                                                        Layanan</h6>
+                                                                                    <hr>
+                                                                                    <div id="servicePackageList"
+                                                                                        class="table-responsive"></div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                         <div class="col-md-6">
                                                                             <div class="card">
                                                                                 <div class="card-body">
-                                                                                    <h6 class="card-title">Informasi
-                                                                                        Paket
+                                                                                    <h6 class="card-title">Informasi Paket
                                                                                     </h6>
                                                                                     <hr>
                                                                                     <div id="packageInfo"></div>
@@ -315,8 +327,8 @@
                                                                                     <h6 class="card-title">Daftar Cetak
                                                                                         Foto</h6>
                                                                                     <hr>
-                                                                                    <ul id="printPhotoList"
-                                                                                        class="list-group"></ul>
+                                                                                    <div id="printPhotoList"
+                                                                                        class="table-responsive"></div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -383,43 +395,175 @@
 @push('stylesheets')
 @endpush
 @push('scripts')
+    {{-- detail paket --}}
     <script>
+        function showPackageDetail(packageId, venue, service) {
+            var ajaxUrl =
+                '{{ route('owner.venue.services.packages.showDetail', ['venue' => ':venue', 'service' => ':service', 'package' => ':package']) }}';
+            ajaxUrl = ajaxUrl.replace(':venue', venue).replace(':service', service).replace(':package', packageId);
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.information) {
+                        $('#packageInfo').html('<p>' + response.information + '</p>');
+                    } else {
+                        $('#packageInfo').html('<p class="alert alert-info">Tidak ada Deskripsi Paket.</p>');
+                    }
+                    $('#packageName').text(response.packageName);
+                    $('#printPhotoList').empty();
+                    $('#servicePackageList').empty();
+
+                    if (response.printPhotoDetails && response.printPhotoDetails.length > 0) {
+                        var printPhotoTableHtml = '<table class="table">';
+                        printPhotoTableHtml += '<thead>';
+                        printPhotoTableHtml += '<tr>';
+                        printPhotoTableHtml += '<th scope="col">Size</th>';
+                        printPhotoTableHtml += '<th scope="col">Harga</th>';
+                        printPhotoTableHtml += '</tr>';
+                        printPhotoTableHtml += '</thead>';
+                        printPhotoTableHtml += '<tbody>';
+                        response.printPhotoDetails.forEach(function(printPhoto) {
+                            var formattedPrice = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR'
+                            }).format(printPhoto.price);
+                            printPhotoTableHtml += '<tr>';
+                            printPhotoTableHtml += '<td>' + printPhoto.size + '</td>';
+                            printPhotoTableHtml += '<td>' + formattedPrice + '</td>';
+                            printPhotoTableHtml += '</tr>';
+                        });
+                        printPhotoTableHtml += '</tbody>';
+                        printPhotoTableHtml += '</table>';
+                        $('#printPhotoList').append(printPhotoTableHtml);
+                    } else {
+                        $('#printPhotoList').html(
+                            '<p class="alert alert-info">Paket ini tidak bisa cetak foto.</p>');
+                    }
+
+                    if (response.servicePackageDetails) {
+                        var servicePackageTableHtml = '<table class="table">';
+                        servicePackageTableHtml += '<thead>';
+                        servicePackageTableHtml += '<tr>';
+                        servicePackageTableHtml +=
+                            '<th class="align-middle text-center" scope="col">Jumlah</th>';
+                        servicePackageTableHtml +=
+                            '<th class="align-middle text-center" scope="col">Metode Pembayaran</th>';
+                        servicePackageTableHtml +=
+                            '<th class="align-middle text-center" scope="col">Harga</th>';
+
+                        servicePackageTableHtml += '</tr>';
+                        servicePackageTableHtml += '</thead>';
+                        servicePackageTableHtml += '<tbody>';
+                        response.servicePackageDetails.forEach(function(servicePackageDetail) {
+                            var formattedPrice = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR'
+                            }).format(servicePackageDetail.price);
+                            var dpBadgeClass = '';
+                            var dpText = '';
+
+                            if (servicePackageDetail.dp_status === 2) {
+                                // Minimal Pembayaran (nilai dp_percentage*price)
+                                var minimalPayment = (servicePackageDetail.dp_percentage *
+                                    servicePackageDetail.price).toLocaleString('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR'
+                                });
+                                dpText = 'Min. Bayar ' + minimalPayment;
+                                dpBadgeClass = 'badge badge-success';
+                                // dpBadgeStyle = 'font-size:small;';
+                            } else if (servicePackageDetail.dp_status === 1) {
+                                // DP (dp_percentage*100)%
+                                dpText = 'DP ' + (servicePackageDetail.dp_percentage * 100) + '%';
+                                dpBadgeClass = 'badge badge-success';
+                                // dpBadgeStyle = 'font-size:small;';
+                            } else {
+                                // Hanya Terima Lunas
+                                dpText = 'Lunas';
+                                dpBadgeClass = 'badge badge-info';
+                                // dpBadgeStyle = 'font-size:small;';
+                            }
+
+                            servicePackageTableHtml += '<tr>';
+                            servicePackageTableHtml += '<td>' + servicePackageDetail.sum_person +
+                                ' Orang' +
+                                '</td>';
+                            servicePackageTableHtml +=
+                                '<td class="align-middle text-center"><span class="' + dpBadgeClass +
+                                '">' +
+                                dpText + '</span></td>';
+                            servicePackageTableHtml += '<td>' + formattedPrice + '</td>';
+
+
+                            servicePackageTableHtml += '</tr>';
+                        });
+                        servicePackageTableHtml += '</tbody>';
+                        servicePackageTableHtml += '</table>';
+                        $('#servicePackageList').append(servicePackageTableHtml);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Error occurred! Please check the console for more details.');
+                }
+            });
+            $('#detailPackageModal').modal('show');
+        }
+    </script>
+
+    {{-- <script>
         function showPackageDetail(packageId) {
             $.ajax({
-                url: '{{ route('owner.venue.services.packages.showDetail', ['venue' => $venue->id, 'service' => $service->id, 'package' => ':package']) }}'
+                url: '{{ route('owner.venue.services.packages.showDetail', ['venue' => $venue, 'service' => $service, 'package' => ':package']) }}'
                     .replace(':package', packageId),
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
                     $('#packageInfo').html('<p>' + response.information + '</p>');
-
-                    // Kosongkan tabel sebelum menambahkan data
                     $('#printPhotoList').empty();
-
-                    // Buat header tabel
-                    var tableHtml = '<table class="table">';
-                    tableHtml += '<thead>';
-                    tableHtml += '<tr>';
-                    tableHtml += '<th scope="col">Size</th>';
-                    tableHtml += '<th scope="col">Harga (Rp)</th>';
-                    tableHtml += '</tr>';
-                    tableHtml += '</thead>';
-                    tableHtml += '<tbody>';
-
-                    // Tambahkan baris untuk setiap cetak foto
+                    $('#servicePackageList').empty();
+                    var printPhotoTableHtml = '<table class="table">';
+                    printPhotoTableHtml += '<thead>';
+                    printPhotoTableHtml += '<tr>';
+                    printPhotoTableHtml += '<th scope="col">Size</th>';
+                    printPhotoTableHtml += '<th scope="col">Harga (Rp)</th>';
+                    printPhotoTableHtml += '</tr>';
+                    printPhotoTableHtml += '</thead>';
+                    printPhotoTableHtml += '<tbody>';
                     response.printPhotoDetails.forEach(function(printPhoto) {
                         var formattedPrice = printPhoto.price.toLocaleString('id-ID');
-                        tableHtml += '<tr>';
-                        tableHtml += '<td>' + printPhoto.size + '</td>';
-                        tableHtml += '<td>' + formattedPrice + '</td>';
-                        tableHtml += '</tr>';
+                        printPhotoTableHtml += '<tr>';
+                        printPhotoTableHtml += '<td>' + printPhoto.size + '</td>';
+                        printPhotoTableHtml += '<td>' + formattedPrice + '</td>';
+                        printPhotoTableHtml += '</tr>';
                     });
-
-                    tableHtml += '</tbody>';
-                    tableHtml += '</table>';
-
-                    // Tambahkan tabel ke dalam elemen dengan ID printPhotoList
-                    $('#printPhotoList').append(tableHtml);
+                    printPhotoTableHtml += '</tbody>';
+                    printPhotoTableHtml += '</table>';
+                    $('#printPhotoList').append(printPhotoTableHtml);
+                    var servicePackageTableHtml = '<table class="table">';
+                    servicePackageTableHtml += '<thead>';
+                    servicePackageTableHtml += '<tr>';
+                    servicePackageTableHtml += '<th scope="col">Sum Person</th>';
+                    servicePackageTableHtml += '<th scope="col">Harga (Rp)</th>';
+                    servicePackageTableHtml += '<th scope="col">DP Percentage</th>';
+                    servicePackageTableHtml += '</tr>';
+                    servicePackageTableHtml += '</thead>';
+                    servicePackageTableHtml += '<tbody>';
+                    response.servicePackageDetails.forEach(function(servicePackageDetail) {
+                        var formattedPrice = servicePackageDetail.price.toLocaleString('id-ID');
+                        servicePackageTableHtml += '<tr>';
+                        servicePackageTableHtml += '<td>' + servicePackageDetail.sum_person + '</td>';
+                        servicePackageTableHtml += '<td>' + formattedPrice + '</td>';
+                        servicePackageTableHtml += '<td>' + servicePackageDetail.dp_percentage +
+                            '</td>';
+                        servicePackageTableHtml += '</tr>';
+                    });
+                    servicePackageTableHtml += '</tbody>';
+                    servicePackageTableHtml += '</table>';
+                    $('#servicePackageList').append(servicePackageTableHtml);
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
@@ -427,7 +571,7 @@
             });
             $('#detailPackageModal').modal('show');
         }
-    </script>
+    </script> --}}
     {{-- modal hapus paket --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
