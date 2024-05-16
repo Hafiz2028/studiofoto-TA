@@ -93,7 +93,7 @@ class PackageController extends Controller
 
             $package->save();
 
-            // Simpan rincian paket foto
+            // Simpan service_package_details
             foreach ($validatedData['prices'] as $index => $price) {
                 $packageDetail = new ServicePackageDetail();
                 $packageDetail->service_package_id = $package->id;
@@ -103,6 +103,7 @@ class PackageController extends Controller
                 $packageDetail->sum_person = $validatedData['people_sums'][$index];
                 $packageDetail->save();
             }
+
             // Simpan data add-ons jika ditambahkan
             if ($request->has('add_ons')) {
                 foreach ($request->input('add_ons') as $addOnId) {
@@ -171,8 +172,6 @@ class PackageController extends Controller
             $getQtyByAddOnPackageId = function ($addOnPackageId) use ($package) {
                 return $package->addOnPackageDetails->where('add_on_package_id', $addOnPackageId)->first()->sum ?? '';
             };
-            // $addedPackageDetails = [];
-
             return view('back.pages.owner.package-manage.update', compact('venue', 'service', 'package', 'packageDetails', 'serviceTypes', 'addOnDetail', 'printPhotoDetails', 'addOnPackages', 'printServiceEvents', 'getQtyByAddOnPackageId'));
         } catch (\Exception $e) {
             return redirect()->back();
@@ -232,11 +231,17 @@ class PackageController extends Controller
                 'time_status' => 'required|in:0,1,2,3',
                 'prices.*' => 'required|numeric',
                 'people_sums.*' => 'required|string',
+                'new_prices.*' => 'required|numeric',
+                'new_people_sums.*' => 'required|string',
             ], [
                 'prices.*.required' => 'Harga paket harus diisi',
                 'prices.*.numeric' => 'Harga harus dalam bentuk angka',
                 'people_sums.*.required' => 'Total orang harus diisi',
                 'people_sums.*.string' => 'Total orang harus dalam bentuk string',
+                'new_prices.*.required' => 'Harga paket baru harus diisi',
+                'new_prices.*.numeric' => 'Harga paket baru harus dalam bentuk angka',
+                'new_people_sums.*.required' => 'Total orang untuk paket baru harus diisi',
+                'new_people_sums.*.string' => 'Total orang untuk paket baru harus dalam bentuk string',
             ]);
 
             $venue = Venue::findOrFail($venueId);
@@ -257,34 +262,62 @@ class PackageController extends Controller
                         return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
                     }
                 }
+            } else if ($validatedData['dp_percentage'] === 'min_payment') {
+                $prices = $validatedData['new_prices'];
+                $minPaymentInputs = $request->input('min_payment_input');
+                foreach ($prices as $index => $price) {
+                    $minPaymentInput = $minPaymentInputs[$index];
+                    if ($request->input('min_payment_input') > $price) {
+
+                        return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
+                    }
+                }
             }
             $package->save();
 
+            $packageDetails = ServicePackageDetail::where('service_package_id', $package->id)->get();
+            // dd($packageDetails);
+            $submittedDetailIds = [];
+            // $new_prices = [];
+            // $new_people_sums = [];
 
+            if (isset($validatedData['prices'])) {
+                foreach ($validatedData['prices'] as $index => $price) {
+                    // dd("Index: $index, Price: $price, People Sum: " . $validatedData['people_sums'][$index]);
+                    $detail = $packageDetails->where('id', $index)->first();
+                    dd($detail);
+                    if ($detail) {
+                        dd("Detail before update:", $detail);
+                        $detail->update([
+                            'price' => $price,
+                            'sum_person' => $validatedData['people_sums'][$index],
+                            'dp_percentage' => $this->saveServicePackageDetail($validatedData['dp_percentage'], $price, $request),
+                            'dp_status' => ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0)
 
-            DB::beginTransaction();
-            $deletedQuery = ServicePackageDetail::where('service_package_id', $package->id)
-                ->whereNotIn('id', $request->input('save_package_details', []));
-            info('Query untuk menghapus: ' . $deletedQuery->toSql());
-
-            $deletedDetails = $deletedQuery->get();
-
-            foreach ($deletedDetails as $detail) {
-                info('Detail yang akan dihapus: ' . $detail->id);
+                        ]);
+                        dd("Detail after update:", $detail);
+                        $submittedDetailIds[] = $detail->id;
+                    }
+                }
             }
-
-            $deletedCount = $deletedQuery->delete();
-
-            info('Total deleted: ' . $deletedCount);
+            // dd($validatedData['prices'],$validatedData['people_sums']);
 
 
+            // ServicePackageDetail::where('service_package_id', $package->id)
+            //     ->whereNotIn('id', $submittedDetailIds)
+            //     ->delete();
 
-            DB::commit();
-
-
-
-
-
+            if (isset($validatedData['new_prices'])) {
+                foreach ($validatedData['new_prices'] as $index => $newPrice) {
+                    ServicePackageDetail::create([
+                        'service_package_id' => $package->id,
+                        'price' => $newPrice,
+                        'sum_person' => $validatedData['new_people_sums'][$index],
+                        'dp_percentage' => $this->saveServicePackageDetail($validatedData['dp_percentage'], $newPrice, $request),
+                        'dp_status' => ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0)
+                    ]);
+                }
+            }
 
 
 

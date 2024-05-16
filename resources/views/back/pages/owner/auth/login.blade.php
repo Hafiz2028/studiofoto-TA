@@ -7,7 +7,7 @@
         </div>
         <form action="{{ route('owner.login-handler') }}" method="POST">
             @csrf
- 
+
             <x-alert.form-alert />
             <div class="input-group custom">
                 <input type="text" class="form-control form-control-lg" placeholder="Email / Username" name="login_id"
@@ -36,10 +36,6 @@
             @enderror
             <div class="row pb-30">
                 <div class="col-6">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">Remember</label>
-                    </div>
                 </div>
                 <div class="col-6">
                     <div class="forgot-password">

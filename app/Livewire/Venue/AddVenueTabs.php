@@ -624,7 +624,7 @@ class AddVenueTabs extends Component
             if (isset($this->venueImages[$imageIndex])) {
                 $image = $this->venueImages[$imageIndex];
                 unset($this->venueImages[$imageIndex]);
-                if ($image instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                if ($image instanceof TemporaryUploadedFile) {
                 } elseif (isset($image['id'])) {
                     $this->deletedVenueImageIndices[] = $image['id'];
                 }

@@ -122,7 +122,7 @@
                                 </div>
                                 <div id="add_on_options"
                                     style="{{ $package->addOnPackageDetails->isNotEmpty() ? '' : 'display: none;' }}">
-                                    <label for="add_ons">Tambahkan Total Add On untuk paket ini </label><br>
+                                    <label>Tambahkan Total Add On untuk paket ini </label><br>
                                     @foreach ($addOnPackages as $addOnPackage)
                                         <div class="addon-item custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input addon-checkbox"
@@ -151,7 +151,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="dp_percentage">Metode Pembayaran Tambahan</label>
+                                    <label>Metode Pembayaran Tambahan</label>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="full_payment_option" name="dp_percentage"
                                             class="custom-control-input" value="full_payment"
@@ -194,11 +194,11 @@
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="form-group mb-0">
-                                    @foreach ($packageDetails as $index => $packageDetail)
+                                @foreach ($packageDetails as $index => $packageDetail)
+                                    <div class="form-group price-person mb-0" id="price-person-{{ $packageDetail->id }}">
                                         <div class="row align-items-center">
                                             <div class="col-md-6 col-sm-6">
-                                                <label for="price">Harga Paket</label>
+                                                <label>Harga Paket</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text">Rp</span>
@@ -208,106 +208,107 @@
                                                         required>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 col-sm-4">
-                                                <label for="people_sum">Total Orang</label>
-                                                <div class="input-group">
-                                                    <input type="text" name="people_sums[]" class="form-control"
-                                                        placeholder="Contoh: 1, 1 - 5, 4 - 10..."
-                                                        value="{{ $packageDetail->sum_person }}" required>
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text">Orang</span>
-                                                    </div>
+                                            @if ($index > 0)
+                                                <div class="col-md-4 col-sm-4">
+                                                @else
+                                                    <div class="col-md-6 col-sm-6">
+                                            @endif
+                                            <label>Total Orang</label>
+                                            <div class="input-group">
+                                                <input type="text" name="people_sums[]" class="form-control"
+                                                    placeholder="Contoh: 1, 1 - 5, 4 - 10..."
+                                                    value="{{ $packageDetail->sum_person }}" required>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">Orang</span>
                                                 </div>
                                             </div>
-                                            @php
-                                                $index = $loop->index;
-                                            @endphp
-                                            <div class="col-md-2 col-sm-2">
+                                        </div>
+                                        <div class="col-md-2 col-sm-2">
+                                            @if ($index > 0)
                                                 <button type="button"
                                                     class="btn btn-outline-danger d-flex align-items-center justify-content-center remove-btn"
                                                     onclick="removeInputGroup(this)"
-                                                    data-detail-id="{{ $packageDetail->id }}" data-delete="true"><i
+                                                    data-delete="{{ $packageDetail->id }}"><i
                                                         class="fas fa-trash"></i></button>
-                                            </div>
-                                            <input type="hidden" name="save_package_details[]"
-                                                value="{{ $packageDetail->id }}">
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <div class="form-group new-price-person">
-                                    <button type="button" class="btn btn-outline-info mb-1"
-                                        onclick="addNewInputGroup()">Tambahkan Harga Baru</button>
-                                </div>
-                                <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
-                            </div>
-                            <div class="col-lg-12 col-md-12">
-                                <div class="form-group">
-                                    <label for="print_photos_switch">Cetak Foto</label>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
-                                            name="print_photos_switch"
-                                            {{ $package->printPhotoDetails->isNotEmpty() ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
-                                            Foto</label>
-                                    </div>
-                                </div>
-                                <div id="print_photos_options"
-                                    style="{{ $package->printPhotoDetails->isNotEmpty() ? '' : 'display: none;' }}">
-                                    <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
-                                    <div class="row mb-2">
-                                        <div class="col-md-12">
-                                            <button id="check-all-button" type="button"
-                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
-                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
-                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
-                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
-                                                    class="fa fa-trash"></i></button>
+                                            @endif
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        @php
-                                            $columnCount = 3;
-                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
-                                        @endphp
-                                        @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-{{ 12 / $columnCount }}">
-                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
-                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input"
-                                                            id="print_photo_{{ $printServiceEvent->id }}"
-                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
-                                                            data-price="{{ $printServiceEvent->price }}"
-                                                            {{ $package->printPhotoDetails->contains('print_service_event_id', $printServiceEvent->id) ? 'checked' : '' }}>
-                                                        <label class="custom-control-label"
-                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
-                                                            (Harga Rp
-                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
-                                                    </div>
-                                                @endfor
-                                            </div>
-                                        @endfor
+                            </div>
+                            @endforeach
+                            <div class="col-lg-6" id="input-new-price-person">
+                                <button type="button" class="btn btn-outline-info mb-1"
+                                    onclick="addNewInputGroup()">Tambahkan Harga Baru</button>
+                            </div>
+                            <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
+                        </div>
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label for="print_photos_switch">Cetak Foto</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="print_photos_switch"
+                                        name="print_photos_switch"
+                                        {{ $package->printPhotoDetails->isNotEmpty() ? 'checked' : '' }}>
+                                    <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
+                                        Foto</label>
+                                </div>
+                            </div>
+                            <div id="print_photos_options"
+                                style="{{ $package->printPhotoDetails->isNotEmpty() ? '' : 'display: none;' }}">
+                                <label>Pilih Ukuran Cetak Paket Foto:</label><br>
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <button id="check-all-button" type="button" class="btn btn-outline-success mr-2"
+                                            data-toggle="check-all" title="Ceklis semua ukuran foto"><i
+                                                class="bi bi-check-all"></i></button>
+                                        <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
+                                            data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
+                                                class="fa fa-trash"></i></button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Perkiraan Harga</label><br>
-                                    <p id="estimated_price" class="alert alert-secondary"
-                                        style="display: inline-block; width: fit-content;">Rp {{ $package->price ?: '0' }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 mt-2">
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary float-right">Update Package</button>
+                                <div class="row">
+                                    @php
+                                        $columnCount = 3;
+                                        $rowCount = ceil(count($printServiceEvents) / $columnCount);
+                                    @endphp
+                                    @for ($i = 0; $i < $rowCount; $i++)
+                                        <div class="col-md-{{ 12 / $columnCount }}">
+                                            @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
+                                                @php $printServiceEvent = $printServiceEvents[$j]; @endphp
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        id="print_photo_{{ $printServiceEvent->id }}"
+                                                        name="print_photos[]" value="{{ $printServiceEvent->id }}"
+                                                        data-price="{{ $printServiceEvent->price }}"
+                                                        {{ $package->printPhotoDetails->contains('print_service_event_id', $printServiceEvent->id) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label"
+                                                        for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
+                                                        (Harga Rp
+                                                        <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
+                                                </div>
+                                            @endfor
+                                        </div>
+                                    @endfor
                                 </div>
                             </div>
                         </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label>Perkiraan Harga</label><br>
+                                <p id="estimated_price" class="alert alert-secondary"
+                                    style="display: inline-block; width: fit-content;">Rp {{ $package->price ?: '0' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 mt-2">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary float-right">Update Package</button>
+                            </div>
+                        </div>
                     </div>
-                </form>
             </div>
+            </form>
         </div>
+    </div>
     </div>
 
 @endsection
@@ -326,72 +327,49 @@
 @push('scripts')
     {{-- input harga baru --}}
     <script>
-        var savePackageDetails = [];
-        var inputIndex = {{ $packageDetails->count() ?? 0 }};
-
         function removeInputGroup(button) {
-            var detailId = $(button).data('detail-id');
-            console.log("Detail ID yang dihapus:", detailId);
-            $(button).closest('.row').remove();
-            $('input[name="save_package_details[]"][value="' + detailId + '"]').remove();
-
-            updateDeletedPackageDetailsInput();
-        }
-
-        function updateDeletedPackageDetailsInput() {
-            $('input[name="save_package_details[]"]').each(function(index, input) {
-                $(input).val(savePackageDetails[index]);
-            });
-
-            console.log("Input tersembunyi diperbarui:", savePackageDetails);
+            $(button).closest('.price-person').remove();
         }
 
         function addNewInputGroup() {
+            var lastIndex = $('.form-group.price-person.mb-0').length;
             var newInputGroup = `
-        <div class="row align-items-center">
-            <div class="col-md-6 col-sm-6">
-                <label for="price">Harga Paket</label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Rp</span>
+                <div class="form-group price-person mb-0" id="price-person-${lastIndex}">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 col-sm-6">
+                            <label>Harga Paket</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Rp</span>
+                                </div>
+                                <input type="text" name="new_prices[]" value="{{ old('prices.0') }}" class="form-control" placeholder="Harga Paket..." required>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            <label>Total Orang</label>
+                            <div class="input-group">
+                                <input type="text" name="new_people_sums[]" value="{{ old('people_sums.0') }}" class="form-control" placeholder="Contoh: 1, 1 - 5, 4 - 10..." required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Orang</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center remove-btn" onclick="removeInputGroup(this)" data-delete="true"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
-                    <input type="text" name="prices[]" class="form-control" placeholder="Harga Paket..." required>
                 </div>
-            </div>
-            <div class="col-md-4 col-sm-4">
-                <label for="people_sum">Total Orang</label>
-                <div class="input-group">
-                    <input type="text" name="people_sums[]" class="form-control" placeholder="Contoh: 1, 1 - 5, 4 - 10..." required>
-                    <div class="input-group-append">
-                        <span class="input-group-text">Orang</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2 col-sm-2">
-                <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center remove-btn" onclick="removeInputGroup(this)" data-delete="true"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>
-    `;
-            $('.form-group.new-price-person').append(newInputGroup);
+            `;
+            $('#input-new-price-person').before(newInputGroup);
+            var newPrice = $('[name="new_prices[]"]').last().val();
+            var newPeopleSum = $('[name="new_people_sums[]"]').last().val();
 
-            // Tambahkan input baru ke array savePackageDetails
-            savePackageDetails.push(null);
-
-            // Tingkatkan indeks untuk input berikutnya
-            inputIndex++;
+            new_prices.push(newPrice);
+            new_people_sums.push(newPeopleSum);
         }
 
         $(document).ready(function() {
-            inputIndex = {{ $packageDetails->count() ?? 0 }};
-            console.log("Data savePackageDetails saat halaman dimuat:", savePackageDetails);
 
-            $('.remove-btn').on('click', function() {
-                var detailId = $(this).data('detail-id');
-                removeInputGroup(this);
-            });
-
-            // Memanggil fungsi untuk memperbarui input tersembunyi saat halaman dimuat
-            updateDeletedPackageDetailsInput();
         });
     </script>
 
