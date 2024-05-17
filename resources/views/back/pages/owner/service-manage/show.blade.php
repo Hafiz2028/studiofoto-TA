@@ -466,27 +466,25 @@
                             var dpText = '';
 
                             if (servicePackageDetail.dp_status === 2) {
-                                // Minimal Pembayaran (nilai dp_percentage*price)
-                                var minimalPayment = (servicePackageDetail.dp_percentage *
-                                    servicePackageDetail.price).toLocaleString('id-ID', {
-                                    style: 'currency',
-                                    currency: 'IDR'
-                                });
+                                function roundToNearestThousand(value) {
+                                    return Math.round(value / 1000) * 1000;
+                                }
+
+                                var minimalPayment = roundToNearestThousand(servicePackageDetail
+                                    .dp_percentage * servicePackageDetail.price).toLocaleString(
+                                    'id-ID', {
+                                        style: 'currency',
+                                        currency: 'IDR'
+                                    });
                                 dpText = 'Min. Bayar ' + minimalPayment;
                                 dpBadgeClass = 'badge badge-success';
-                                // dpBadgeStyle = 'font-size:small;';
                             } else if (servicePackageDetail.dp_status === 1) {
-                                // DP (dp_percentage*100)%
                                 dpText = 'DP ' + (servicePackageDetail.dp_percentage * 100) + '%';
                                 dpBadgeClass = 'badge badge-success';
-                                // dpBadgeStyle = 'font-size:small;';
                             } else {
-                                // Hanya Terima Lunas
                                 dpText = 'Lunas';
                                 dpBadgeClass = 'badge badge-info';
-                                // dpBadgeStyle = 'font-size:small;';
                             }
-
                             servicePackageTableHtml += '<tr>';
                             servicePackageTableHtml += '<td>' + servicePackageDetail.sum_person +
                                 ' Orang' +

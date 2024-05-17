@@ -27,7 +27,9 @@ class VenueController extends Controller
 {
     public function index()
     {
-        $venues = Venue::with('venueImages')->get();
+        $ownerId = Auth::guard('owner')->id();
+        $venues = Venue::with('venueImages')->where('owner_id', $ownerId)->get();
+
         return view('back.pages.owner.venue-manage.index-venue', compact('venues'));
     }
     public function create()

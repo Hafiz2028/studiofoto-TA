@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('service_package_details', function (Blueprint $table) {
-            $table->float('dp_percentage')->nullable()->after('price');
+            $table->float('dp_percentage', 10,5)->nullable()->after('price');
         });
     }
 

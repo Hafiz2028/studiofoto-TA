@@ -136,36 +136,15 @@ class PackageController extends Controller
         }
     }
 
-    private function saveServicePackageDetail($dpType, $price, $request)
-    {
-        if ($dpType === 'dp') {
-            $request->validate([
-                'dp_input' => 'required|numeric|min:1|max:100',
-            ]);
-            $dpPercentage = $request->input('dp_input') / 100;
-        } elseif ($dpType === 'min_payment') {
-            $request->validate([
-                'min_payment_input' => 'required|numeric|min:0',
-            ]);
-            $minPaymentInput = str_replace('.', '', $request->input('min_payment_input'));
-            $dpPercentage = $minPaymentInput / $price;
-        } else {
-            $dpPercentage = 0;
-        }
-
-        return $dpPercentage;
-    }
-
-
     public function edit($venueId, $serviceId, $packageId)
     {
         try {
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
             $package = ServicePackage::findOrFail($packageId);
+            $packageDetails = ServicePackageDetail::where('service_package_id', $package->id)->get();
             $serviceTypes = ServiceType::all();
             $addOnPackages = AddOnPackage::all();
-            $packageDetails = ServicePackageDetail::where('service_package_id', $package->id)->get();
             $addOnDetail = AddOnPackageDetail::where('service_package_id', $package->id)->get();
             $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
             $printPhotoDetails = PrintPhotoDetail::where('service_package_id', $package->id)->get();
@@ -221,9 +200,33 @@ class PackageController extends Controller
             return response()->json(['error' => 'Failed to retrieve package.'], 500);
         }
     }
+
+
+
+
+    private function saveServicePackageDetail($dpType, $price, $request)
+    {
+        if ($dpType === 'dp') {
+            $request->validate([
+                'dp_input' => 'required|numeric|min:1|max:100',
+            ]);
+            $dpPercentage = $request->input('dp_input') / 100;
+        } elseif ($dpType === 'min_payment') {
+            $request->validate([
+                'min_payment_input' => 'required|numeric|min:0',
+            ]);
+            $minPaymentInput = str_replace('.', '', $request->input('min_payment_input'));
+            $dpPercentage = $minPaymentInput / $price;
+        } else {
+            $dpPercentage = 0;
+        }
+
+        return $dpPercentage;
+    }
     public function update(Request $request, $venueId, $serviceId, $packageId)
     {
         try {
+            // dd($request);
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'information' => 'nullable|string',
@@ -252,68 +255,51 @@ class PackageController extends Controller
             $package->information = $validatedData['information'];
             $package->time_status = $validatedData['time_status'];
 
-            if ($validatedData['dp_percentage'] === 'min_payment') {
-                $prices = $validatedData['prices'];
-                $minPaymentInputs = $request->input('min_payment_input');
-                foreach ($prices as $index => $price) {
-                    $minPaymentInput = $minPaymentInputs[$index];
-                    if ($request->input('min_payment_input') > $price) {
-
-                        return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
+            if (isset($validatedData['dp_percentage'])) {
+                if ($validatedData['dp_percentage'] === 'min_payment') {
+                    $prices = isset($validatedData['prices']) ? $validatedData['prices'] : [];
+                    if (empty($prices)) {
+                        $prices = isset($validatedData['new_prices']) ? $validatedData['new_prices'] : [];
                     }
-                }
-            } else if ($validatedData['dp_percentage'] === 'min_payment') {
-                $prices = $validatedData['new_prices'];
-                $minPaymentInputs = $request->input('min_payment_input');
-                foreach ($prices as $index => $price) {
-                    $minPaymentInput = $minPaymentInputs[$index];
-                    if ($request->input('min_payment_input') > $price) {
-
-                        return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
+                    $minPaymentInputs = $request->input('min_payment_input');
+                    foreach ($prices as $index => $price) {
+                        $minPaymentInput = $minPaymentInputs[$index];
+                        if ($request->input('min_payment_input') > $price) {
+                            return redirect()->back()->with('fail', 'Nilai minimal pembayaran tidak bisa lebih besar daripada Harga Paket.');
+                        }
                     }
                 }
             }
             $package->save();
 
             $packageDetails = ServicePackageDetail::where('service_package_id', $package->id)->get();
-            // dd($packageDetails);
             $submittedDetailIds = [];
-            // $new_prices = [];
-            // $new_people_sums = [];
-
             if (isset($validatedData['prices'])) {
                 foreach ($validatedData['prices'] as $index => $price) {
-                    // dd("Index: $index, Price: $price, People Sum: " . $validatedData['people_sums'][$index]);
-                    $detail = $packageDetails->where('id', $index)->first();
-                    dd($detail);
+                    $detailId = $packageDetails[$index]->id;
+                    $detail = ServicePackageDetail::find($detailId);
                     if ($detail) {
-                        dd("Detail before update:", $detail);
                         $detail->update([
                             'price' => $price,
                             'sum_person' => $validatedData['people_sums'][$index],
                             'dp_percentage' => $this->saveServicePackageDetail($validatedData['dp_percentage'], $price, $request),
                             'dp_status' => ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0)
-
                         ]);
-                        dd("Detail after update:", $detail);
                         $submittedDetailIds[] = $detail->id;
                     }
                 }
             }
-            // dd($validatedData['prices'],$validatedData['people_sums']);
-
-
-            // ServicePackageDetail::where('service_package_id', $package->id)
-            //     ->whereNotIn('id', $submittedDetailIds)
-            //     ->delete();
+            ServicePackageDetail::where('service_package_id', $package->id)
+                ->whereNotIn('id', $submittedDetailIds)
+                ->delete();
 
             if (isset($validatedData['new_prices'])) {
-                foreach ($validatedData['new_prices'] as $index => $newPrice) {
+                foreach ($validatedData['new_prices'] as $index => $price) {
                     ServicePackageDetail::create([
                         'service_package_id' => $package->id,
-                        'price' => $newPrice,
+                        'price' => $price,
                         'sum_person' => $validatedData['new_people_sums'][$index],
-                        'dp_percentage' => $this->saveServicePackageDetail($validatedData['dp_percentage'], $newPrice, $request),
+                        'dp_percentage' => $this->saveServicePackageDetail($validatedData['dp_percentage'], $price, $request),
                         'dp_status' => ($validatedData['dp_percentage'] === 'dp') ? 1 : (($validatedData['dp_percentage'] === 'min_payment') ? 2 : 0)
                     ]);
                 }
@@ -349,8 +335,8 @@ class PackageController extends Controller
                 }
             }
 
-            // return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto berhasil diperbarui.');
-            return redirect()->back()->with('success', 'paket berhasil di save.');
+            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto berhasil diperbarui.');
+            // return redirect()->back()->with('success', 'paket berhasil di save.');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('fail', 'Gagal memperbarui paket foto. Terjadi kesalahan: ' . $e->getMessage());
