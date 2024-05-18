@@ -217,7 +217,7 @@
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $package->name }}</td>
                                             <td class="align-middle text-center">
-                                                {{-- @switch($packageDetails[$package->id]->first()->dp_status)
+                                                @switch($packageDetails[$package->id]->first()->dp_status)
                                                     @case(0)
                                                         <span class="badge badge-info" style="font-size:small;">Lunas</span>
                                                     @break
@@ -234,7 +234,7 @@
                                                     @default
                                                         <span class="badge badge-danger" style="font-size:small;">Tidak
                                                             Valid</span>
-                                                @endswitch --}}
+                                                @endswitch
                                             </td>
                                             <td style="text-align: justify;">
                                                 @if ($package->addOnPackageDetails->isNotEmpty())
@@ -448,7 +448,7 @@
                         servicePackageTableHtml += '<thead>';
                         servicePackageTableHtml += '<tr>';
                         servicePackageTableHtml +=
-                            '<th class="align-middle text-center" scope="col">Jumlah</th>';
+                            '<th class="align-middle text-center" scope="col">Jumlah Orang</th>';
                         servicePackageTableHtml +=
                             '<th class="align-middle text-center" scope="col">Metode Pembayaran</th>';
                         servicePackageTableHtml +=

@@ -26,13 +26,13 @@
     @if ($currentStep == 1)
         <div class="step-one">
             <div class="card">
-                <div class="card-header">Info Venue</div>
+                <div class="card-header"><strong>A Info Venue</strong></div>
                 <div class="card-body">
                     <section>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Nama Studio Foto :</label>
+                                    <label><strong>1. Nama Studio Foto :</strong></label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         id="name" name="name" placeholder="Nama Venue"
                                         @if ($this->venue->exists) value="{{ $name }}" @else value="{{ old('name') }}" @endif
@@ -44,7 +44,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>No Handphone / WA :</label>
+                                    <label><strong>2. No Handphone / WA :</strong></label>
                                     <input type="text"
                                         class="form-control @error('phone_number') is-invalid @enderror"
                                         name="phone_number" placeholder="No Handphone"
@@ -59,7 +59,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="information">Deskripsi Venue :</label>
+                                    <label for="information"><strong>3. Deskripsi Venue :</strong></label>
                                     <textarea class="form-control" id="information" name="information" rows="4"
                                         placeholder="Isi deskripsi untuk venue" wire:model="information">
                                         </textarea>
@@ -70,7 +70,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Upload Surat Izin Mendirikan Bangunan (IMB) :</label>
+                                    <label><strong>4. Surat Izin Mendirikan Bangunan (IMB) :</strong></label>
                                     <input type="file" class="form-control @error('imb') is-invalid @enderror"
                                         name="imb" wire:model="imb"
                                         @if (!$this->venue->exists || !$this->venue->imb) required @endif>
@@ -90,7 +90,7 @@
     @elseif ($currentStep == 2)
         <div class="step-two">
             <div class="card">
-                <div class="card-header">Lokasi Venue</div>
+                <div class="card-header"><strong>B Lokasi Venue</strong></div>
                 <div class="card-body">
                     <section id="lokasi_venue" role="tabpanel" aria-labelledby="lokasi_venue" class="tab-panel">
                         <br>
@@ -98,7 +98,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label for="district">Kecamatan:</label>
+                                        <label for="district"><strong>1. Kecamatan :</strong></label>
                                         <select id="districtSelect" name="district_id" wire:model="selectedDistrictId"
                                             wire:change="getVillages" class="form-control">
                                             <option value="">Pilih Kecamatan</option>
@@ -113,7 +113,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label for="village">Kelurahan:</label>
+                                        <label for="village"><strong>2. Kelurahan :</strong></label>
                                         <select id="villageSelect" name="village_id" wire:model.defer="village_id"
                                             wire:change="saveVillageId($event.target.value)" class="form-control">
                                             <option value="">Pilih Kelurahan</option>
@@ -130,7 +130,7 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
-                                        <label for="address">Alamat Lengkap:</label>
+                                        <label for="address"><strong>3. Alamat Detail :</strong></label>
                                         <input type="text" id="address"
                                             class="form-control @error('address') is-invalid @enderror" name="address"
                                             placeholder="Patokan Venue, seperti nama jalan atau bangunan terkenal..."
@@ -144,7 +144,7 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
-                                        <label for="map_link">Link Google Maps:</label>
+                                        <label for="map_link"><strong>4. Link Google Maps :</strong></label>
                                         <input type="text" id="map_link"
                                             class="form-control @error('map_link') is-invalid @enderror"
                                             placeholder="Tambahkan Link Lokasi Venue pada Google Maps..."
@@ -164,7 +164,7 @@
         <div class="step-three">
             <div class="card">
 
-                <div class="card-header">Metode Pembayaran</div>
+                <div class="card-header"><strong>C Metode Pembayaran</strong></div>
                 <div class="card-body">
                     <section id="metode_pembayaran" role="tabpanel" aria-labelledby="metode_pembayaran"
                         class="tab-panel">
@@ -172,7 +172,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>List Bank:</label>
+                                    <label><strong>1. List Bank :</strong></label>
                                     <div id="bankList" style="display: flex; flex-wrap: wrap;">
                                         @foreach ($payment_methods as $payment_method)
                                             <div style="width: 50%; margin-bottom: 10px;">
@@ -217,7 +217,7 @@
     @elseif ($currentStep == 4)
         <div class="step-four">
             <div class="card">
-                <div class="card-header">Jadwal Buka Venue</div>
+                <div class="card-header"><strong>D Jadwal Buka Venue</strong></div>
                 <div class="card-body">
                     <section id="jadwal_buka" role="tabpanel" aria-labelledby="jadwal_buka" class="tab-panel">
                         <div class="row">
@@ -309,7 +309,7 @@
     @elseif ($currentStep == 5)
         <div class="step-five">
             <div class="card">
-                <div class="card-header">Foto Studio & Venue</div>
+                <div class="card-header"><strong>E Foto Studio & Venue</strong></div>
                 <div class="card-body">
                     <section id="foto_venue" role="tabpanel" aria-labelledby="foto_venue" class="tab-panel">
                         @if (!$this->venue->exists)

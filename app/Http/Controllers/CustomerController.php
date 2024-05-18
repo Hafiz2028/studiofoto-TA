@@ -361,11 +361,6 @@ class CustomerController extends Controller
         }
     }
 
-
-
-
-
-
     //crud cust acc
     public function index()
     {
@@ -408,7 +403,6 @@ class CustomerController extends Controller
             'password_confirmation.required' => ':Attribute is required.',
             'password_confirmation.min' => ':Attribute must be at least 5 characters.',
             'password_confirmation.max' => ':Attribute may not be greater than 45 characters.',
-            'handphone.required' => ':Attribute field is required.',
             'handphone.min' => ':Attribute must be at least 9 characters.',
             'handphone.max' => ':Attribute may not be greater than 15 characters.',
             'address.required' => ':Attribute is required.',
@@ -463,7 +457,6 @@ class CustomerController extends Controller
             'username.required' => ':Attribute is required.',
             'username.min' => ':Attribute must be at least 5 characters.',
             'username.unique' => ':Attribute has already been taken.',
-            'handphone.required' => ':Attribute field is required.',
             'handphone.required' => ':Attribute field is required.',
             'handphone.min' => ':Attribute must be at least 9 characters.',
             'handphone.max' => ':Attribute may not be greater than 15 characters.',

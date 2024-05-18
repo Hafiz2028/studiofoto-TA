@@ -129,7 +129,7 @@ class PackageController extends Controller
             }
 
             // Redirect ke halaman yang sesuai setelah penyimpanan sukses
-            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto berhasil ditambahkan.');
+            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto <b>'.$package->name.'</b> berhasil ditambahkan.');
         } catch (\Exception $e) {
             // Jika ada kesalahan, redirect kembali ke halaman sebelumnya
             return redirect()->back()->with('fail', 'Gagal menambahkan paket foto. Terjadi kesalahan: ' . $e->getMessage());
@@ -200,10 +200,6 @@ class PackageController extends Controller
             return response()->json(['error' => 'Failed to retrieve package.'], 500);
         }
     }
-
-
-
-
     private function saveServicePackageDetail($dpType, $price, $request)
     {
         if ($dpType === 'dp') {
@@ -304,10 +300,6 @@ class PackageController extends Controller
                     ]);
                 }
             }
-
-
-
-
             // Update data add-ons
             $package->addOnPackageDetails()->delete();
             if ($request->has('add_ons')) {
@@ -335,7 +327,7 @@ class PackageController extends Controller
                 }
             }
 
-            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto berhasil diperbarui.');
+            return redirect()->route('owner.venue.services.show', [$venue->id, $service->id])->with('success', 'Paket foto <b>'.$package->name.'</b> berhasil diperbarui.');
             // return redirect()->back()->with('success', 'paket berhasil di save.');
         } catch (\Exception $e) {
             DB::rollback();

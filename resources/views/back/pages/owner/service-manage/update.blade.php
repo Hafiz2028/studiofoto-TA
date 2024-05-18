@@ -58,7 +58,7 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name">Nama Layanan</label>
+                                    <label for="name"><strong>1. Nama Layanan</strong></label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         id="name" name="name" placeholder="Contoh: Foto Keluarga, Foto Wisuda"
                                         value="{{ $service->name }}">
@@ -69,7 +69,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="service_type_id">Jenis Layanan</label>
+                                    <label for="service_type_id"><strong>2. Jenis Layanan</strong></label>
                                     <select class="form-control @error('service_type_id') is-invalid @enderror"
                                         id="service_type_id" name="service_type_id">
                                         <option value="">Pilih Jenis Layanan</option>
@@ -88,7 +88,7 @@
                         <div class="row">
                             <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
-                                    <label for="print_photos_switch">Print Foto Layanan</label>
+                                    <label for="print_photos_switch"><strong>3. Print Foto Layanan</strong></label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="print_photos_switch"
                                             name="print_photos_switch"
@@ -126,7 +126,7 @@
                                                             value="{{ $printPhoto->id }}"
                                                             {{ $printServiceEvents->contains('print_photo_id', $printPhoto->id) ? 'checked' : '' }}>
                                                         <label class="custom-control-label"
-                                                            for="print_photo_{{ $printPhoto->id }}">{{ $printPhoto->id }}</label>
+                                                            for="print_photo_{{ $printPhoto->id }}">Size <strong>{{ $printPhoto->size }}</strong></label>
                                                         <div class="input-group"
                                                             style="margin-top: 5px;{{ $printServiceEvents->isNotEmpty() ? '' : 'display:none;' }}">
                                                             <span class="input-group-text">Rp</span>
@@ -149,7 +149,7 @@
                         <div class="row mt-3">
                             <div class="col-md-6 col-lg-6">
                                 <div class="mb-0">
-                                    <label>Preview Katalog Harga</label>
+                                    <label><strong>5. Preview Katalog Harga</strong></label>
                                 </div>
                                 <div id="catalogPreview" class="image-preview mb-3">
                                     <img id="previewImage" src="/images/venues/Katalog/{{ $service->catalog }}"
@@ -164,7 +164,7 @@
                             </div>
                             <div class="col-md-6 col-lg-6">
                                 <div class="form-group">
-                                    <label for="description">Deskripsi Layanan</label>
+                                    <label for="description"><strong>6. Deskripsi Layanan</strong></label>
                                     <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
                                         rows="4" placeholder="Isi deskripsi untuk venue">{{ $service->description }}</textarea>
                                     @error('description')
@@ -178,7 +178,7 @@
                             <div class="col-lg-12">
                                 <div class="row mb-3 px-3"
                                     style="display: flex; justify-content: space-between; align-items: center;">
-                                    <label style="margin-right: auto;">Preview Hasil Foto Layanan :</label>
+                                    <label style="margin-right: auto;"><strong>7. Preview Hasil Foto Layanan :</strong></label>
                                     <a href="javascript:void(0);" onclick="addPhoto()"
                                         class="btn btn-outline-primary btn-md">
                                         <i class="fas fa-plus"></i> Tambah gambar

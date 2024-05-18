@@ -57,7 +57,7 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name">Nama Paket Foto</label>
+                                    <label for="name"><strong>1. Nama Paket Foto</strong></label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         id="name" name="name" placeholder="Contoh: Wisuda 1, Diamond 1"
                                         value="{{ old('name') }}" required>
@@ -68,7 +68,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="information">Deskripsi Paket Foto</label>
+                                    <label for="information"><strong>2. Deskripsi Paket Foto</strong></label>
                                     <textarea class="form-control @error('information') is-invalid @enderror" id="information" name="information"
                                         rows="4"
                                         placeholder="Contoh : Paket ini memiliki berbagai macam tambahan foto dan cetak foto dengan berbagai ukuran..."
@@ -80,7 +80,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name">Maksimal Waktu Pemotretan</label>
+                                    <label for="name"><strong>3. Maksimal Waktu Pemotretan</strong></label>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" id="time_30" name="time_status"
                                             value="0" checked>
@@ -108,7 +108,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group mb-0">
-                                    <label for="add_on_switch">Add On</label>
+                                    <label for="add_on_switch"><strong>4. Add On (optional)</strong></label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="add_on_switch"
                                             name="add_on_switch">
@@ -140,10 +140,9 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="dp_percentage">Metode Pembayaran Tambahan</label>
+                                    <label for="dp_percentage"><strong>5. Metode Pembayaran Tambahan</strong></label>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="full_payment_option" name="dp_percentage"
                                             class="custom-control-input" value="full_payment" checked>
@@ -181,6 +180,7 @@
                                 </div>
                             </div>
                             <div class="col-lg-6">
+                                <label for=""><strong>6. Paket Harga</strong></label>
                                 <div class="form-group mb-0">
                                     <div class="row">
                                         <div class="col-md-6 col-sm-6">
@@ -216,14 +216,14 @@
                                 </div>
                                 <div class="form-group new-price-person">
                                     <button type="button" class="btn btn-outline-info mb-1"
-                                        onclick="addNewInputGroup()">Tambahkan
-                                        Input Baru</button>
+                                        onclick="addNewInputGroup()">Tambah
+                                        Harga Baru</button>
                                 </div>
                                 <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
                             </div>
                             <div class="col-lg-12 col-md-12">
                                 <div class="form-group">
-                                    <label for="print_photos_switch">Cetak Foto</label>
+                                    <label for="print_photos_switch"><strong>7. Cetak Foto Paket</strong></label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="print_photos_switch"
                                             name="print_photos_switch">
@@ -266,14 +266,6 @@
                                             </div>
                                         @endfor
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Perkiraan Harga</label><br>
-                                    <p id="estimated_price" class="alert alert-secondary"
-                                        style="display: inline-block; width: fit-content;">Rp {{ old('price') ?: '0' }}
-                                    </p>
                                 </div>
                             </div>
                             <div class="col-lg-12 mt-2">

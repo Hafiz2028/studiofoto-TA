@@ -37,7 +37,7 @@ class FrontEndController extends Controller
     public function detailVenue(Request $request, $id)
     {
         $venue = Venue::findOrFail($id);
-        $minPrice = 0;
+        $minPrice = null;
         $maxPrice = 0;
         $hasPackage = false;
 

@@ -41,15 +41,6 @@ class ServiceEvent extends Model
     {
         return $this->hasMany(ServiceEventImage::class, 'service_event_id', 'id');
     }
-
-    public function openingHourDetails()
-    {
-        return $this->hasMany(OpeningHourDetail::class, 'service_event_id', 'id');
-    }
-
-    // public function rents()
-    // {
-    //     return $this->hasMany(Rent::class, 'service_event_id', 'id');
-    // }
+    
 
 }

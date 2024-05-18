@@ -12,7 +12,7 @@ class PrintServiceEvent extends Model
         'service_event_id',
         'print_photo_id',
         'price',
-        ];
+        ]; 
 
     public function servicePackage()
     {

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PrintPhotoDetail extends Model
 {
-    use HasFactory;
+    use HasFactory; 
     protected $fillable = [
         'print_service_event_id',
         'service_package_id',

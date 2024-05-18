@@ -13,6 +13,10 @@
 
     <!-- Mobile Specific Metas -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <!-- Pengaturan tanggal untuk booking -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -57,7 +61,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script>
     {{-- @kropifyStyles --}}
-    @livewireStyles 
+    @livewireStyles
     @stack('stylesheets')
 </head>
 
@@ -364,7 +368,7 @@
                         </li>
                         <li class="dropdown">
                             <a href="{{ route('owner.venue.index') }}"
-                                class="dropdown-toggle no-arrow {{ Route::is('owner.venue.*') || Route::is('owner.service.*')  ? 'active' : '' }}">
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.venue.*') || Route::is('owner.service.*') ? 'active' : '' }}">
                                 <span class="micon bi bi-building"></span><span class="mtext">Venue's Manage</span>
                             </a>
                         </li>

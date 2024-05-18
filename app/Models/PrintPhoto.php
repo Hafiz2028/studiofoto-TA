@@ -12,8 +12,8 @@ class PrintPhoto extends Model
         'size',
     ];
 
-    public function printPhotoDetails()
+    public function printServiceEvents()
     {
-        return $this->hasMany(PrintPhotoDetail::class, 'print_photo_id', 'id');
+        return $this->hasMany(PrintServiceEvent::class, 'print_photo_id', 'id');
     }
 }

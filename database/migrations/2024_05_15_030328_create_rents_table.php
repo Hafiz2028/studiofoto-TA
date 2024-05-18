@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('rents', function (Blueprint $table) {
             $table->increments('id');
             $table->string('faktur');
+            $table->string('name');
             $table->unsignedInteger('service_package_detail_id')->unsigned();
-            $table->unsignedInteger('customer_id')->unsigned();
             $table->unsignedInteger('opening_hour_id')->unsigned();
             $table->date('date');
             $table->tinyInteger('payment_status');
@@ -23,7 +23,6 @@ return new class extends Migration
             $table->integer('total_price');
             $table->string('reject_note')->nullable();
             $table->foreign('service_package_detail_id')->references('id')->on('service_package_details')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('opening_hour_id')->references('id')->on('opening_hours')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

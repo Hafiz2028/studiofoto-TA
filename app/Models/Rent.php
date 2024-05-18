@@ -12,7 +12,6 @@ class Rent extends Model
     protected $fillable = [
         'faktur',
         'service_package_detail_id',
-        'customer_id',
         'opening_hour_id',
         'date',
         'payment_status',
@@ -24,11 +23,6 @@ class Rent extends Model
     public function servicePackageDetail()
     {
         return $this->belongsTo(ServicePackageDetail::class, 'service_package_detail_id', 'id');
-    }
-
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
     public function openingHour()

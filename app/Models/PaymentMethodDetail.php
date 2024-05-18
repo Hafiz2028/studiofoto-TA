@@ -23,9 +23,4 @@ class PaymentMethodDetail extends Model
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id', 'id');
     }
-
-    // public function rentPayments()
-    // {
-    //     return $this->hasMany(RentPayment::class, 'payment_method_detail_id', 'id');
-    // }
 }
