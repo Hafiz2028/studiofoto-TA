@@ -87,14 +87,14 @@
                                 <label>8. Tanggal Booking</label>
                                 <input type="text" class="form-control" id="date" required>
                                 <input type="hidden" id="opening-hours" value="{{ json_encode($openingHours) }}">
-                                <input type="hidden" id="unique-days" value="[]">
+                                <input type="hidden" id="unique-days" value="{{ json_encode($uniqueDayIds) }}">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Jadwal Tersedia</label>
+                                <label>9. Jadwal Tersedia</label>
                                 <div class="card">
                                     <div id="schedule-container" class="card-body"></div>
                                 </div>
@@ -103,7 +103,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Total Harga</label>
-                                harga + harga paket foto
+                                <span id="total-price">0</span>
                             </div>
                         </div>
                     </div>

@@ -271,6 +271,24 @@
             var printPhotoDetailSelect = document.getElementById('print_photo_detail');
             printPhotoDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Cetak Foto...</option>';
 
+            //total harga
+            var totalPriceSpan = document.getElementById('total-price');
+            totalPriceSpan.textContent = 0;
+            var packagePrice = parseInt(document.getElementById('package_detail').selectedOptions[0].getAttribute(
+                'data-price')) || 0;
+            var printPhotoPrice = 0;
+            var printPhotoText = '';
+            if (printPhotoDetailSelect.value !== "no_print_photo") {
+                printPhotoPrice = parseInt(printPhotoDetailSelect.selectedOptions[0].getAttribute('data-price')) || 0;
+                printPhotoText = ' + (Harga Cetak Foto: Rp' + printPhotoPrice + ')';
+            }
+            // Hitung total harga
+            var totalPrice = packagePrice + printPhotoPrice;
+
+            // Tampilkan total harga
+            totalPriceSpan.textContent = totalPrice + printPhotoText;
+            //end
+
             var noPrintPhotoOption = document.createElement('option');
             noPrintPhotoOption.value = "no_print_photo";
             noPrintPhotoOption.text = "Tidak Cetak Foto";
@@ -335,18 +353,6 @@
                 }
             }
         }
-
-        function isPrintPhotoDetailSelected() {
-            var printPhotoDetailSelect = document.getElementById('print_photo_detail');
-            return printPhotoDetailSelect.value !== '';
-        }
-
-        function isPackageDetailSelected() {
-            var packageDetailSelect = document.getElementById('package_detail');
-            return packageDetailSelect.value !== '';
-        }
-
-
         document.addEventListener('DOMContentLoaded', function() {
             var serviceTypeSelect = document.getElementById('service_type');
             var serviceEventSelect = document.getElementById('service_event');
@@ -354,118 +360,113 @@
             var packageDetailSelect = document.getElementById('package_detail');
             var printPhotoDetailSelect = document.getElementById('print_photo_detail');
             var dateInput = document.getElementById('date');
-            var uniqueDaysInput = document.getElementById('unique-days');
-            var venueIdInput = document.getElementById('venue_id');
             var scheduleContainer = document.getElementById('schedule-container');
-            selectedPackageDetailId = null;
-            serviceTypeSelect.setAttribute('disabled', true);
-            serviceEventSelect.setAttribute('disabled', true);
-            packageSelect.setAttribute('disabled', true);
-            packageDetailSelect.setAttribute('disabled', true);
-            printPhotoDetailSelect.setAttribute('disabled', true);
-            var openingHours = JSON.parse(document.getElementById('opening-hours').value);
-            if (dateInput) {
-                $(dateInput).datepicker({
-                    dateFormat: 'yy-mm-dd',
-                    beforeShowDay: disableUnavailableDates
-                });
-            } else {
-                console.error('Elemen dengan id "date" tidak ditemukan.');
-            }
-            function updateOpeningHoursForVenue(venueId) {
-                var filteredOpeningHours = openingHours.filter(function(hour) {
-                    return hour.venue_id == venueId;
-                });
-                var uniqueDayIds = [...new Set(filteredOpeningHours.map(item => item.day_id))];
-                if (uniqueDaysInput) {
-                    uniqueDaysInput.value = JSON.stringify(uniqueDayIds);
-                    $(dateInput).datepicker('refresh');
-                } else {
-                    console.error('Elemen dengan id "unique-days" tidak ditemukan.');
-                }
-            }
-            function disableUnavailableDates(date) {
-                var today = new Date();
-                today.setHours(0, 0, 0, 0);
-                var uniqueDays = JSON.parse(uniqueDaysInput.value);
-                if (date.getTime() >= today.getTime() && uniqueDays.includes(date.getDay())) {
-                    return [true, "", ""];
-                }
-                return [false];
-            }
-            function toggleDateInput() {
-                var printPhotoDetailSelect = document.getElementById('print_photo_detail');
-                var dateInput = document.getElementById('date');
-                var isPrintPhotoSelected = printPhotoDetailSelect.value !== '';
-                var isPackageSelected = isPackageDetailSelected();
-                var isDisabled = !(isPrintPhotoSelected && isPackageSelected);
-                dateInput.disabled = isDisabled;
-            }
-            document.getElementById('venue_id').addEventListener('change', function() {
-                var venueId = this.value;
-                updateOpeningHoursForVenue(venueId);
-            });
-            // true
-            function checkOpeningHours(openingHours, date) {
-                var dayId = date.getDay();
-                var venueId = document.getElementById('venue_id').value;
-                return openingHours.some(hour => hour.day_id === dayId && hour.venue_id == venueId);
-            }
-            toggleDateInput();
-            document.getElementById('print_photo_detail').addEventListener('change',
-                toggleDateInput);
-            document.getElementById('package_detail').addEventListener('change', toggleDateInput);
-            var dateInput = document.getElementById('date');
+            var venueIdInput = document.getElementById('venue_id');
+            var openingHoursData = JSON.parse(document.getElementById('opening-hours').value);
             var uniqueDaysInput = document.getElementById('unique-days');
-            if (dateInput) {
-                console.log('Element dateInput found');
-            } else {
-                console.error('Element dateInput not found');
-            }
-            if (venueIdInput) {
-                console.log('Element venueIdInput found');
-            } else {
-                console.error('Element venueIdInput not found');
-            }
-            $(dateInput).datepicker({
-                dateFormat: 'yy-mm-dd',
-                beforeShowDay: disableUnavailableDates
-            });
-            dateInput.addEventListener('change', function() {
-                console.log("Date changed!");
-                var dateValue = this.value;
-                console.log("Raw date input value:", dateValue);
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-                    console.error("Invalid Date Format:", dateValue);
-                    return;
-                }
-                var selectedDate = new Date(dateValue);
-                if (isNaN(selectedDate.getTime())) {
-                    console.error("Invalid Date:", dateValue);
-                    return;
-                }
-                var selectedDay = selectedDate.getDay();
+            console.log("openingHoursData:", openingHoursData);
+            selectedPackageDetailId = null;
+            serviceTypeSelect.disabled = true;
+            serviceEventSelect.disabled = true;
+            packageSelect.disabled = true;
+            packageDetailSelect.disabled = true;
+            printPhotoDetailSelect.disabled = true;
+
+            function updateOpeningHours(openingHoursData) {
+                var selectedDate = new Date(dateInput.value);
+                var selectedDayIndex = selectedDate.getDay() + 1; // Sesuaikan untuk penomoran hari
+                var dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                var selectedDayName = dayNames[selectedDayIndex - 1];
                 var selectedVenueId = venueIdInput.value;
-                console.log("Selected Date:", selectedDate);
-                var filteredOpeningHours = openingHours.filter(function(hour) {
-                    return hour.venue_id == selectedVenueId && hour.day_id == selectedDay;
+
+                var filteredOpeningHours = openingHoursData.filter(function(openingHour) {
+                    return openingHour.venue_id == selectedVenueId &&
+                        openingHour.day && // Periksa apakah `day` tidak null
+                        openingHour.day.name &&
+                        openingHour.day.name.toLowerCase() == selectedDayName.toLowerCase();
                 });
-                console.log("Filtered Opening Hours:", filteredOpeningHours);
+
+                console.log("selectedDate:", selectedDate);
+                console.log("selectedDayIndex:", selectedDayIndex);
+                console.log("selectedDayName:", selectedDayName);
+                console.log("filteredOpeningHours:", filteredOpeningHours);
+
                 scheduleContainer.innerHTML = '';
-                filteredOpeningHours.forEach(function(hour) {
-                    console.log("Hour:", hour.hour);
-                    var badgeClass = hour.status == 2 ? 'badge-primary' : 'badge-secondary';
-                    var hourText = hour.hour.hour;
+                filteredOpeningHours.forEach(function(openingHour) {
+                    var hourText = openingHour.hour.hour;
+                    var badgeClass = openingHour.status == 2 ? 'badge-primary' : 'badge-secondary';
                     var badgeElement = document.createElement('div');
                     badgeElement.classList.add('badge', 'badge-pill', badgeClass);
                     badgeElement.textContent = hourText;
                     scheduleContainer.appendChild(badgeElement);
                 });
-            });
+            }
+
+            function disableUnavailableDates(date) {
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+                var uniqueDays = JSON.parse(uniqueDaysInput.value);
+                if (date.getTime() >= today.getTime() && uniqueDays.includes(date.getDay() + 1)) {
+                    return [true, "", ""];
+                }
+                return [false];
+            }
+
+            function toggleDateInput() {
+                var isPrintPhotoSelected = printPhotoDetailSelect.value !== '';
+                var isPackageSelected = packageDetailSelect.value !== '';
+                var isDisabled = !(isPrintPhotoSelected && isPackageSelected);
+                dateInput.disabled = isDisabled;
+                if (!isDisabled) {
+                    $(dateInput).datepicker('enable');
+                } else {
+                    $(dateInput).datepicker('disable');
+                }
+                console.log("isPrintPhotoSelected:", isPrintPhotoSelected);
+                console.log("isPackageSelected:", isPackageSelected);
+                console.log("isDisabled:", isDisabled);
+            }
             venueIdInput.addEventListener('change', function() {
-                console.log('Venue selection changed, triggering date change event');
-                dateInput.dispatchEvent(new Event('change'));
+                var venueId = this.value;
+                updateOpeningHours(openingHoursData);
             });
+            printPhotoDetailSelect.addEventListener('change', toggleDateInput);
+            packageDetailSelect.addEventListener('change', toggleDateInput);
+            if (dateInput) {
+                $(dateInput).datepicker({
+                    dateFormat: 'dd/mm/yy',
+                    onSelect: function() {
+                        console.log("Date selected:", dateInput.value);
+                        dateInput.dispatchEvent(new Event('input'));
+                    }
+                });
+            } else {
+                console.error('Elemen dengan id "date" tidak ditemukan.');
+            }
+            dateInput.addEventListener('input', function(event) {
+                console.log("Input event triggered");
+                console.log("dateInput value:", this.value);
+
+                var selectedDateParts = this.value.split('/');
+                if (selectedDateParts.length !== 3) {
+                    console.error('Invalid date format:', this.value);
+                    return;
+                }
+
+                var selectedDate = new Date(
+                    selectedDateParts[2],
+                    selectedDateParts[1] - 1,
+                    selectedDateParts[0]
+                );
+
+                if (isNaN(selectedDate.getTime())) {
+                    console.error('Invalid date:', this.value);
+                    return;
+                }
+
+                updateOpeningHours(openingHoursData);
+            });
+
         });
     </script>
 @endpush

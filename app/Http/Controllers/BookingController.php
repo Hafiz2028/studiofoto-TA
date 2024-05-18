@@ -23,7 +23,7 @@ class BookingController extends Controller
             return view('back.pages.owner.venue-manage.index-venue')->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang');
         }
         $venueIds = $venues->pluck('id')->toArray();
-        $openingHours = OpeningHour::whereIn('venue_id', $venueIds)->get();
+        $openingHours = OpeningHour::with('day', 'hour')->whereIn('venue_id', $venueIds)->get();
         $uniqueDayIds = collect($openingHours)->unique('day_id')->pluck('day_id')->toArray();
         $today = now()->format('Y-m-d');
         $services = ServiceEvent::with('serviceType')->whereIn('venue_id', $venueIds)->get();
