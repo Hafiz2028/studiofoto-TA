@@ -182,7 +182,6 @@ class OwnerController extends Controller
                 } else {
                     return redirect()->route('owner.login')->with('info', 'A verification link was sent to your email address within the last 15 minutes. Please check your email and verify your account.');
                 }
-                return redirect()->route('owner.login')->with('info', 'We Send Verification Link to Your Email, please check your latest email and verfify your account.');
             } else {
                 return redirect()->route('owner.home')->with('success', "Welcome to Owner's Home Page");
             }
@@ -438,7 +437,6 @@ class OwnerController extends Controller
             'password_confirmation.required' => ':Attribute is required.',
             'password_confirmation.min' => ':Attribute must be at least 5 characters.',
             'password_confirmation.max' => ':Attribute may not be greater than 45 characters.',
-            'handphone.required' => ':Attribute field is required.',
             'handphone.min' => ':Attribute must be at least 9 characters.',
             'handphone.max' => ':Attribute may not be greater than 15 characters.',
             'address.required' => ':Attribute is required.',
@@ -497,7 +495,6 @@ class OwnerController extends Controller
             'username.required' => ':Attribute is required.',
             'username.min' => ':Attribute must be at least 5 characters.',
             'username.unique' => ':Attribute has already been taken.',
-            'handphone.required' => ':Attribute field is required.',
             'handphone.required' => ':Attribute field is required.',
             'handphone.min' => ':Attribute must be at least 9 characters.',
             'handphone.max' => ':Attribute may not be greater than 15 characters.',

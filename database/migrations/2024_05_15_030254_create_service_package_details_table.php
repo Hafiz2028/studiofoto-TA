@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('service_package_details', function (Blueprint $table) {
             $table->increments('id');
             $table->string('sum_person');
+            $table->tinyInteger('time_status')->default(0);
             $table->integer('price');
             $table->unsignedInteger('service_package_id');
             $table->foreign('service_package_id')->references('id')->on('service_packages')->onUpdate('cascade')->onDelete('cascade');

@@ -84,28 +84,42 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name"><strong>3. Maksimal Waktu Pemotretan</strong></label>
+                                    <label><strong>3. Metode Pembayaran Tambahan</strong></label>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_30" name="time_status"
-                                            value="0" {{ $package->time_status == 0 ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="time_30">30 Menit</label>
+                                        <input type="radio" id="full_payment_option" name="dp_percentage"
+                                            class="custom-control-input" value="full_payment"
+                                            {{ $package->dp_status == 0 ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="full_payment_option">Hanya Pembayaran
+                                            Lunas</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_60" name="time_status"
-                                            value="1" {{ $package->time_status == 1 ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="time_60">60 Menit</label>
+                                        <input type="radio" id="dp_option" name="dp_percentage"
+                                            class="custom-control-input"
+                                            value="dp"{{ $package->dp_status == 1 ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="dp_option">DP %</label>
+                                        <input type="number" id="dp_input" name="dp_input" class="form-control"
+                                            min="1"
+                                            max="100"style="{{ $package->dp_status == 1 ? '' : 'display: none;' }}"
+                                            value="{{ $package->dp_status == 1 ? $package->dp_percentage * 100 : '' }}">
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_90" name="time_status"
-                                            value="2" {{ $package->time_status == 2 ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="time_90">90 Menit</label>
+                                        <input type="radio" id="min_payment_option" name="dp_percentage"
+                                            class="custom-control-input"
+                                            value="min_payment"{{ $package->dp_status == 2 ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="min_payment_option">Minimal
+                                            Pembayaran</label>
+                                        <div id="min_payment_input_group"
+                                            style="{{ $package->dp_status == 2 ? '' : 'display: none;' }}">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Rp</span>
+                                                </div>
+                                                <input type="text" id="min_payment_input" name="min_payment_input"
+                                                    class="form-control"value="{{ $package->dp_status == 2 ? $package->dp_min : '' }}">
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_120" name="time_status"
-                                            value="3" {{ $package->time_status == 3 ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="time_120">120 Menit</label>
-                                    </div>
-                                    @error('time_status')
+                                    @error('dp_percentage')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -149,56 +163,14 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label><strong>5. Metode Pembayaran Tambahan</strong></label>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="full_payment_option" name="dp_percentage"
-                                            class="custom-control-input" value="full_payment"
-                                            {{ $packageDetails->where('dp_status', 0)->isNotEmpty() ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="full_payment_option">Hanya Pembayaran
-                                            Lunas</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="dp_option" name="dp_percentage"
-                                            class="custom-control-input" value="dp"
-                                            {{ $packageDetails->where('dp_status', 1)->isNotEmpty() ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="dp_option">DP %</label>
-                                        <input type="number" id="dp_input" name="dp_input" class="form-control"
-                                            min="1" max="100"
-                                            style="{{ $packageDetails->where('dp_status', 1)->isNotEmpty() ? '' : 'display: none;' }}"
-                                            value="{{ $packageDetails->where('dp_status', 1)->isNotEmpty() ? $packageDetails->where('dp_status', 1)->first()->dp_percentage * 100 : '' }}">
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="min_payment_option" name="dp_percentage"
-                                            class="custom-control-input" value="min_payment"
-                                            {{ $packageDetails->where('dp_status', 2)->isNotEmpty() ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="min_payment_option">Minimal
-                                            Pembayaran</label>
-                                        <div id="min_payment_input_group"
-                                            style="{{ $packageDetails->where('dp_status', 2)->isNotEmpty() ? '' : 'display: none;' }}">
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">Rp</span>
-                                                </div>
-                                                <input type="text" id="min_payment_input" name="min_payment_input"
-                                                    class="form-control"
-                                                    value="{{ $packageDetails->where('dp_status', 2)->isNotEmpty() ? $packageDetails->where('dp_status', 2)->first()->dp_percentage * $packageDetails->where('dp_status', 2)->first()->price : '' }}"f>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @error('dp_percentage')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
+
+                            <div class="col-lg-12">
                                 <label for=""><strong>6. Paket Harga</strong></label>
                                 @foreach ($packageDetails as $packageDetail)
                                     <div class="form-group price-person mb-0" id="price-person-{{ $packageDetail->id }}"
                                         data-detail-id="{{ $packageDetail->id }}">
                                         <div class="row align-items-center">
-                                            <div class="col-md-6 col-sm-6">
+                                            <div class="col-md-4 col-sm-6">
                                                 <label>Harga Paket</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -209,8 +181,34 @@
                                                         required>
                                                 </div>
                                             </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="time_status">Maks Waktu Foto</label>
+                                                    <select class="form-control" id="time_status" name="time_status[]"
+                                                        required>
+                                                        <option value="" disabled>Pilih Maksimal Waktu
+                                                            Foto...
+                                                        </option>
+                                                        <option value="0"
+                                                            {{ $packageDetail->time_status == 0 ? 'selected' : '' }}>30
+                                                            Menit</option>
+                                                        <option value="1"
+                                                            {{ $packageDetail->time_status == 1 ? 'selected' : '' }}>60
+                                                            Menit</option>
+                                                        <option value="2"
+                                                            {{ $packageDetail->time_status == 2 ? 'selected' : '' }}>90
+                                                            Menit</option>
+                                                        <option value="3"
+                                                            {{ $packageDetail->time_status == 3 ? 'selected' : '' }}>120
+                                                            Menit</option>
+                                                    </select>
+                                                    @error('time_status.*')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                             <div
-                                                class="col-md-{{ $loop->first ? '6' : '4' }} col-sm-{{ $loop->first ? '6' : '4' }}">
+                                                class="col-md-{{ $loop->first ? '4' : '3' }} col-sm-{{ $loop->first ? '4' : '3' }}">
                                                 <label>Total Orang</label>
                                                 <div class="input-group">
                                                     <input type="text" name="people_sums[]" class="form-control"
@@ -221,7 +219,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2 col-sm-2">
+                                            <div class="col-md-1 col-sm-2">
                                                 @unless ($loop->first)
                                                     <button type="button"
                                                         class="btn btn-outline-danger d-flex align-items-center justify-content-center remove-btn"
@@ -326,7 +324,7 @@
             var newInputGroup = `
                 <div class="form-group price-person mb-0" id="price-person-${lastIndex}">
                     <div class="row align-items-center">
-                        <div class="col-md-6 col-sm-6">
+                        <div class="col-md-4 col-sm-6">
                             <label>Harga Paket</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -335,7 +333,21 @@
                                 <input type="text" name="new_prices[]" value="{{ old('prices.0') }}" class="form-control" placeholder="Harga Paket..." required>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-4">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                            <label for="new_time_status">Maks Waktu Foto</label>
+                            <select class="form-control" name="new_time_status[]"
+                            required>
+                            <option value="" disabled selected>Pilih Maksimal Waktu Foto...
+                            </option>
+                            <option value="0">30 Menit</option>
+                            <option value="1">60 Menit</option>
+                            <option value="2">90 Menit</option>
+                            <option value="3">120 Menit</option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
                             <label>Total Orang</label>
                             <div class="input-group">
                                 <input type="text" name="new_people_sums[]" value="{{ old('people_sums.0') }}" class="form-control" placeholder="Contoh: 1, 1 - 5, 4 - 10..." required>
@@ -344,7 +356,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2 col-sm-2">
+                        <div class="col-md-1 col-sm-2">
                             <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center remove-btn" onclick="removeInputGroup(this)" data-delete="true"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
@@ -353,9 +365,11 @@
             $('#input-new-price-person').before(newInputGroup);
             var newPrice = $('[name="new_prices[]"]').last().val();
             var newPeopleSum = $('[name="new_people_sums[]"]').last().val();
+            var newTimeStatus = $('[name="new_time_status[]"]').last().val();
 
             new_prices.push(newPrice);
             new_people_sums.push(newPeopleSum);
+            new_time_status.push(newTimeStatus);
         }
 
         $(document).ready(function() {
@@ -370,12 +384,50 @@
             const minPaymentOption = document.getElementById('min_payment_option');
             const dpInput = document.getElementById('dp_input');
             const minPaymentInputGroup = document.getElementById('min_payment_input_group');
-            const priceInput = document.getElementById('price');
 
-            togglePaymentInputs();
+            // function togglePaymentInputs() {
+            //     if (dpOption.checked) {
+            //         dpInput.style.display = 'block';
+            //         minPaymentInputGroup.style.display = 'none';
+            //     } else if (minPaymentOption.checked) {
+            //         dpInput.style.display = 'none';
+            //         minPaymentInputGroup.style.display = 'block';
+            //     } else {
+            //         dpInput.style.display = 'none';
+            //         minPaymentInputGroup.style.display = 'none';
+            //     }
+            // }
 
-            dpOption.addEventListener('change', togglePaymentInputs);
-            minPaymentOption.addEventListener('change', togglePaymentInputs);
+            dpOption.addEventListener('change', function() {
+                if (dpOption.checked) {
+                    dpInput.style.display = '';
+                } else {
+                    dpInput.style.display = 'none';
+                }
+                minPaymentInputGroup.style.display = 'none';
+            });
+
+            minPaymentOption.addEventListener('change', function() {
+                if (minPaymentOption.checked) {
+                    minPaymentInputGroup.style.display = '';
+                } else {
+                    minPaymentInputGroup.style.display = 'none';
+                }
+                dpInput.style.display = 'none';
+            });
+            if (dpOption.checked) {
+                dpInput.style.display = '';
+            } else {
+                dpInput.style.display = 'none';
+            }
+
+            if (minPaymentOption.checked) {
+                minPaymentInputGroup.style.display = '';
+            } else {
+                minPaymentInputGroup.style.display = 'none';
+            }
+
+            // togglePaymentInputs();
 
             const fullPaymentOption = document.getElementById('full_payment_option');
             fullPaymentOption.addEventListener('change', function() {
@@ -383,26 +435,20 @@
                 minPaymentInputGroup.style.display = 'none';
                 priceInput.value = '';
             });
-
-            function togglePaymentInputs() {
-                if (dpOption.checked) {
-                    dpInput.style.display = 'block';
-                    minPaymentInputGroup.style.display = 'none';
-                } else if (minPaymentOption.checked) {
-                    dpInput.style.display = 'none';
-                    minPaymentInputGroup.style.display = 'block';
-                } else {
-                    dpInput.style.display = 'none';
-                    minPaymentInputGroup.style.display = 'none';
-                }
-            }
-
-            if (!dpOption.checked) {
-                dpInput.value = '';
-            }
-            if (!minPaymentOption.checked) {
-                // priceInput.value = '';
-            }
+            document.querySelectorAll('input[name="dp_percentage"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'dp') {
+                        document.getElementById('dp_input').style.display = 'block';
+                        document.getElementById('min_payment_input_group').style.display = 'none';
+                    } else if (this.value === 'min_payment') {
+                        document.getElementById('dp_input').style.display = 'none';
+                        document.getElementById('min_payment_input_group').style.display = 'block';
+                    } else {
+                        document.getElementById('dp_input').style.display = 'none';
+                        document.getElementById('min_payment_input_group').style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
     {{-- print foto --}}
@@ -441,7 +487,7 @@
     {{-- time status --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const radioButtons = document.querySelectorAll('input[name="time_status"]');
+            const radioButtons = document.querySelectorAll('input[name="time_status[]"]');
 
             radioButtons.forEach(function(radioButton) {
                 radioButton.addEventListener('change', function() {

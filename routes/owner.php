@@ -47,6 +47,8 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/venue/{venue}/services/{service}/packages/{package}', [PackageController::class, 'showDetail'])->name('venue.services.packages.showDetail');
 
         Route::resource('booking', BookingController::class);
+        Route::get('/booking/{booking}/show-payment', [BookingController::class, 'showPayment'])->name('booking.show-payment');
+        Route::patch('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
 
 
     });

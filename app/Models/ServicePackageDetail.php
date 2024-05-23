@@ -11,8 +11,7 @@ class ServicePackageDetail extends Model
     protected $fillable = [
         'sum_person',
         'price',
-        'dp_status',
-        'dp_percentage',
+        'time_status',
         'service_package_id',
     ];
 

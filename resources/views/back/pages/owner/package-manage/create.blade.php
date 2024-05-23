@@ -80,28 +80,39 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name"><strong>3. Maksimal Waktu Pemotretan</strong></label>
+                                    <label for="dp_percentage"><strong>3. Metode Pembayaran Tambahan</strong></label>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_30" name="time_status"
-                                            value="0" checked>
-                                        <label class="custom-control-label" for="time_30">30 Menit</label>
+                                        <input type="radio" id="full_payment_option" name="dp_percentage"
+                                            class="custom-control-input" value="full_payment" checked>
+                                        <label class="custom-control-label" for="full_payment_option">Hanya Pembayaran
+                                            Lunas</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_60" name="time_status"
-                                            value="1">
-                                        <label class="custom-control-label" for="time_60">60 Menit</label>
+                                        <input type="radio" id="dp_option" name="dp_percentage"
+                                            class="custom-control-input" value="dp">
+                                        <label class="custom-control-label" for="dp_option">DP %</label>
+                                        <input type="number" id="dp_input" name="dp_input" class="form-control"
+                                            style="display: none;" min="1" max="100">
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_90" name="time_status"
-                                            value="2">
-                                        <label class="custom-control-label" for="time_90">90 Menit</label>
+                                        <input type="radio" id="min_payment_option" name="dp_percentage"
+                                            class="custom-control-input" value="min_payment">
+                                        <label class="custom-control-label" for="min_payment_option">Minimal
+                                            Pembayaran</label>
+                                        <div id="min_payment_input_group" style="display: none;">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Rp</span>
+                                                </div>
+                                                <input type="text" id="min_payment_input" name="min_payment_input"
+                                                    class="form-control">
+                                            </div>
+                                            @error('min_payment_input')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="time_120" name="time_status"
-                                            value="3">
-                                        <label class="custom-control-label" for="time_120">120 Menit</label>
-                                    </div>
-                                    @error('time_status')
+                                    @error('dp_percentage')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -140,50 +151,11 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="dp_percentage"><strong>5. Metode Pembayaran Tambahan</strong></label>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="full_payment_option" name="dp_percentage"
-                                            class="custom-control-input" value="full_payment" checked>
-                                        <label class="custom-control-label" for="full_payment_option">Hanya Pembayaran
-                                            Lunas</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="dp_option" name="dp_percentage"
-                                            class="custom-control-input" value="dp">
-                                        <label class="custom-control-label" for="dp_option">DP %</label>
-                                        <input type="number" id="dp_input" name="dp_input" class="form-control"
-                                            style="display: none;" min="1" max="100">
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="min_payment_option" name="dp_percentage"
-                                            class="custom-control-input" value="min_payment">
-                                        <label class="custom-control-label" for="min_payment_option">Minimal
-                                            Pembayaran</label>
-                                        <div id="min_payment_input_group" style="display: none;">
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">Rp</span>
-                                                </div>
-                                                <input type="text" id="min_payment_input" name="min_payment_input"
-                                                    class="form-control">
-                                            </div>
-                                            @error('min_payment_input')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    @error('dp_percentage')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <label for=""><strong>6. Paket Harga</strong></label>
+                            <div class="col-lg-12">
+                                <label for=""><strong>5. Paket Harga & Waktu Pemotretan</strong></label>
                                 <div class="form-group mb-0">
                                     <div class="row">
-                                        <div class="col-md-6 col-sm-6">
+                                        <div class="col-md-4 col-sm-6">
                                             <label for="price">Harga Paket</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
@@ -197,7 +169,24 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-sm-6">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="time_status">Maks Waktu Foto</label>
+                                                <select class="form-control" id="time_status" name="time_status[]"
+                                                    required>
+                                                    <option value="" disabled selected>Pilih Maksimal Waktu Foto...
+                                                    </option>
+                                                    <option value="0">30 Menit</option>
+                                                    <option value="1">60 Menit</option>
+                                                    <option value="2">90 Menit</option>
+                                                    <option value="3">120 Menit</option>
+                                                </select>
+                                                @error('time_status.*')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6">
                                             <label for="people_sum">Total Orang</label>
                                             <div class="input-group">
                                                 <input type="text" id="people_sum" name="people_sums[]"
@@ -223,7 +212,7 @@
                             </div>
                             <div class="col-lg-12 col-md-12">
                                 <div class="form-group">
-                                    <label for="print_photos_switch"><strong>7. Cetak Foto Paket</strong></label>
+                                    <label for="print_photos_switch"><strong>6. Cetak Foto Paket</strong></label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="print_photos_switch"
                                             name="print_photos_switch">
@@ -310,7 +299,7 @@
         function addNewInputGroup() {
             var newInputGroup = `
             <div class="row align-items-center">
-                <div class="col-md-6 col-sm-6">
+                <div class="col-md-4 col-sm-6">
                     <label for="price">Harga Paket</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -322,7 +311,24 @@
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
                 </div>
-                <div class="col-md-4 col-sm-4">
+                <div class="col-md-4">
+                <div class="form-group">
+                <label for="time_status">Maks Waktu Foto</label>
+                <select class="form-control" id="time_status${inputIndex}" name="time_status[]"
+                required>
+                <option value="" disabled selected>Pilih Maksimal Waktu Foto...
+                </option>
+                <option value="0">30 Menit</option>
+                <option value="1">60 Menit</option>
+                <option value="2">90 Menit</option>
+                <option value="3">120 Menit</option>
+                </select>
+                @error('time_status.*')
+                <span class="text-danger">{{ $message }}</span>
+                @enderror
+                </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
                     <label for="people_sum">Total Orang</label>
                     <div class="input-group">
                         <input type="text" id="people_sum${inputIndex}" name="people_sums[]" class="form-control @error('people_sums.*') is-invalid @enderror" placeholder="Contoh: 1, 1 - 5, 4 - 10..." value="{{ old('people_sums.${inputIndex}') }}" required>
@@ -334,7 +340,8 @@
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
                 </div>
-                <div class="col-md-2 col-sm-2">
+
+                <div class="col-md-1 col-sm-2">
                     <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center" onclick="removeInputGroup(this)"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
@@ -358,19 +365,6 @@
             const minPaymentOption = document.getElementById('min_payment_option');
             const dpInput = document.getElementById('dp_input');
             const minPaymentInputGroup = document.getElementById('min_payment_input_group');
-            const priceInput = document.getElementById('price');
-
-            togglePaymentInputs();
-
-            dpOption.addEventListener('change', togglePaymentInputs);
-            minPaymentOption.addEventListener('change', togglePaymentInputs);
-
-            const fullPaymentOption = document.getElementById('full_payment_option');
-            fullPaymentOption.addEventListener('change', function() {
-                dpInput.style.display = 'none';
-                minPaymentInputGroup.style.display = 'none';
-                priceInput.value = '';
-            });
 
             function togglePaymentInputs() {
                 if (dpOption.checked) {
@@ -385,6 +379,31 @@
                 }
             }
 
+            dpOption.addEventListener('change', togglePaymentInputs);
+            minPaymentOption.addEventListener('change', togglePaymentInputs);
+
+            togglePaymentInputs();
+
+            const fullPaymentOption = document.getElementById('full_payment_option');
+            fullPaymentOption.addEventListener('change', function() {
+                dpInput.style.display = 'none';
+                minPaymentInputGroup.style.display = 'none';
+                priceInput.value = '';
+            });
+            document.querySelectorAll('input[name="dp_percentage"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'dp') {
+                        document.getElementById('dp_input').style.display = 'block';
+                        document.getElementById('min_payment_input_group').style.display = 'none';
+                    } else if (this.value === 'min_payment') {
+                        document.getElementById('dp_input').style.display = 'none';
+                        document.getElementById('min_payment_input_group').style.display = 'block';
+                    } else {
+                        document.getElementById('dp_input').style.display = 'none';
+                        document.getElementById('min_payment_input_group').style.display = 'none';
+                    }
+                });
+            });
             if (!dpOption.checked) {
                 dpInput.value = '';
             }
@@ -429,7 +448,7 @@
     {{-- time status --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const radioButtons = document.querySelectorAll('input[name="time_status"]');
+            const radioButtons = document.querySelectorAll('input[name="time_status[]"]');
 
             radioButtons.forEach(function(radioButton) {
                 radioButton.addEventListener('change', function() {
@@ -512,49 +531,6 @@
             var sum = parseInt(totalQtyInput.value) || 0;
             sumInput.value = sum;
         }
-    </script>
-    {{-- perkiraan harga --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const estimatedPrice = document.getElementById('estimated_price');
-            const packagePriceInput = document.getElementById('price');
-            const printServiceEventCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
-
-            function calculateEstimatedPrice() {
-                // Ambil nilai dari input harga paket
-                let packagePriceText = packagePriceInput.value.replace(/\s/g, ''); // Bersihkan spasi
-                let packagePrice = parseFloat(packagePriceText || 0);
-
-                let selectedPrintPhotoPrices = [];
-
-                printServiceEventCheckboxes.forEach(function(checkbox) {
-                    if (checkbox.checked) {
-                        selectedPrintPhotoPrices.push(parseFloat(checkbox.dataset.price));
-                    }
-                });
-
-                let estimatedPriceText = 'Rp ' + packagePrice.toLocaleString('id-ID');
-
-                if (selectedPrintPhotoPrices.length > 0) {
-                    let maxPrintPhotoPrice = Math.max(...selectedPrintPhotoPrices);
-                    estimatedPriceText += ' - Rp ' + (packagePrice + maxPrintPhotoPrice).toLocaleString(
-                        'id-ID');
-                }
-
-                estimatedPrice.textContent = estimatedPriceText;
-            }
-
-            // Panggil fungsi saat halaman dimuat
-            calculateEstimatedPrice();
-
-            // Panggil fungsi saat checkbox berubah
-            printServiceEventCheckboxes.forEach(function(checkbox) {
-                checkbox.addEventListener('change', calculateEstimatedPrice);
-            });
-
-            // Panggil fungsi saat input harga paket berubah
-            packagePriceInput.addEventListener('input', calculateEstimatedPrice);
-        });
     </script>
     {{-- validasi --}}
     <script>

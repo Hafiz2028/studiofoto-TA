@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rent_payments', function (Blueprint $table) {
+        Schema::create('rent_details', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('image');
             $table->unsignedInteger('rent_id')->unsigned();
-            $table->unsignedInteger('payment_method_detail_id')->unsigned();
+            $table->unsignedInteger('opening_hour_id')->unsigned();
             $table->foreign('rent_id')->references('id')->on('rents')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('payment_method_detail_id')->references('id')->on('payment_method_details')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('opening_hour_id')->references('id')->on('opening_hours')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rent_payments');
+        Schema::dropIfExists('rent_details');
     }
 };

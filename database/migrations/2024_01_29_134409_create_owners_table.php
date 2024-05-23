@@ -24,6 +24,7 @@ class CreateOwnersTable extends Migration
             $table->string('address')->nullable();
             $table->string('picture')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            $table->integer('verified')->default(0);
             $table->timestamps();
         });
     }

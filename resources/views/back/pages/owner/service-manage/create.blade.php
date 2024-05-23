@@ -87,12 +87,12 @@
                             </div>
                             <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
-                                    <label for="print_photos_switch"><strong>4. Print Foto Layanan</strong></label>
+                                    <label for="print_photos_switch"><strong>4. Cetak Foto Layanan</strong></label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="print_photos_switch"
                                             name="print_photos_switch">
                                         <label class="custom-control-label" for="print_photos_switch">Aktifkan Untuk Pilih
-                                            Ukuran Print Foto</label>
+                                            Ukuran Cetak Foto</label>
                                     </div>
                                 </div>
                                 <div id="print_photos_options" style="display: none;">

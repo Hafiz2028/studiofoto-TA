@@ -206,7 +206,6 @@
                                     <th>Nama Paket</th>
                                     <th>Metode Pembayaran</th>
                                     <th>Add On</th>
-                                    <th>Waktu Foto</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -217,24 +216,28 @@
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $package->name }}</td>
                                             <td class="align-middle text-center">
-                                                @switch($packageDetails[$package->id]->first()->dp_status)
-                                                    @case(0)
-                                                        <span class="badge badge-info" style="font-size:small;">Lunas</span>
-                                                    @break
+                                                @if ($package->dp_status !== null)
+                                                    @switch($package->dp_status)
+                                                        @case(0)
+                                                            <span class="badge badge-info" style="font-size:small;">Lunas</span>
+                                                        @break
 
-                                                    @case(1)
-                                                        <span class="badge badge-success" style="font-size:small;">DP</span>
-                                                    @break
+                                                        @case(1)
+                                                            <span class="badge badge-success" style="font-size:small;">DP {{$package->dp_percentage*100}} %</span>
+                                                        @break
 
-                                                    @case(2)
-                                                        <span class="badge badge-success" style="font-size:small;">Min.
-                                                            Pembayaran</span>
-                                                    @break
+                                                        @case(2)
+                                                            <span class="badge badge-success" style="font-size:small;">Min.
+                                                                Bayar Rp {{ number_format($package->dp_min, 0, ',', '.') }}</span>
+                                                        @break
 
-                                                    @default
-                                                        <span class="badge badge-danger" style="font-size:small;">Tidak
-                                                            Valid</span>
-                                                @endswitch
+                                                        @default
+                                                            <span class="badge badge-danger" style="font-size:small;">Tidak
+                                                                Valid</span>
+                                                    @endswitch
+                                                @else
+                                                    <span class="badge badge-danger" style="font-size:small;">Belum Diatur</span>
+                                                @endif
                                             </td>
                                             <td style="text-align: justify;">
                                                 @if ($package->addOnPackageDetails->isNotEmpty())
@@ -247,30 +250,6 @@
                                                 @else
                                                     Tidak ada
                                                 @endif
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                @switch($package->time_status)
-                                                    @case(0)
-                                                        <span class="badge badge-success" style="font-size:small;">30 Menit</span>
-                                                    @break
-
-                                                    @case(1)
-                                                        <span class="badge badge-primary" style="font-size:small;">60 Menit</span>
-                                                    @break
-
-                                                    @case(2)
-                                                        <span class="badge badge-info" style="font-size:small;">90 Menit</span>
-                                                    @break
-
-                                                    @case(3)
-                                                        <span class="badge badge-warning" style="font-size:small;">120
-                                                            Menit</span>
-                                                    @break
-
-                                                    @default
-                                                        <span class="badge badge-danger" style="font-size:small;">Tidak
-                                                            Valid</span>
-                                                @endswitch
                                             </td>
                                             <td>
                                                 <a href="#" class="btn btn-outline-secondary btn-lg"
@@ -372,15 +351,15 @@
                 <div class="card-header bg-info">
                     <h2 class="card-title text-center text-white">Foto Layanan</h2>
                 </div>
-                <div class="card-body d-flex flex-wrap justify-content-center align-items-start">
+                <div class="card-body d-flex flex-wrap justify-content-center align-items-center">
                     @if ($serviceImages->isEmpty())
                         <div class="alert alert-info text-center w-100">Tidak Ada Foto Layanan</div>
                     @else
-                        <div class="d-flex flex-wrap justify-content-start">
+                        <div class="d-flex flex-wrap justify-content-center">
                             @foreach ($serviceImages as $index => $image)
                                 <div class="col-lg-3 col-md-3 col-sm-6 mb-4">
                                     <img src="/images/venues/Service_Image/{{ $image->image }}"
-                                        alt="{{ $image->image }}" class="img-fluid rounded">
+                                        alt="{{ $image->image }}" class="card-img">
                                 </div>
                             @endforeach
                         </div>
@@ -450,7 +429,7 @@
                         servicePackageTableHtml +=
                             '<th class="align-middle text-center" scope="col">Jumlah Orang</th>';
                         servicePackageTableHtml +=
-                            '<th class="align-middle text-center" scope="col">Metode Pembayaran</th>';
+                            '<th class="align-middle text-center" scope="col">Waktu Pemotretan</th>';
                         servicePackageTableHtml +=
                             '<th class="align-middle text-center" scope="col">Harga</th>';
 
@@ -462,37 +441,33 @@
                                 style: 'currency',
                                 currency: 'IDR'
                             }).format(servicePackageDetail.price);
-                            var dpBadgeClass = '';
-                            var dpText = '';
+                            var timeBadgeClass = '';
+                            var timeText = '';
 
-                            if (servicePackageDetail.dp_status === 2) {
-                                function roundToNearestThousand(value) {
-                                    return Math.round(value / 1000) * 1000;
-                                }
-
-                                var minimalPayment = roundToNearestThousand(servicePackageDetail
-                                    .dp_percentage * servicePackageDetail.price).toLocaleString(
-                                    'id-ID', {
-                                        style: 'currency',
-                                        currency: 'IDR'
-                                    });
-                                dpText = 'Min. Bayar ' + minimalPayment;
-                                dpBadgeClass = 'badge badge-success';
-                            } else if (servicePackageDetail.dp_status === 1) {
-                                dpText = 'DP ' + (servicePackageDetail.dp_percentage * 100) + '%';
-                                dpBadgeClass = 'badge badge-success';
+                            if (servicePackageDetail.time_status === 0) {
+                                timeText = '30 Menit ';
+                                timeBadgeClass = 'badge badge-success';
+                            } else if (servicePackageDetail.time_status === 1) {
+                                timeText = '60 Menit';
+                                timeBadgeClass = 'badge badge-primary';
+                            } else if (servicePackageDetail.time_status === 2) {
+                                timeText = '90 Menit';
+                                timeBadgeClass = 'badge badge-info';
+                            } else if (servicePackageDetail.time_status === 3) {
+                                timeText = '120 Menit';
+                                timeBadgeClass = 'badge badge-warning';
                             } else {
-                                dpText = 'Lunas';
-                                dpBadgeClass = 'badge badge-info';
+                                timeText = 'Tidak Valid'
+                                timeBadgeClass = 'badge badge-danger';
                             }
                             servicePackageTableHtml += '<tr>';
                             servicePackageTableHtml += '<td>' + servicePackageDetail.sum_person +
                                 ' Orang' +
                                 '</td>';
                             servicePackageTableHtml +=
-                                '<td class="align-middle text-center"><span class="' + dpBadgeClass +
+                                '<td class="align-middle text-center"><span class="' + timeBadgeClass +
                                 '">' +
-                                dpText + '</span></td>';
+                                timeText + '</span></td>';
                             servicePackageTableHtml += '<td>' + formattedPrice + '</td>';
 
 
@@ -511,65 +486,6 @@
             $('#detailPackageModal').modal('show');
         }
     </script>
-
-    {{-- <script>
-        function showPackageDetail(packageId) {
-            $.ajax({
-                url: '{{ route('owner.venue.services.packages.showDetail', ['venue' => $venue, 'service' => $service, 'package' => ':package']) }}'
-                    .replace(':package', packageId),
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    $('#packageInfo').html('<p>' + response.information + '</p>');
-                    $('#printPhotoList').empty();
-                    $('#servicePackageList').empty();
-                    var printPhotoTableHtml = '<table class="table">';
-                    printPhotoTableHtml += '<thead>';
-                    printPhotoTableHtml += '<tr>';
-                    printPhotoTableHtml += '<th scope="col">Size</th>';
-                    printPhotoTableHtml += '<th scope="col">Harga (Rp)</th>';
-                    printPhotoTableHtml += '</tr>';
-                    printPhotoTableHtml += '</thead>';
-                    printPhotoTableHtml += '<tbody>';
-                    response.printPhotoDetails.forEach(function(printPhoto) {
-                        var formattedPrice = printPhoto.price.toLocaleString('id-ID');
-                        printPhotoTableHtml += '<tr>';
-                        printPhotoTableHtml += '<td>' + printPhoto.size + '</td>';
-                        printPhotoTableHtml += '<td>' + formattedPrice + '</td>';
-                        printPhotoTableHtml += '</tr>';
-                    });
-                    printPhotoTableHtml += '</tbody>';
-                    printPhotoTableHtml += '</table>';
-                    $('#printPhotoList').append(printPhotoTableHtml);
-                    var servicePackageTableHtml = '<table class="table">';
-                    servicePackageTableHtml += '<thead>';
-                    servicePackageTableHtml += '<tr>';
-                    servicePackageTableHtml += '<th scope="col">Sum Person</th>';
-                    servicePackageTableHtml += '<th scope="col">Harga (Rp)</th>';
-                    servicePackageTableHtml += '<th scope="col">DP Percentage</th>';
-                    servicePackageTableHtml += '</tr>';
-                    servicePackageTableHtml += '</thead>';
-                    servicePackageTableHtml += '<tbody>';
-                    response.servicePackageDetails.forEach(function(servicePackageDetail) {
-                        var formattedPrice = servicePackageDetail.price.toLocaleString('id-ID');
-                        servicePackageTableHtml += '<tr>';
-                        servicePackageTableHtml += '<td>' + servicePackageDetail.sum_person + '</td>';
-                        servicePackageTableHtml += '<td>' + formattedPrice + '</td>';
-                        servicePackageTableHtml += '<td>' + servicePackageDetail.dp_percentage +
-                            '</td>';
-                        servicePackageTableHtml += '</tr>';
-                    });
-                    servicePackageTableHtml += '</tbody>';
-                    servicePackageTableHtml += '</table>';
-                    $('#servicePackageList').append(servicePackageTableHtml);
-                },
-                error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
-            });
-            $('#detailPackageModal').modal('show');
-        }
-    </script> --}}
     {{-- modal hapus paket --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {

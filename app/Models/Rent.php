@@ -11,12 +11,14 @@ class Rent extends Model
 
     protected $fillable = [
         'faktur',
+        'name',
+        'customer_id',
         'service_package_detail_id',
-        'opening_hour_id',
         'date',
         'payment_status',
         'dp_price',
         'total_price',
+        'print_photo_detail_id',
         'reject_note',
     ];
 
@@ -25,13 +27,17 @@ class Rent extends Model
         return $this->belongsTo(ServicePackageDetail::class, 'service_package_detail_id', 'id');
     }
 
-    public function openingHour()
+    public function printPhotoDetail()
     {
-        return $this->belongsTo(OpeningHour::class, 'opening_hour_id', 'id');
+        return $this->belongsTo(PrintPhotoDetail::class, 'print_photo_detail_id', 'id');
     }
 
-    public function rentPayments()
+    public function customer()
     {
-        return $this->hasMany(RentPayment::class, 'rent_id', 'id');
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
+    }
+    public function rentDetails()
+    {
+        return $this->hasMany(RentDetail::class, 'rent_id', 'id');
     }
 }

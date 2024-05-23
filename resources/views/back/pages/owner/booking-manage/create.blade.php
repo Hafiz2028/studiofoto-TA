@@ -12,19 +12,21 @@
             </div>
             <div class="modal-body">
                 <form action="{{ route('owner.booking.store') }}" method="POST" enctype="multipart/form-data"
-                    class="mt-3">
+                    class="mt-3" id="bookingForm">
+                    @csrf
+                    <x-alert.form-alert />
                     <div class="row">
-                        <div class="col-lg-5 col-md-3 col-sm-6">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>1. Nama Penyewa</label>
-                                <input type="text" class="form-control" value="{{ old('name') }}"
+                                <input type="text" class="form-control" name="name_tenant" value="{{ old('name_tenant') }}"
                                     placeholder="Booking jadwal atas nama..." required>
                             </div>
                         </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
+                        <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label for="venue_id">2. Nama Venue</label>
-                                <select class="form-control" id="venue_id" onchange="populateServiceTypes()" required>
+                                <select class="form-control" id="venue_id" name="venue" onchange="populateServiceTypes()" required>
                                     <option value="" disabled selected>Pilih Venue...</option>
                                     @foreach ($venues as $venue)
                                         <option value="{{ $venue->id }}">{{ $venue->name }}</option>
@@ -32,10 +34,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
+                        <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>3. Tipe Layanan</label>
-                                <select class="form-control" id="service_type" onchange="populateServiceEvents()"
+                                <select class="form-control" id="service_type" name="service_type" onchange="populateServiceEvents()"
                                     required>
                                     <option value="" disabled selected>Pilih Tipe Layanan...</option>
                                 </select>
@@ -44,7 +46,7 @@
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>4. Nama Layanan</label>
-                                <select class="form-control" id="service_event" onchange="populateServicePackages()"
+                                <select class="form-control" id="service_event" name="service" onchange="populateServicePackages()"
                                     required>
                                     <option value="" disabled selected>Pilih Layanan...</option>
                                 </select>
@@ -52,64 +54,83 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4 col-md-5 col-sm-12">
+                        <div class="col-lg-4 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label>5. Nama Paket</label>
-                                <select class="form-control" id="package" onchange="populatePackageDetails()"
+                                <select class="form-control" id="package" name="package" onchange="populatePackageDetails()"
                                     required>
                                     <option value="" disabled selected>Pilih Paket Foto...</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-5 col-sm-6">
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <input type="hidden" id="hidden_print_photo_detail_id" name="print_photo_detail_id">
                             <div class="form-group">
                                 <label>6. Jumlah Orang & Harga</label>
-                                <select class="form-control" id="package_detail" onchange="enablePrintPhotoDetails()"
+                                <select class="form-control" id="package_detail" name="package_detail" onchange="enablePrintPhotoDetails()"
                                     required>
                                     <option value="" disabled selected>Pilih Jumlah Orang...</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2 col-sm-6">
-                            <label>Metode Pembayaran</label>
-                            <div class="d-flex justify-content-center align-items-center" id="badge-container">
-                                <div class="badge badge-secondary">Paket belum dipilih</div>
+                        <div class="col-lg-2 col-md-6 col-sm-6">
+                            <div class="d-flex flex-column justify-content-center align-items-center mt-3"
+                                id="badge-container">
+                                <div class="badge badge-secondary mb-1">Waktu Pemotretan</div>
+                                <div class="badge badge-secondary">DP / Hanya Lunas</div>
                             </div>
                         </div>
-                        <div class="col-lg-2 col-md-5 col-sm-6">
+                        <div class="col-lg-3 col-md-6 col-sm-6">
                             <label>7. Print Foto & Harga</label>
-                            <select class="form-control" id="print_photo_detail" required disabled>
+                            <select class="form-control" id="print_photo_detail" name="print_photo_detail" required disabled>
                                 <option value="" disabled selected>Pilih Cetak Foto...</option>
                             </select>
                         </div>
-                        <div class="col-md-2 col-sm-6">
+                        <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>8. Tanggal Booking</label>
-                                <input type="text" class="form-control" id="date" required>
+                                <input type="text" class="form-control" id="date" name="date" required disabled>
                                 <input type="hidden" id="opening-hours" value="{{ json_encode($openingHours) }}">
                                 <input type="hidden" id="unique-days" value="{{ json_encode($uniqueDayIds) }}">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-lg-10 col-md-12">
                             <div class="form-group">
                                 <label>9. Jadwal Tersedia</label>
                                 <div class="card">
-                                    <div id="schedule-container" class="card-body"></div>
+                                    <div class="card-header d-flex justify-content-end">
+                                        <div class="badge badge-primary">Tersedia</div>
+                                        <div class="badge badge-secondary ml-1">Tutup</div>
+                                        <div class="badge badge-danger ml-1">Telah dibooking</div>
+                                        <div class="badge badge-success ml-1">Dipilih</div>
+                                    </div>
+                                    <div id="schedule-container" class="card-body">
+                                        <div class="alert alert-info">Belum memilih tanggal dan venue</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Total Harga</label>
-                                <span id="total-price">0</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-12">
+                            <div class="form-group d-flex align-items-center">
+                                <label>Harga Paket Foto</label>
+                                <span id="package-price" class="badge badge-primary ml-2">Rp 0</span>
+                            </div>
+                            <div class="form-group d-flex align-items-center">
+                                <label>Harga Cetak Foto</label>
+                                <span id="print-photo-price" class="badge badge-info ml-2">Rp 0</span>
+                            </div>
+                            <div class="form-group d-flex align-items-center">
+                                <label>Harga Total</label>
+                                <span id="total-price" class="badge badge-success ml-2">Rp 0</span>
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="total_price" id="total-price-input" value="0">
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success">Tambah Jadwal</button>
+                        <button type="submit" class="btn btn-success">Pembayaran</button>
                     </div>
                 </form>
             </div>
