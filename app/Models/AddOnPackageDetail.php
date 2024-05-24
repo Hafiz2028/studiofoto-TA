@@ -16,11 +16,11 @@ class AddOnPackageDetail extends Model
 
     public function servicePackage()
     {
-        return $this->belongsTo(ServicePackage::class);
+        return $this->belongsTo(ServicePackage::class, 'service_package_id', 'id');
     }
 
     public function addOnPackage()
     {
-        return $this->belongsTo(AddOnPackage::class);
+        return $this->belongsTo(AddOnPackage::class, 'add_on_package_id', 'id');
     }
 }

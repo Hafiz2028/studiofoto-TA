@@ -136,7 +136,21 @@ class BookingController extends Controller
     public function showPayment(Request $request, $booking)
     {
         $rent = Rent::findOrFail($booking);
-
+        $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
+        if ($openingHourIds->isNotEmpty()) {
+            $firstOpeningHourId = $openingHourIds->first();
+            $lastOpeningHourId = $openingHourIds->last();
+            $firstOpeningHour = OpeningHour::find($firstOpeningHourId)->hour;
+            $lastOpeningHour = OpeningHour::find($lastOpeningHourId)->hour;
+            $nextHour = Hour::where('id', $lastOpeningHour->id + 1)->first();
+            if ($nextHour) {
+                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $nextHour->hour;
+            } else {
+                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $lastOpeningHour->hour;
+            }
+        } else {
+            $rent->formatted_schedule = 'Invalid time format';
+        }
         return view('back.pages.owner.booking-manage.payment', compact('rent'));
     }
     public function rentPayment(Request $request, string $id)

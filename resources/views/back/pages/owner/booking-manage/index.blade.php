@@ -45,7 +45,6 @@
                                     <th>Tanggal</th>
                                     <th>Nama</th>
                                     <th>Venue</th>
-                                    <th>Tipe Layanan</th>
                                     <th>Paket Foto</th>
                                     <th>Jadwal</th>
                                     <th>Status</th>
@@ -62,12 +61,18 @@
                                 @else
                                     @foreach ($rents as $rent)
                                         <td>{{ $rent->date }}</td>
-                                        <td>{{ $rent->name }}</td>
+                                        <td>{{ $rent->name }}
+                                        </td>
                                         <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}
                                         </td>
-                                        <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->serviceType->service_name }}
+                                        <td>{{ $rent->servicePackageDetail->servicePackage->name }}
+                                            @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty())
+                                                @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
+                                                    + ({{ $addOnPackageDetail->sum }}
+                                                    {{ $addOnPackageDetail->addOnPackage->name }})
+                                                @endforeach
+                                            @endif
                                         </td>
-                                        <td>{{ $rent->servicePackageDetail->servicePackage->name }}</td>
                                         <td>{{ $rent->formatted_schedule }}</td>
                                         <td>
                                             @if ($rent->rent_status == 0)
@@ -112,7 +117,8 @@
                                                 <a href="" class="btn btn-outline-info" data-toggle="tooltip"
                                                     data-placement="auto" title="Detail Booking"><i
                                                         class="fas fa-info"></i></a>
-                                                <a href="{{route('owner.booking.show-payment', ['booking' => $rent->id])}}" class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
+                                                    class="btn btn-outline-secondary" data-toggle="tooltip"
                                                     data-placement="auto" title="Pembayaran"><i
                                                         class="fas fa-money"></i></a>
                                                 <a href="" class="btn btn-outline-primary" data-toggle="tooltip"
