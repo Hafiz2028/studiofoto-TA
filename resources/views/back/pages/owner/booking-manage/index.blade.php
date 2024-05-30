@@ -32,7 +32,8 @@
                                     class="text-primary">{{ ucfirst(Auth::user()->name) }}</span></h4>
                         </div>
                         <div class="pull-right">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bookingModal">
+                            <button type="button" class="btn btn-primary exclude-alert" data-toggle="modal"
+                                data-target="#bookingModal">
                                 <i class="fa fa-plus"></i> Offline Booking
                             </button>
                             @include('back.pages.owner.booking-manage.create')
@@ -60,79 +61,103 @@
                                     </tr>
                                 @else
                                     @foreach ($rents as $rent)
-                                        <td>{{ $rent->date }}</td>
-                                        <td>{{ $rent->name }}
-                                        </td>
-                                        <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}
-                                        </td>
-                                        <td>{{ $rent->servicePackageDetail->servicePackage->name }}
-                                            @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty())
-                                                @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
-                                                    + ({{ $addOnPackageDetail->sum }}
-                                                    {{ $addOnPackageDetail->addOnPackage->name }})
-                                                @endforeach
-                                            @endif
-                                        </td>
-                                        <td>{{ $rent->formatted_schedule }}</td>
-                                        <td>
-                                            @if ($rent->rent_status == 0)
-                                                <span class="badge badge-info ">Diajukan</span>
-                                            @elseif ($rent->rent_status == 1)
-                                                <span class="badge badge-success ">Dibooking</span>
-                                            @elseif ($rent->rent_status == 2)
-                                                <span class="badge badge-primary ">Selesai</span>
-                                            @elseif ($rent->rent_status == 3)
-                                                <span class="badge badge-danger ">Ditolak</span>
-                                            @elseif ($rent->rent_status == 4)
-                                                <span class="badge badge-warning ">Expired</span>
-                                            @elseif ($rent->rent_status == 5)
-                                                <span class="badge badge-warning ">Belum Bayar</span>
-                                            @else
-                                                <span class="badge badge-danger ">Tidak Valid</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($rent->rent_status == 0)
-                                                <a href="" class="btn btn-outline-info" data-toggle="tooltip"
-                                                    data-placement="auto" title="Detail Booking"><i
-                                                        class="fas fa-info"></i></a>
-                                                <a href="" class="btn btn-success" data-toggle="modal"
-                                                    data-target=""><i class="fas fa-check"></i></a>
-                                                <a href="" class="btn btn-danger" data-toggle="modal"
-                                                    data-target=""><i class="bi bi-x-lg"></i></a>
-                                            @elseif ($rent->rent_status == 1 || $rent->rent_status == 2)
-                                                <a href="" class="btn btn-outline-info" data-toggle="tooltip"
-                                                    data-placement="auto" title="Detail Booking"><i
-                                                        class="fas fa-info"></i></a>
-                                                <a href="" class="btn btn-outline-secondary" data-toggle="tooltip"
-                                                    data-placement="auto" title="Pembayaran"><i
-                                                        class="fas fa-money"></i></a>
-                                                <a href="" class="btn btn-outline-primary" data-toggle="tooltip"
-                                                    data-placement="auto" title="Edit Booking"><i
-                                                        class="fas fa-edit"></i></a>
-                                                <a href="" class="btn btn-outline-danger" data-toggle="tooltip"
-                                                    data-placement="auto" title="Hapus Booking"><i
-                                                        class="fas fa-trash"></i></a>
-                                            @elseif ($rent->rent_status == 5)
-                                                <a href="" class="btn btn-outline-info" data-toggle="tooltip"
-                                                    data-placement="auto" title="Detail Booking"><i
-                                                        class="fas fa-info"></i></a>
-                                                <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
-                                                    class="btn btn-outline-secondary" data-toggle="tooltip"
-                                                    data-placement="auto" title="Pembayaran"><i
-                                                        class="fas fa-money"></i></a>
-                                                <a href="" class="btn btn-outline-primary" data-toggle="tooltip"
-                                                    data-placement="auto" title="Edit Booking"><i
-                                                        class="fas fa-edit"></i></a>
-                                                <a href="" class="btn btn-outline-danger" data-toggle="tooltip"
-                                                    data-placement="auto" title="Hapus Booking"><i
-                                                        class="fas fa-trash"></i></a>
-                                            @elseif ($rent->rent_status == 3 || $rent->rent_status == 4)
-                                                <a href="" class="btn btn-info"><i class="fas fa-info"></i></a>
-                                            @else
-                                                <div class="alert alert-danger">Tidak Valid</div>
-                                            @endif
-                                        </td>
+                                        <tr id="rent-{{ $rent->id }}">
+                                            <td>{{ $rent->date }}</td>
+                                            <td>{{ $rent->name }}
+                                            </td>
+                                            <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}
+                                            </td>
+                                            <td>{{ $rent->servicePackageDetail->servicePackage->name }}
+                                                @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty())
+                                                    @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
+                                                        + ({{ $addOnPackageDetail->sum }}
+                                                        {{ $addOnPackageDetail->addOnPackage->name }})
+                                                    @endforeach
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($rent->formatted_schedule == null)
+                                                    <div class="badge badge-danger">Tidak ada</div>
+                                                @else
+                                                    {{ $rent->formatted_schedule }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($rent->formatted_schedule == null)
+                                                    <span class="badge badge-danger">Jadwal Salah</span>
+                                                @else
+                                                    @if ($rent->rent_status == 0)
+                                                        <span class="badge badge-info ">Diajukan</span>
+                                                    @elseif ($rent->rent_status == 1)
+                                                        <span class="badge badge-success ">Dibooking</span>
+                                                    @elseif ($rent->rent_status == 2)
+                                                        <span class="badge badge-primary ">Selesai</span>
+                                                    @elseif ($rent->rent_status == 3)
+                                                        <span class="badge badge-danger ">Ditolak</span>
+                                                    @elseif ($rent->rent_status == 4)
+                                                        <span class="badge badge-warning ">Expired</span>
+                                                    @elseif ($rent->rent_status == 5)
+                                                        <span class="badge badge-warning ">Belum Bayar</span>
+                                                    @else
+                                                        <span class="badge badge-danger ">Tidak Valid</span>
+                                                    @endif
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($rent->rent_status == 0)
+                                                    <a href="" class="btn btn-outline-info" data-toggle="tooltip"
+                                                        data-placement="auto" title="Detail Booking"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-info"></i></a>
+                                                    <a href="" class="btn btn-success" data-toggle="modal"
+                                                        data-target=""
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-check"></i></a>
+                                                    <a href="" class="btn btn-danger exclude-alert"
+                                                        data-toggle="modal" data-target=""
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="bi bi-x-lg"></i></a>
+                                                @elseif ($rent->rent_status == 1 || $rent->rent_status == 2)
+                                                    <a href="" class="btn btn-outline-info" data-toggle="tooltip"
+                                                        data-placement="auto" title="Detail Booking"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-info"></i></a>
+                                                    <a href="{{ route('owner.booking.edit', $rent->id) }}"
+                                                        class="btn btn-outline-primary" data-toggle="modal"
+                                                        data-target="#editBookingModal{{ $rent->id }}"><i
+                                                            class="fas fa-edit"></i></a>
+                                                    <a href="" class="btn btn-outline-danger exclude-alert"
+                                                        data-toggle="tooltip" data-placement="auto" title="Hapus Booking"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-trash"></i></a>
+                                                @elseif ($rent->rent_status == 5)
+                                                    <a href="" class="btn btn-outline-info" data-toggle="tooltip"
+                                                        data-placement="auto" title="Detail Booking"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-info"></i></a>
+                                                    <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
+                                                        class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                        data-placement="auto" title="Pembayaran"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-money"></i></a>
+                                                    <a href="{{ route('owner.booking.edit', $rent->id) }}"
+                                                        class="btn btn-outline-primary" data-toggle="modal"
+                                                        data-target="#editBookingModal{{ $rent->id }}"><i
+                                                            class="fas fa-edit"></i></a>
+                                                    <a href="" class="btn btn-outline-danger exclude-alert"
+                                                        data-toggle="tooltip" data-placement="auto" title="Hapus Booking"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-trash"></i></a>
+                                                @elseif ($rent->rent_status == 3 || $rent->rent_status == 4)
+                                                    <a href="" class="btn btn-info"
+                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                            class="fas fa-info"></i></a>
+                                                @else
+                                                    <div class="alert alert-danger">Tidak Valid</div>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @include('back.pages.owner.booking-manage.edit')
                                     @endforeach
                                 @endif
                             </tbody>
@@ -173,173 +198,166 @@
 @endpush
 @push('scripts')
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn:not(.btn-outline-primary):not(.exclude-alert)');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    const schedule = button.getAttribute('data-schedule');
+                    if (schedule === 'null') {
+                        event.preventDefault();
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terdapat kesalahan pada Jadwal Booking.',
+                            icon: 'error',
+                            confirmButtonText: 'Perbarui Jadwal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const rentId = button.closest('tr').getAttribute('id')
+                                    .replace('rent-', '');
+                                $(`#editBookingModal${rentId}`).modal('show');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    {{-- create booking --}}
+    <script>
         var selectedPackageDetailId;
         var packages = @json($packages);
         var packageDetails = @json($packageDetails);
         var packages = @json($packages->load('addOnPackageDetails.addOnPackage'));
 
         function populateServiceTypes() {
+            resetSelectAndDisable('service_type', 'Pilih Tipe Layanan...');
+            resetSelectAndDisable('service_event', 'Pilih Layanan...');
+            resetSelectAndDisable('package', 'Pilih Paket Foto...');
+            resetSelectAndDisable('package_detail', 'Pilih Jumlah Orang...');
+            resetSelectAndDisable('print_photo_detail', 'Pilih Cetak Foto...');
+            resetSelectAndDisable('date', '');
+            document.getElementById('schedule-container').innerHTML =
+                '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
             var venueId = document.getElementById('venue_id').value;
             var serviceTypeSelect = document.getElementById('service_type');
-            var serviceEventSelect = document.getElementById('service_event');
-            var packageSelect = document.getElementById('package');
-            var packageDetailSelect = document.getElementById('package_detail');
-            var printPhotoDetailSelect = document.getElementById('print_photo_detail');
-            var dateSelect = document.getElementById('date');
-            var scheduleContainer = document.getElementById('schedule-container');
 
-            serviceTypeSelect.innerHTML = '<option value="" disabled selected>Pilih Tipe Layanan...</option>';
-            serviceEventSelect.innerHTML = '<option value="" disabled selected>Pilih Layanan...</option>';
-            packageSelect.innerHTML = '<option value="" disabled selected>Pilih Paket Foto...</option>';
-            packageDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
-            printPhotoDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Cetak Foto...</option>';
-            serviceTypeSelect.setAttribute('disabled', true);
-            serviceEventSelect.setAttribute('disabled', true);
-            packageSelect.setAttribute('disabled', true);
-            packageDetailSelect.setAttribute('disabled', true);
-            printPhotoDetailSelect.setAttribute('disabled', true);
-
-            // Reset date input and schedule container
-            dateSelect.value = '';
-            dateSelect.setAttribute('disabled', true);
-            scheduleContainer.innerHTML = '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
-
-            var hasServiceType = false;
-            @foreach ($services as $service)
-                if ({{ $service->venue_id }} == venueId) {
-                    var option = document.createElement('option');
-                    option.value = "{{ $service->service_type_id }}";
-                    option.text = "{{ $service->serviceType->service_name }}";
-                    serviceTypeSelect.appendChild(option);
-                    hasServiceType = true;
-                }
-            @endforeach
-            if (hasServiceType) {
-                serviceTypeSelect.removeAttribute('disabled');
-            }
+            fetch(`/api/services/${venueId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(service => {
+                        var option = document.createElement('option');
+                        option.value = service.service_type_id;
+                        option.text = service.name;
+                        serviceTypeSelect.appendChild(option);
+                    });
+                    enableSelect('service_type');
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function populateServiceEvents() {
+            resetSelectAndDisable('service_event', 'Pilih Layanan...');
+            resetSelectAndDisable('package', 'Pilih Paket Foto...');
+            resetSelectAndDisable('package_detail', 'Pilih Jumlah Orang...');
+            resetSelectAndDisable('print_photo_detail', 'Pilih Cetak Foto...');
+
+            resetSelectAndDisable('date', '');
+            document.getElementById('schedule-container').innerHTML =
+                '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
+
             var serviceTypeId = document.getElementById('service_type').value;
             var venueId = document.getElementById('venue_id').value;
             var serviceEventSelect = document.getElementById('service_event');
-            var packageSelect = document.getElementById('package');
-            var packageDetailSelect = document.getElementById('package_detail');
-            var printPhotoDetailSelect = document.getElementById('print_photo_detail');
-            var dateSelect = document.getElementById('date');
-            var scheduleContainer = document.getElementById('schedule-container');
-
-            serviceEventSelect.innerHTML = '<option value="" disabled selected>Pilih Layanan...</option>';
-            serviceEventSelect.setAttribute('disabled', true);
-            packageSelect.innerHTML = '<option value="" disabled selected>Pilih Paket Foto...</option>';
-            packageSelect.setAttribute('disabled', true);
-            packageDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
-            packageDetailSelect.setAttribute('disabled', true);
-            printPhotoDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Cetak Foto...</option>';
-            printPhotoDetailSelect.setAttribute('disabled', true);
-
-
-            // Reset date input and schedule container
-            dateSelect.value = '';
-            dateSelect.setAttribute('disabled', true);
-            scheduleContainer.innerHTML = '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
-
-            var hasService = false;
-            @foreach ($services as $service)
-                if ({{ $service->service_type_id }} == serviceTypeId && {{ $service->venue_id }} == venueId) {
-                    var option = document.createElement('option');
-                    option.value = "{{ $service->id }}";
-                    option.text = "{{ $service->name }}";
-                    serviceEventSelect.appendChild(option);
-                    hasService = true;
-                }
-            @endforeach
-            if (hasService) {
-                serviceEventSelect.removeAttribute('disabled');
-            }
+            fetch(`/api/services/${venueId}/${serviceTypeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(service => {
+                        var option = document.createElement('option');
+                        option.value = service.id;
+                        option.text = service.name;
+                        serviceEventSelect.appendChild(option);
+                    });
+                    enableSelect('service_event');
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function populateServicePackages() {
+            resetSelectAndDisable('package', 'Pilih Paket Foto...');
+            resetSelectAndDisable('package_detail', 'Pilih Jumlah Orang...');
+            resetSelectAndDisable('print_photo_detail', 'Pilih Cetak Foto...');
+
+            resetSelectAndDisable('date', '');
+            document.getElementById('schedule-container').innerHTML =
+                '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
+
             var serviceEventId = document.getElementById('service_event').value;
             var packageSelect = document.getElementById('package');
-            var packageDetailSelect = document.getElementById('package_detail');
-            var printPhotoDetailSelect = document.getElementById('print_photo_detail');
-            var dateSelect = document.getElementById('date');
-            var scheduleContainer = document.getElementById('schedule-container');
-
-            packageSelect.innerHTML = '<option value="" disabled selected>Pilih Paket Foto...</option>';
-            packageSelect.setAttribute('disabled', true);
-            packageDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
-            packageDetailSelect.setAttribute('disabled', true);
-            printPhotoDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Cetak Foto...</option>';
-            printPhotoDetailSelect.setAttribute('disabled', true);
-
-            // Reset date input and schedule container
-            dateSelect.value = '';
-            dateSelect.setAttribute('disabled', true);
-            scheduleContainer.innerHTML = '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
-
             var hasPackages = false;
-            @foreach ($packages as $package)
-                if ({{ $package->service_event_id }} == serviceEventId) {
-                    var addOnDetails = @json($package->addOnPackageDetails);
-                    var packageName = "{{ $package->name }}";
-                    var addOnText = '';
-                    if (addOnDetails.length > 0) {
-                        addOnDetails.forEach(function(addOnDetail, index) {
-                            var addOnPackageName = addOnDetail.add_on_package.name;
-                            var addOnSum = addOnDetail.sum;
-                            addOnText += `(${addOnSum} ${addOnPackageName})`;
-                            if (index < addOnDetails.length - 1) {
-                                addOnText += ' + ';
-                            }
-                        });
-                        packageName += ' + ' + addOnText;
+            fetch(`/api/packages/${serviceEventId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(package => {
+                        var packageName = package.name;
+                        var addOnText = '';
+
+                        if (package.add_on_package_details && package.add_on_package_details.length > 0) {
+                            package.add_on_package_details.forEach(function(addOnDetail, index) {
+                                var addOnPackageName = addOnDetail.add_on_package.name;
+                                var addOnSum = addOnDetail.sum;
+                                addOnText += `(${addOnSum} ${addOnPackageName})`;
+
+                                if (index < package.add_on_package_details.length - 1) {
+                                    addOnText += ' + ';
+                                }
+                            });
+                        }
+
+                        if (addOnText) {
+                            packageName += ' + ' + addOnText;
+                        }
+
+                        var option = document.createElement('option');
+                        option.value = package.id;
+                        option.text = packageName;
+                        packageSelect.appendChild(option);
+                        hasPackages = true;
+                    });
+
+                    if (hasPackages) {
+                        enableSelect('package');
                     }
-                    var option = document.createElement('option');
-                    option.value = "{{ $package->id }}";
-                    option.text = packageName;
-                    packageSelect.appendChild(option);
-                    hasPackages = true;
-                }
-            @endforeach
-            if (hasPackages) {
-                packageSelect.removeAttribute('disabled');
-            }
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function populatePackageDetails() {
+            resetSelectAndDisable('package_detail', 'Pilih Jumlah Orang...');
+            resetSelectAndDisable('print_photo_detail', 'Pilih Cetak Foto...');
+            resetSelectAndDisable('date', '');
+            document.getElementById('schedule-container').innerHTML =
+                '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
+
             var packageId = document.getElementById('package').value;
             var packageDetailSelect = document.getElementById('package_detail');
-            var printPhotoDetailSelect = document.getElementById('print_photo_detail');
-            var dateSelect = document.getElementById('date');
-            var scheduleContainer = document.getElementById('schedule-container');
-
-            packageDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
-            packageDetailSelect.setAttribute('disabled', true);
-            printPhotoDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Cetak Foto...</option>';
-            printPhotoDetailSelect.setAttribute('disabled', true);
-
-            // Reset date input and schedule container
-            dateSelect.value = '';
-            dateSelect.setAttribute('disabled', true);
-            scheduleContainer.innerHTML = '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
-
             var hasPackageDetails = false;
-            @foreach ($packageDetails as $packageDetail)
-                if ({{ $packageDetail->service_package_id }} == packageId) {
-                    var option = document.createElement('option');
-                    option.value = "{{ $packageDetail->id }}";
-                    option.setAttribute('data-price', "{{ $packageDetail->price }}");
-                    option.text =
-                        "{{ $packageDetail->sum_person }} Orang - Rp{{ number_format($packageDetail->price, 0, ',', '.') }}";
-                    packageDetailSelect.appendChild(option);
-                    hasPackageDetails = true;
-                }
-            @endforeach
-            if (hasPackageDetails) {
-                packageDetailSelect.removeAttribute('disabled');
-            }
+            fetch(`/api/package-details/${packageId}`)
+                .then(response => response.json())
+                .then(packageDetails => {
+                    packageDetails.forEach(packageDetail => {
+                        var option = document.createElement('option');
+                        option.value = packageDetail.id;
+                        option.setAttribute('data-price', packageDetail.price);
+                        option.text =
+                            `${packageDetail.sum_person} Orang - Rp${formatCurrency(packageDetail.price)}`;
+                        packageDetailSelect.appendChild(option);
+                    });
+
+                    if (packageDetails.length > 0) {
+                        enableSelect('package_detail');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function enablePrintPhotoDetails() {
@@ -347,120 +365,124 @@
             var printPhotoDetailSelect = document.getElementById('print_photo_detail');
             var hiddenPrintPhotoDetailInput = document.getElementById('hidden_print_photo_detail_id');
 
-            printPhotoDetailSelect.innerHTML = '<option value="" disabled selected>Pilih Cetak Foto...</option>';
-            var dateSelect = document.getElementById('date');
-            var scheduleContainer = document.getElementById('schedule-container');
+            resetSelectAndDisable('print_photo_detail', 'Pilih Cetak Foto...');
+            printPhotoDetailSelect.innerHTML = '<option value="0">Tidak Cetak Foto</option>';
 
-            var noPrintPhotoOption = document.createElement('option');
-            noPrintPhotoOption.value = "no_print_photo";
-            noPrintPhotoOption.text = "Tidak Cetak Foto";
-            printPhotoDetailSelect.appendChild(noPrintPhotoOption);
-            // Reset date input and schedule container
-            dateSelect.value = '';
-            dateSelect.setAttribute('disabled', true);
-            scheduleContainer.innerHTML = '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
+            resetSelectAndDisable('date', '');
+            document.getElementById('schedule-container').innerHTML =
+                '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
 
             if (packageDetailId) {
                 printPhotoDetailSelect.removeAttribute('disabled');
                 selectedPackageDetailId = packageDetailId;
                 var packageId = document.getElementById('package').value;
-                @foreach ($packages as $package)
-                    if ({{ $package->id }} == packageId) {
-                        @foreach ($package->printPhotoDetails as $printPhotoDetail)
+                fetch(`/api/print-photo-details/${packageId}`)
+                    .then(response => response.json())
+                    .then(printPhotoDetails => {
+                        printPhotoDetails.forEach(printPhotoDetail => {
                             var option = document.createElement('option');
-                            option.value = "{{ $printPhotoDetail->id }}";
-                            option.setAttribute('data-size',
-                                "{{ $printPhotoDetail->printServiceEvent->printPhoto->size }}");
-                            option.setAttribute('data-price', "{{ $printPhotoDetail->printServiceEvent->price }}");
+                            option.value = printPhotoDetail.id;
+                            option.setAttribute('data-size', printPhotoDetail.print_service_event.print_photo
+                                .size);
+                            option.setAttribute('data-price', printPhotoDetail.print_service_event.price);
                             option.text =
-                                "Size {{ $printPhotoDetail->printServiceEvent->printPhoto->size }} - Rp {{ number_format($printPhotoDetail->printServiceEvent->price, 0, ',', '.') }}";
+                                `Size ${printPhotoDetail.print_service_event.print_photo.size} - Rp ${formatCurrency(printPhotoDetail.print_service_event.price)}`;
                             printPhotoDetailSelect.appendChild(option);
-                        @endforeach
-                    }
-                @endforeach
-                updatePaymentMethodBadge();
+                        });
+
+                        updatePaymentMethodBadge();
+                    })
+                    .catch(error => console.error('Error:', error));
             } else {
                 printPhotoDetailSelect.setAttribute('disabled', true);
             }
             printPhotoDetailSelect.addEventListener('change', function() {
-                if (printPhotoDetailSelect.value === 'no_print_photo') {
-                    hiddenPrintPhotoDetailInput.value = null;
-                } else {
-                    hiddenPrintPhotoDetailInput.value = printPhotoDetailSelect.value;
-                }
+                hiddenPrintPhotoDetailInput.value = printPhotoDetailSelect.value === '0' ? '' :
+                    printPhotoDetailSelect.value;
             });
         }
 
         function updatePaymentMethodBadge() {
             var badgeContainer = document.getElementById('badge-container');
-            if (selectedPackageDetailId) {
-                var packageDetail = packageDetails.find(function(detail) {
-                    return detail.id == selectedPackageDetailId;
-                });
-                if (packageDetail) {
-                    var timeStatus = packageDetail.time_status;
-                    var packageId = packageDetail.service_package_id;
-                    var selectedPackage = packages.find(function(pkg) {
-                        return pkg.id == packageId;
-                    });
-                    if (!selectedPackage) {
-                        console.error('Package not found for packageDetailId:', selectedPackageDetailId);
-                        return;
-                    }
-                    var dpStatus = selectedPackage.dp_status;
-                    var dpPercentage = selectedPackage.dp_percentage;
-                    var dpMin = selectedPackage.dp_min;
-                    while (badgeContainer.firstChild) {
-                        badgeContainer.removeChild(badgeContainer.firstChild);
-                    }
-                    var timeBadge = document.createElement('div');
-                    timeBadge.classList.add('badge', 'mb-1');
-                    switch (timeStatus) {
-                        case 0:
-                            timeBadge.classList.add('badge-success');
-                            timeBadge.textContent = '30 Menit';
-                            break;
-                        case 1:
-                            timeBadge.classList.add('badge-primary');
-                            timeBadge.textContent = '60 Menit';
-                            break;
-                        case 2:
-                            timeBadge.classList.add('badge-info');
-                            timeBadge.textContent = '90 Menit';
-                            break;
-                        case 3:
-                            timeBadge.classList.add('badge-warning');
-                            timeBadge.textContent = '120 Menit';
-                            break;
-                        default:
-                            timeBadge.classList.add('badge-danger');
-                            timeBadge.textContent = 'Waktu Tidak Valid';
-                    }
-                    badgeContainer.appendChild(timeBadge);
+            var packageDetail = packageDetails.find(detail => detail.id == selectedPackageDetailId);
 
-                    var paymentBadge = document.createElement('div');
-                    paymentBadge.classList.add('badge', 'mt-1');
-                    if (dpStatus == 0) {
+            if (packageDetail) {
+                var selectedPackage = packages.find(pkg => pkg.id == packageDetail.service_package_id);
+
+                if (!selectedPackage) {
+                    console.error('Package not found for packageDetailId:', selectedPackageDetailId);
+                    return;
+                }
+
+                badgeContainer.innerHTML = '';
+
+                var timeBadge = document.createElement('div');
+                timeBadge.classList.add('badge', 'mb-1');
+                var timeStatus = packageDetail.time_status;
+                switch (timeStatus) {
+                    case 0:
+                        timeBadge.classList.add('badge-success');
+                        timeBadge.textContent = '30 Menit';
+                        break;
+                    case 1:
+                        timeBadge.classList.add('badge-primary');
+                        timeBadge.textContent = '60 Menit';
+                        break;
+                    case 2:
+                        timeBadge.classList.add('badge-info');
+                        timeBadge.textContent = '90 Menit';
+                        break;
+                    case 3:
+                        timeBadge.classList.add('badge-warning');
+                        timeBadge.textContent = '120 Menit';
+                        break;
+                    default:
+                        timeBadge.classList.add('badge-danger');
+                        timeBadge.textContent = 'Waktu Tidak Valid';
+                }
+                badgeContainer.appendChild(timeBadge);
+
+                var paymentBadge = document.createElement('div');
+                paymentBadge.classList.add('badge', 'mt-1');
+                var dpStatus = selectedPackage.dp_status;
+                switch (dpStatus) {
+                    case 0:
                         paymentBadge.classList.add('badge-info');
                         paymentBadge.textContent = 'Hanya Lunas';
-                    } else if (dpStatus == 1) {
+                        break;
+                    case 1:
                         paymentBadge.classList.add('badge-success');
-                        paymentBadge.textContent = 'DP Minimal ' + (dpPercentage * 100) + '%';
-                    } else if (dpStatus == 2) {
+                        paymentBadge.textContent = `DP Minimal ${selectedPackage.dp_percentage * 100}%`;
+                        break;
+                    case 2:
                         paymentBadge.classList.add('badge-success');
-                        var minimalPayment = Math.round(dpMin / 1000) * 1000;
+                        var minimalPayment = Math.round(selectedPackage.dp_min / 1000) * 1000;
                         var minPayment = minimalPayment.toLocaleString('id-ID', {
                             style: 'currency',
                             currency: 'IDR'
                         });
-                        paymentBadge.textContent = 'Min. Bayar ' + minPayment;
-                    } else {
+                        paymentBadge.textContent = `Min. Bayar ${minPayment}`;
+                        break;
+                    default:
                         paymentBadge.classList.add('badge-danger');
                         paymentBadge.textContent = 'Tidak Ada Metode Pembayaran';
-                    }
-                    badgeContainer.appendChild(paymentBadge);
                 }
+                badgeContainer.appendChild(paymentBadge);
             }
+        }
+
+        function resetSelectAndDisable(id, placeholder) {
+            var select = document.getElementById(id);
+            select.innerHTML = '<option value="" disabled selected>' + placeholder + '</option>';
+            select.setAttribute('disabled', true);
+        }
+
+        function enableSelect(id) {
+            document.getElementById(id).removeAttribute('disabled');
+        }
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString('id-ID');
         }
         document.addEventListener('DOMContentLoaded', function() {
             var serviceTypeSelect = document.getElementById('service_type');
@@ -475,15 +497,11 @@
             var venueIdInput = document.getElementById('venue_id');
             var openingHoursData = JSON.parse(document.getElementById('opening-hours').value);
             var uniqueDaysInput = document.getElementById('unique-days');
-
-            //update prices
             var packagePriceSpan = document.getElementById('package-price');
             var printPhotoPriceSpan = document.getElementById('print-photo-price');
             var totalPriceSpan = document.getElementById('total-price');
             packageDetailSelect.addEventListener('change', updatePrices);
             printPhotoDetailSelect.addEventListener('change', updatePrices);
-            //end update prices
-
             selectedPackageDetailId = null;
             serviceTypeSelect.disabled = true;
             serviceEventSelect.disabled = true;
@@ -491,45 +509,72 @@
             packageDetailSelect.disabled = true;
             printPhotoDetailSelect.disabled = true;
             dateSelect.disabled = true;
-            //update prices
+
             function updatePrices() {
                 var packagePrice = 0;
                 var printPhotoPrice = 0;
-
-                // Get selected package price
                 if (packageDetailSelect.value) {
                     var selectedPackageOption = packageDetailSelect.selectedOptions[0];
                     packagePrice = parseInt(selectedPackageOption.getAttribute('data-price')) || 0;
                 }
-
-                // Get selected print photo price if not "Tidak Cetak Foto"
                 if (printPhotoDetailSelect.value && printPhotoDetailSelect.value !== 'no_print_photo') {
                     var selectedPrintPhotoOption = printPhotoDetailSelect.selectedOptions[0];
                     printPhotoPrice = parseInt(selectedPrintPhotoOption.getAttribute('data-price')) || 0;
                 }
-
-                // Update displayed prices
                 packagePriceSpan.textContent = 'Rp ' + packagePrice.toLocaleString();
                 printPhotoPriceSpan.textContent = 'Rp ' + printPhotoPrice.toLocaleString();
-
-                // Calculate and display total price
                 var totalPrice = packagePrice + printPhotoPrice;
                 totalPriceSpan.textContent = 'Rp ' + totalPrice.toLocaleString();
 
                 document.getElementById('total-price-input').value = totalPrice;
             }
-            //update prices
-
-
             var dayMapping = {
-                0: 7, // Sunday -> 7 (Minggu)
-                1: 1, // Monday -> 1 (Senin)
-                2: 2, // Tuesday -> 2 (Selasa)
-                3: 3, // Wednesday -> 3 (Rabu)
-                4: 4, // Thursday -> 4 (Kamis)
-                5: 5, // Friday -> 5 (Jumat)
-                6: 6 // Saturday -> 6 (Sabtu)
+                0: 7,
+                1: 1,
+                2: 2,
+                3: 3,
+                4: 4,
+                5: 5,
+                6: 6
             };
+
+            document.getElementById('date').addEventListener('change', function() {
+                var dateParts = this.value.split('/');
+                if (dateParts.length !== 3) {
+                    console.error('Invalid date format:', this.value);
+                    return;
+                }
+
+                var selectedDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                if (isNaN(selectedDate.getTime())) {
+                    console.error('Invalid date:', this.value);
+                    return;
+                }
+
+                var selectedDateString = selectedDate.getFullYear() + '-' +
+                    String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(selectedDate.getDate()).padStart(2, '0');
+                var selectedVenueId = document.getElementById('venue-id').value;
+
+                fetch('/api/get-book-dates', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            selected_date: selectedDateString,
+                            venue_id: selectedVenueId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(bookDates => {
+                        console.log('bookDates:', bookDates);
+                        updateOpeningHours(openingHoursData, bookDates, selectedDateString);
+                    })
+                    .catch(error => console.error('Error fetching book dates:', error));
+            });
 
             function updateOpeningHours(openingHoursData) {
                 var dateParts = dateInput.value.split('/');
@@ -543,7 +588,9 @@
                     console.error('Invalid date:', dateInput.value);
                     return;
                 }
-
+                var selectedDateString = selectedDate.getFullYear() + '-' +
+                    String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(selectedDate.getDate()).padStart(2, '0');
                 var selectedDayIndex = selectedDate.getDay();
                 var selectedDayId = dayMapping[selectedDayIndex];
                 var selectedVenueId = venueIdInput.value;
@@ -552,11 +599,13 @@
                     return openingHour.venue_id == selectedVenueId &&
                         openingHour.day_id == selectedDayId;
                 });
-
+                var bookedDates = JSON.parse(document.getElementById('book-dates').value);
                 console.log("selectedDate:", selectedDate);
+                console.log("selectedDateString:", selectedDateString);
                 console.log("selectedDayIndex:", selectedDayIndex);
                 console.log("selectedDayId:", selectedDayId);
                 console.log("filteredOpeningHours:", filteredOpeningHours);
+                console.log("bookDates:", bookedDates);
 
                 scheduleContainer.innerHTML = '';
                 if (filteredOpeningHours.length === 0) {
@@ -568,7 +617,19 @@
                 }
                 filteredOpeningHours.forEach(function(openingHour) {
                     var hourText = openingHour.hour.hour;
-                    var badgeClass = openingHour.status == 2 ? 'btn-primary' : 'btn-secondary';
+                    var isBooked = bookedDates.some(function(bookedDate) {
+                        return bookedDate.opening_hour_id == openingHour.id && bookedDate.date ==
+                            selectedDateString;
+                    });
+                    var badgeClass;
+                    if (openingHour.status == 2) {
+                        badgeClass = 'btn-primary';
+                        if (isBooked) {
+                            badgeClass = 'btn-danger';
+                        }
+                    } else {
+                        badgeClass = isBooked ? 'btn-danger' : 'btn-secondary';
+                    }
 
                     var labelElement = document.createElement('label');
                     labelElement.classList.add('btn', badgeClass, 'm-1', 'schedule-btn');
@@ -584,7 +645,7 @@
                     inputElement.value = openingHour.id;
                     inputElement.style.display = 'none';
 
-                    if (openingHour.status == 1) {
+                    if (openingHour.status == 1 || isBooked) {
                         labelElement.classList.add('btn-secondary-disabled');
                         labelElement.style.pointerEvents = 'none';
                         labelElement.style.opacity = '0.65';

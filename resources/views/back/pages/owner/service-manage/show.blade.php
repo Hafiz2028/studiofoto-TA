@@ -210,7 +210,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($packages->count() > 0)
+                                @if ($packages->count() > 0) 
                                     @foreach ($packages as $index => $package)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>

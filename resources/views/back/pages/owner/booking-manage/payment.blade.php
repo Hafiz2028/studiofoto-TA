@@ -34,13 +34,18 @@
                 <div class="card-body">
                     <table class="table table-bordered">
                         <tr>
-                            <th style="width: 170px;">Tanggal Booking</th>
+                            <th style="width: 170px;">Nama Penyewa</th>
+                            <td>{{ $rent->name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tanggal Booking</th>
                             <td>{{ $rent->date }}</td>
                         </tr>
                         <tr>
-                            <th>Nama Penyewa</th>
-                            <td>{{ $rent->name }}</td>
+                            <th>Jadwal</th>
+                            <td>{{ $rent->formatted_schedule }}</td>
                         </tr>
+
                         <tr>
                             <th>Venue</th>
                             <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}</td>
@@ -58,6 +63,17 @@
                                     @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
                                         + ({{ $addOnPackageDetail->sum }} {{ $addOnPackageDetail->addOnPackage->name }})
                                     @endforeach
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Cetak Foto</th>
+                            <td>
+                                @if ($rent->print_photo_detail_id > 0)
+                                    Size {{ $rent->printPhotoDetail->printServiceEvent->printPhoto->size }} - Harga Rp
+                                    {{ number_format($rent->printPhotoDetail->printServiceEvent->price) }}
+                                @else
+                                    <div class="badge badge-warning">Tidak Cetak Foto</div>
                                 @endif
                             </td>
                         </tr>
@@ -89,10 +105,7 @@
                                 @endif
                             </td>
                         </tr>
-                        <tr>
-                            <th>Jadwal</th>
-                            <td>{{ $rent->formatted_schedule }}</td>
-                        </tr>
+
                         @if ($rent->print_photo_detail_id != null)
                             <tr>
                                 <th>Cetak Foto</th>
@@ -101,21 +114,6 @@
                                 </td>
                             </tr>
                         @endif
-                        <tr>
-                            <th class="ml-4">Metode Pembayaran</th>
-                            <td>
-                                <div class="badge badge-info mr-2"><i class="fas fa-money"></i> Lunas</div>
-                                @if ($rent->servicePackageDetail->servicePackage->dp_status == 1)
-                                    & <div class="badge badge-success ml-2"><i class="fas fa-money"></i> DP
-                                        {{ $rent->servicePackageDetail->servicePackage->dp_percentage * 100 }}%</div>
-                                @elseif ($rent->servicePackageDetail->servicePackage->dp_status == 2)
-                                    & <div class="badge badge-success ml-2"><i class="fas fa-money"></i> Min. Bayar
-                                        Rp
-                                        {{ number_format($rent->servicePackageDetail->servicePackage->dp_min, 0, ',', '.') }}
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
                         <tr>
                             <th>Total Harga</th>
                             <td>Rp {{ number_format($rent->total_price, 0, ',', '.') }}</td>
@@ -133,45 +131,72 @@
                     <form action="{{ route('owner.booking.payment', $rent->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
-                        @method('PATCH')
                         <x-alert.form-alert />
 
                         <div class="container">
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
-                                        <label for="payment_status">Jenis Pembayaran</label><br>
-                                        @foreach ($venues as $venue)
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="venue" value="{{ $venue->id }}" required>
-                                                <label class="form-check-label" for="venue_{{ $venue->id }}">
-                                                    {{ $venue->name }}
-                                                </label>
+                                        <label for="dp_price"><strong>Jenis Pembayaran</strong></label>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="full_option" name="dp_price"
+                                                class="custom-control-input" value="full_payment" checked>
+                                            <label class="custom-control-label" for="full_option">Lunas</label>
+                                        </div>
+                                        @if ($rent->servicePackageDetail->servicePackage->dp_status == 1)
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="dp_option" name="dp_price"
+                                                    class="custom-control-input" value="dp">
+                                                <label class="custom-control-label" for="dp_option">DP</label>
+                                                <div id="dp_input_group"
+                                                    style="display: none; display: flex; align-items: center; margin-top: 10px;">
+                                                    <div class="input-group" style="align-items: center;">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" style="height: 38px;">Rp</span>
+                                                        </div>
+                                                        <input type="number" id="dp_input" name="dp_input"
+                                                            class="form-control"
+                                                            placeholder="Minimal Rp {{ number_format($rent->servicePackageDetail->servicePackage->dp_percentage * $rent->total_price, 0, ',', '.') }}"
+                                                            style="height: 38px; margin-right: 10px;">
+                                                        <div class="badge badge-success"
+                                                            style="height: 38px; display: flex; align-items: center;">
+                                                            <i class="fas fa-money mr-1"></i> DP Minimal Rp
+                                                            {{ number_format($rent->servicePackageDetail->servicePackage->dp_percentage * $rent->total_price, 0, ',', '.') }}
+                                                        </div>
+                                                    </div>
+                                                    @error('dp_input')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
                                             </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="form-group">
-                                        <label for="name">Metode Pembayaran</label>
-                                        select option
-                                        <input type="select" class="form-control @error('name') is-invalid @enderror"
-                                            id="name" name="name" placeholder="Contoh: Wisuda 1, Diamond 1"
-                                            value="" required>
-                                        @error('name')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="form-group">
-                                        <label for="information">Input Bukti Pembayaran</label>
-                                        <input type="file" class="form-control @error('name') is-invalid @enderror"
-                                            id="name" name="name" placeholder="Contoh: Wisuda 1, Diamond 1"
-                                            value="" required>
-                                        @error('information')
-                                            <span class="text-danger ml-2">{{ $message }}</span>
-                                        @enderror
+                                        @elseif ($rent->servicePackageDetail->servicePackage->dp_status == 2)
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="min_payment_option" name="dp_price"
+                                                    class="custom-control-input" value="min_payment">
+                                                <label class="custom-control-label" for="min_payment_option">Minimal
+                                                    Pembayaran</label>
+                                                <div id="min_payment_input_group"
+                                                    style="display: none; display: flex; align-items: center; margin-top: 10px;">
+                                                    <div class="input-group" style="align-items: center;">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" style="height: 38px;">Rp</span>
+                                                        </div>
+                                                        <input type="number" id="min_payment_input"
+                                                            name="min_payment_input" class="form-control"
+                                                            placeholder="Minimal Rp {{ number_format($rent->servicePackageDetail->servicePackage->dp_min, 0, ',', '.') }}"
+                                                            style="height: 38px; margin-right: 10px;">
+                                                        <div class="badge badge-success"
+                                                            style="height: 38px; display: flex; align-items: center;">
+                                                            <i class="fas fa-money mr-1"></i> Min. Bayar Rp
+                                                            {{ number_format($rent->servicePackageDetail->servicePackage->dp_min, 0, ',', '.') }}
+                                                        </div>
+                                                    </div>
+                                                    @error('min_payment_input')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="col-lg-12 mt-2">
@@ -182,8 +207,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </form>
                 </div>
             </div>
@@ -193,3 +216,67 @@
 
 
 @endsection
+@push('styles')
+@endpush
+@push('scripts')
+    {{-- jenis pembayaran  --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dpOption = document.getElementById('dp_option');
+            const minPaymentOption = document.getElementById('min_payment_option');
+            const dpInputGroup = document.getElementById('dp_input_group');
+            const minPaymentInputGroup = document.getElementById('min_payment_input_group');
+            const fullOption = document.getElementById('full_option');
+
+            function togglePaymentInputs() {
+                if (dpOption && dpOption.checked) {
+                    dpInputGroup.style.display = 'flex';
+                    if (minPaymentInputGroup) minPaymentInputGroup.style.display = 'none';
+                } else if (minPaymentOption && minPaymentOption.checked) {
+                    if (dpInputGroup) dpInputGroup.style.display = 'none';
+                    minPaymentInputGroup.style.display = 'flex';
+                } else {
+                    if (dpInputGroup) dpInputGroup.style.display = 'none';
+                    if (minPaymentInputGroup) minPaymentInputGroup.style.display = 'none';
+                }
+            }
+
+            if (dpOption) {
+                dpOption.addEventListener('change', togglePaymentInputs);
+            }
+            if (minPaymentOption) {
+                minPaymentOption.addEventListener('change', togglePaymentInputs);
+            }
+            if (fullOption) {
+                fullOption.addEventListener('change', function() {
+                    if (dpInputGroup) dpInputGroup.style.display = 'none';
+                    if (minPaymentInputGroup) minPaymentInputGroup.style.display = 'none';
+                });
+            }
+
+            togglePaymentInputs();
+        });
+    </script>
+@endpush
+@push('scripts')
+    {{-- fungsi salin norek --}}
+    <script>
+        function copyToClipboard(text, paymentMethodName) {
+            var dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            Swal.fire({
+                icon: 'success',
+                title: 'Nomor ' + paymentMethodName + ' telah disalin:',
+                text: text
+            });
+        }
+
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+@endpush

@@ -16,6 +16,8 @@ class Rent extends Model
         'service_package_detail_id',
         'date',
         'payment_status',
+        'rent_status',
+        'book_type',
         'dp_price',
         'total_price',
         'print_photo_detail_id',

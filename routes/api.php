@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ServiceController;
 
 /*
@@ -15,8 +16,11 @@ use App\Http\Controllers\ServiceController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-// Route::delete('/owner/venue/{venue}/services/{service}/edit/destroy-image/{id}', [ServiceController::class, 'destroyImage'])->name('destroy.image');
+Route::get('/venues/{ownerId}', [BookingController::class, 'getVenues']);
+Route::get('/services/{venueId}', [BookingController::class, 'getServices']);
+Route::get('/services/{venueId}/{serviceTypeId}', [BookingController::class, 'getServicesByTypeAndVenue']);
+Route::get('/packages/{serviceEventId}', [BookingController::class, 'getPackages']);
+Route::get('/package-details/{packageId}', [BookingController::class, 'getPackageDetails']);
+Route::get('/print-photo-details/{packageId}', [BookingController::class, 'getPrintPhotoDetails']);
+Route::post('/get-book-dates', [BookingController::class, 'getBookDates'])->name('getBookDates');

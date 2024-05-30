@@ -12,13 +12,16 @@ use App\Models\RentPayment;
 use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
 use App\models\ServicePackage;
+use App\Models\PrintPhotoDetail;
+use Illuminate\Support\Facades\DB;
+use App\Models\PaymentMethodDetail;
 use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;
 use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $ownerId = Auth::guard('owner')->id();
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
@@ -54,9 +57,21 @@ class BookingController extends Controller
                     $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $lastOpeningHour->hour;
                 }
             } else {
-                $rent->formatted_schedule = 'Invalid time format';
+                $rent->formatted_schedule = null;
             }
         }
+        $bookDates = RentDetail::with('rent')
+            ->whereHas('rent.servicePackageDetail.servicePackage.serviceEvent', function ($query) use ($venueIds) {
+                $query->whereIn('venue_id', $venueIds);
+            })
+            ->get()
+            ->map(function ($rentDetail) {
+                return [
+                    'opening_hour_id' => $rentDetail->opening_hour_id,
+                    'date' => $rentDetail->rent->date,
+                ];
+            })
+            ->toArray();
         $data = [
             'pageTitle' => 'Booking',
             'venues' => $venues,
@@ -67,12 +82,139 @@ class BookingController extends Controller
             'packages' => $packages,
             'packageDetails' => $packageDetails,
             'rents' => $rents,
+            'bookDates' => $bookDates,
         ];
         return view('back.pages.owner.booking-manage.index', $data);
+    }
+    public function update(Request $request, string $id)
+    {
+        $data = $request->validate([
+            'service_package_detail_id' => 'required|exists:service_package_details,id',
+            'opening_hour_id' => 'required|exists:opening_hours,id',
+        ]);
+
+        $rent = Rent::findOrFail($id);
+        $rent->update($data);
+
+        return redirect()->route('owner.booking.index')->with('success', 'Rent berhasil diperbarui.');
+    }
+
+    public function edit(string $id)
+    {
+        // $ownerId = Auth::guard('owner')->id();
+        // $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
+        // if ($venues->isEmpty()) {
+        //     return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');
+        // }
+        // $venueIds = $venues->pluck('id')->toArray();
+        // $openingHours = OpeningHour::with('day', 'hour')->whereIn('venue_id', $venueIds)->get();
+        // $uniqueDayIds = collect($openingHours)->unique('day_id')->pluck('day_id')->toArray();
+        // $services = ServiceEvent::with('serviceType')->whereIn('venue_id', $venueIds)->get();
+        // $serviceEventIds = $services->pluck('id')->toArray();
+        // $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
+        // $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
+
+        // $rent = Rent::with(['rentDetails.openingHour.hour'])->findOrFail($id);
+        // Log::info('Rent Details:', $rent->rentDetails);
+        // $data = [
+        //     'venues' => $venues,
+        //     'uniqueDayIds' => $uniqueDayIds,
+        //     'openingHours' => $openingHours,
+        //     'services' => $services,
+        //     'packages' => $packages,
+        //     'packageDetails' => $packageDetails,
+        //     'rent' => $rent,
+        // ];
+
+        // return view('back.pages.owner.booking-manage.edit', $data);
+    }
+
+    public function getVenues($ownerId)
+    {
+        $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
+        return response()->json($venues);
+    }
+
+    public function getServices($venueId)
+    {
+        $services = ServiceEvent::with('serviceType')->where('venue_id', $venueId)->get();
+        return response()->json($services);
+    }
+    public function getServicesByTypeAndVenue($venueId, $serviceTypeId)
+    {
+        $services = ServiceEvent::with('serviceType')
+            ->where('venue_id', $venueId)
+            ->where('service_type_id', $serviceTypeId)
+            ->get();
+        return response()->json($services);
+    }
+    public function getPackages($serviceEventId)
+    {
+        $packages = ServicePackage::with(['addOnPackageDetails.addOnPackage'])
+            ->where('service_event_id', $serviceEventId)
+            ->get();
+        $packages->each(function ($package) {
+            if ($package->addOnPackageDetails) {
+                $package->load('addOnPackageDetails.addOnPackage');
+            }
+        });
+
+        return response()->json($packages);
+    }
+
+    public function getPackageDetails($packageId)
+    {
+        $packageDetails = ServicePackageDetail::where('service_package_id', $packageId)->get();
+        return response()->json($packageDetails);
+    }
+
+    public function getPrintPhotoDetails($packageId)
+    {
+        $printPhotoDetails = PrintPhotoDetail::with('printServiceEvent.printPhoto')->where('service_package_id', $packageId)->get();
+        return response()->json($printPhotoDetails);
+    }
+    public function getBookDates(Request $request)
+    {
+        $venueId = $request->input('venue_id');
+        $selectedDate = $request->input('selected_date');
+
+        $venue = Venue::find($venueId);
+        if (!$venue) {
+            return response()->json(['error' => 'Venue not found'], 404);
+        }
+
+        $openingHours = OpeningHour::where('venue_id', $venueId)->pluck('id');
+
+        $bookDates = RentDetail::whereIn('opening_hour_id', $openingHours)
+            ->whereHas('rent', function ($query) use ($selectedDate) {
+                $query->where('date', $selectedDate);
+            })
+            ->get()
+            ->map(function ($rentDetail) {
+                return [
+                    'opening_hour_id' => $rentDetail->opening_hour_id,
+                    'date' => $rentDetail->rent->date,
+                ];
+            })
+            ->toArray();
+
+        return response()->json($bookDates);
+    }
+
+
+    private function checkDuplicateOpeningHours(array $openingHours): bool
+    {
+        $query = DB::table('rent_details')
+            ->select(DB::raw('COUNT(*) as total'))
+            ->whereIn('opening_hour_id', $openingHours)
+            ->groupBy('opening_hour_id')
+            ->havingRaw('total > 1');
+        return $query->exists();
     }
     public function store(Request $request)
     {
         Log::info('Masuk ke fungsi store');
+        // dd($request->all());
         try {
             $validatedData = $request->validate([
                 'name_tenant' => 'required|string|max:255',
@@ -100,6 +242,10 @@ class BookingController extends Controller
 
             Log::info('Validasi berhasil', ['validatedData' => $validatedData]);
             $date = Carbon::createFromFormat('d/m/Y', $validatedData['date'])->format('Y-m-d');
+            $openingHours = $validatedData['opening_hours'];
+            if ($this->checkDuplicateOpeningHours($openingHours)) {
+                return back()->withErrors(['opening_hours' => 'Jadwal ini sudah dibooking'])->withInput();
+            }
             if (Auth::guard('owner')) {
                 $venueName = Venue::find($validatedData['venue'])->name;
                 $faktur = $this->generateFaktur($venueName);
@@ -107,7 +253,7 @@ class BookingController extends Controller
                 $rent->name = $validatedData['name_tenant'];
                 $rent->faktur = $faktur;
                 $rent->book_type = 0;
-                $rent->rent_status = 1;
+                $rent->rent_status = 5;
                 $rent->service_package_detail_id = $validatedData['package_detail'];
                 $rent->print_photo_detail_id = $validatedData['print_photo_detail_id'];
                 $rent->date = $date;
@@ -136,6 +282,8 @@ class BookingController extends Controller
     public function showPayment(Request $request, $booking)
     {
         $rent = Rent::findOrFail($booking);
+        $venueId = $rent->servicePackageDetail->servicePackage->serviceEvent->venue->id;
+        $paymentMethodDetails = PaymentMethodDetail::where('venue_id', $venueId)->with('paymentMethod')->get();
         $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
         if ($openingHourIds->isNotEmpty()) {
             $firstOpeningHourId = $openingHourIds->first();
@@ -151,13 +299,65 @@ class BookingController extends Controller
         } else {
             $rent->formatted_schedule = 'Invalid time format';
         }
-        return view('back.pages.owner.booking-manage.payment', compact('rent'));
+        return view('back.pages.owner.booking-manage.payment', compact('rent', 'paymentMethodDetails'));
     }
     public function rentPayment(Request $request, string $id)
     {
-    }
-    public function show(string $id)
-    {
+        Log::info('Masuk ke fungsi store');
+        try {
+            if (Auth::guard('owner')->check()) {
+                $rent = Rent::findOrFail($id);
+                $dpMinValue = $rent->servicePackageDetail->servicePackage->dp_percentage * $rent->total_price;
+                $minPaymentValue = $rent->servicePackageDetail->servicePackage->dp_min;
+                $totalPrice = $rent->total_price;
+                $request->validate([
+                    'dp_price' => 'required|string|in:full_payment,dp,min_payment',
+                    'dp_input' => ['nullable', 'integer', 'min:0', 'required_if:dp_price,dp', function ($attribute, $value, $fail) use ($dpMinValue, $totalPrice) {
+                        if ($value < $dpMinValue) {
+                            $fail("DP harus lebih dari Rp " . number_format($dpMinValue, 0, ',', '.'));
+                        }
+                        if ($value >= $totalPrice) {
+                            $fail("DP harus lebih kecil dari total Harga Rp " . number_format($totalPrice, 0, ',', '.'));
+                        }
+                    }],
+                    'min_payment_input' => [
+                        'nullable', 'integer', 'min:0', 'required_if:dp_price,min_payment',
+                        function ($attribute, $value, $fail) use ($minPaymentValue, $totalPrice) {
+                            if ($value < $minPaymentValue) {
+                                $fail("Minimal Pembayaran harus lebih dari Rp " . number_format($minPaymentValue, 0, ',', '.'));
+                            }
+                            if ($value >= $totalPrice) {
+                                $fail("Minimal Pembayaran harus lebih kecil dari total Harga Rp " . number_format($totalPrice, 0, ',', '.'));
+                            }
+                        }
+                    ],
+                ]);
+
+                $paymentStatus = 0;
+                $dpPrice = 0;
+                if ($request->dp_price === 'full_payment') {
+                    $paymentStatus = 0;
+                    $dpPrice = $rent->total_price;
+                } elseif ($request->dp_price === 'dp') {
+                    $paymentStatus = 1;
+                    $dpPrice = $request->dp_input;
+                } elseif ($request->dp_price === 'min_payment') {
+                    $paymentStatus = 2;
+                    $dpPrice = $request->min_payment_input;
+                }
+                $rent->update([
+                    'payment_status' => $paymentStatus,
+                    'dp_price' => $dpPrice,
+                    'rent_status' => 1,
+                ]);
+                return redirect()->route('owner.booking.index')->with('success', 'Sudah Melakukan Pembayaran');
+            } else {
+                return redirect()->back()->with('fail', 'Akses tidak diizinkan.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Gagal melakukan pembayaran', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('fail', 'Gagal Melakukan Pembayaran : ' . $e->getMessage());
+        }
     }
     private function generateFaktur($venueName)
     {
@@ -166,17 +366,12 @@ class BookingController extends Controller
         $randomNumber = rand(100, 999);
         return "{$initials}{$timestamp}{$randomNumber}";
     }
-
-
-
-
-    public function edit(string $id)
+    public function show(string $id)
     {
     }
 
-    public function update(Request $request, string $id)
-    {
-    }
+
+
 
     public function destroy(string $id)
     {

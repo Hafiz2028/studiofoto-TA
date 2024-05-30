@@ -19,14 +19,15 @@
                         <div class="col-lg-4 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>1. Nama Penyewa</label>
-                                <input type="text" class="form-control" name="name_tenant" value="{{ old('name_tenant') }}"
-                                    placeholder="Booking jadwal atas nama..." required>
+                                <input type="text" class="form-control" name="name_tenant"
+                                    value="{{ old('name_tenant') }}" placeholder="Booking jadwal atas nama..." required>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label for="venue_id">2. Nama Venue</label>
-                                <select class="form-control" id="venue_id" name="venue" onchange="populateServiceTypes()" required>
+                                <select class="form-control" id="venue_id" name="venue"
+                                    onchange="populateServiceTypes()" required>
                                     <option value="" disabled selected>Pilih Venue...</option>
                                     @foreach ($venues as $venue)
                                         <option value="{{ $venue->id }}">{{ $venue->name }}</option>
@@ -37,8 +38,8 @@
                         <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>3. Tipe Layanan</label>
-                                <select class="form-control" id="service_type" name="service_type" onchange="populateServiceEvents()"
-                                    required>
+                                <select class="form-control" id="service_type" name="service_type"
+                                    onchange="populateServiceEvents()" required>
                                     <option value="" disabled selected>Pilih Tipe Layanan...</option>
                                 </select>
                             </div>
@@ -46,8 +47,8 @@
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>4. Nama Layanan</label>
-                                <select class="form-control" id="service_event" name="service" onchange="populateServicePackages()"
-                                    required>
+                                <select class="form-control" id="service_event" name="service"
+                                    onchange="populateServicePackages()" required>
                                     <option value="" disabled selected>Pilih Layanan...</option>
                                 </select>
                             </div>
@@ -57,8 +58,8 @@
                         <div class="col-lg-4 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label>5. Nama Paket</label>
-                                <select class="form-control" id="package" name="package" onchange="populatePackageDetails()"
-                                    required>
+                                <select class="form-control" id="package" name="package"
+                                    onchange="populatePackageDetails()" required>
                                     <option value="" disabled selected>Pilih Paket Foto...</option>
                                 </select>
                             </div>
@@ -67,8 +68,8 @@
                             <input type="hidden" id="hidden_print_photo_detail_id" name="print_photo_detail_id">
                             <div class="form-group">
                                 <label>6. Jumlah Orang & Harga</label>
-                                <select class="form-control" id="package_detail" name="package_detail" onchange="enablePrintPhotoDetails()"
-                                    required>
+                                <select class="form-control" id="package_detail" name="package_detail"
+                                    onchange="enablePrintPhotoDetails()" required>
                                     <option value="" disabled selected>Pilih Jumlah Orang...</option>
                                 </select>
                             </div>
@@ -82,16 +83,19 @@
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <label>7. Print Foto & Harga</label>
-                            <select class="form-control" id="print_photo_detail" name="print_photo_detail" required disabled>
+                            <select class="form-control" id="print_photo_detail" name="print_photo_detail" required
+                                disabled>
                                 <option value="" disabled selected>Pilih Cetak Foto...</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>8. Tanggal Booking</label>
-                                <input type="text" class="form-control" id="date" name="date" required disabled>
+                                <input type="text" class="form-control" id="date" name="date" required
+                                    disabled>
                                 <input type="hidden" id="opening-hours" value="{{ json_encode($openingHours) }}">
                                 <input type="hidden" id="unique-days" value="{{ json_encode($uniqueDayIds) }}">
+                                <input type="hidden" id="book-dates" value="{{ json_encode($bookDates) }}">
                             </div>
                         </div>
                         <div class="col-lg-10 col-md-12">

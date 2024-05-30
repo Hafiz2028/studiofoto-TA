@@ -183,12 +183,12 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="profile-photo">
-                                        @if ($venue->owner->picture && file_exists(public_path("/images/users/owners/$venue->owner->picture")))
-                                            <img src="{{ asset("/images/users/owners/$venue->owner->picture") }}"
-                                                alt="" class="avatar-photo" id="adminProfilePicture">
+                                        @if ($venue->owner->picture)
+                                            <img src="{{ $venue->owner->picture }}" alt="" class="avatar-photo"
+                                                id="ownerProfilePicture">
                                         @else
                                             <img src="{{ asset('/images/users/default-avatar.png') }}" alt=""
-                                                class="avatar-photo" id="adminProfilePicture">
+                                                class="avatar-photo" id="ownerProfilePicture">
                                         @endif
                                     </div>
                                     <h6 class="mb-2">
@@ -360,9 +360,28 @@
                                 </div>
                             @endif
                             <h5 class="mb-3 mt-3">Foto KTP</h5>
-                            <p class="mt-3">Ada / Tidak Ada</p>
-                            <img src="/images/users/owners/KTP_owner/ktp.png" alt="Foto KTP"
-                                style="width: 100%; max-width: 300px; height: auto;">
+                            <div class="photo-display mb-3">
+                                @if ($venue->owner->ktp != null)
+                                    <img src="{{ $venue->owner->ktp }}" alt="Foto KTP"
+                                        style="width: 100%; max-width: 300px; height: auto;">
+                                @else
+                                    <img src="/images/users/owners/KTP_owner/ktp.png" alt="Foto KTP"
+                                        style="width: 100%; max-width: 300px; height: auto;">
+                                @endif
+                            </div>
+
+                            @if ($venue->owner->ktp != null)
+                                <div class="alert alert-success" role="alert"
+                                    style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">
+                                    <span class="text-nowrap">Ada</span>
+                                </div>
+                            @else
+                                <div class="alert alert-danger" role="alert"
+                                    style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">
+                                    <span class="text-nowrap">Tidak Ada</span>
+                                </div>
+                            @endif
+
                         </div>
                     </div>
                 </div>

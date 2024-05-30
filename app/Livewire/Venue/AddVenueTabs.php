@@ -107,7 +107,6 @@ class AddVenueTabs extends Component
                 if ($village) {
                     $this->selectedDistrictId = $village->district->id;
                 }
-
             } else {
                 $this->venue = new Venue();
                 $this->initializeSchedules();
@@ -201,14 +200,11 @@ class AddVenueTabs extends Component
             $this->selectedOpeningDay[$dayId] = true;
         }
 
-        // Tambahkan logika untuk mengatur nilai jadwal jam menjadi false jika tombol hari dimatikan
         if (!$this->selectedOpeningDay[$dayId]) {
-            // Mengatur semua jam pada hari ini menjadi false
             foreach ($this->hours as $hour) {
                 $this->opening_hours[$dayId][$hour->id] = false;
             }
         } else {
-            // Jika tombol hari dinyalakan, biarkan jadwal jam seperti yang dipilih sebelumnya
         }
 
         $this->validateOpeningHours();
@@ -528,7 +524,6 @@ class AddVenueTabs extends Component
     public function saveOpeningHours($venue)
     {
         try {
-            $venue->openingHours()->delete();
             $daysWithSelectedHours = [];
             foreach ($this->opening_hours as $dayId => $hours) {
                 if (in_array(true, $hours)) {
@@ -538,20 +533,39 @@ class AddVenueTabs extends Component
 
             foreach ($daysWithSelectedHours as $dayId) {
                 foreach ($this->opening_hours[$dayId] as $hourId => $isChecked) {
-                    if ($isChecked) {
-                        $status = 2;
+                    $status = $isChecked ? 2 : 1;
+
+                    // Check if the opening hour already exists
+                    $existingOpeningHour = OpeningHour::where('venue_id', $venue->id)
+                        ->where('day_id', $dayId)
+                        ->where('hour_id', $hourId)
+                        ->first();
+
+                    if ($existingOpeningHour) {
+                        // If it exists, update the status
+                        $existingOpeningHour->status = $status;
+                        $existingOpeningHour->save();
                     } else {
-                        $status = 1;
+                        // If it doesn't exist, create a new entry
+                        $openingHour = new OpeningHour();
+                        $openingHour->status = $status;
+                        $openingHour->venue_id = $venue->id;
+                        $openingHour->day_id = $dayId;
+                        $openingHour->hour_id = $hourId;
+                        $openingHour->save();
                     }
-                    $openingHour = new OpeningHour();
-                    $openingHour->status = $status;
-                    $openingHour->venue_id = $venue->id;
-                    $openingHour->day_id = $dayId;
-                    $openingHour->hour_id = $hourId;
-                    $openingHour->save();
                 }
             }
-            // dd('Opening hours saved successfully.');
+            OpeningHour::where('venue_id', $venue->id)
+                ->whereNotIn('day_id', array_keys($this->opening_hours))
+                ->delete();
+            foreach ($this->opening_hours as $dayId => $hours) {
+                if (!in_array(true, $hours)) {
+                    OpeningHour::where('venue_id', $venue->id)
+                        ->where('day_id', $dayId)
+                        ->delete();
+                }
+            }
         } catch (\Exception $e) {
             $this->addError('save_opening_hours', 'Gagal menyimpan jadwal buka: ' . $e->getMessage());
             dd('Failed to save opening hours: ' . $e->getMessage());
@@ -721,6 +735,7 @@ class AddVenueTabs extends Component
             foreach ($this->deletedVenueImageIndices as $imageId) {
                 $this->deleteVenueImage($imageId);
             }
+            $this->saveOpeningHours($venue);
             $this->saveVenueData($venue);
             DB::commit();
             session()->flash('success', 'Data venue berhasil diperbarui bree.');

@@ -48,8 +48,8 @@ Route::prefix('owner')->name('owner.')->group(function () {
 
         Route::resource('booking', BookingController::class);
         Route::get('/booking/{booking}/show-payment', [BookingController::class, 'showPayment'])->name('booking.show-payment');
-        Route::patch('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
-
+        Route::post('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
+ 
 
     });
 });

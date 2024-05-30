@@ -13,7 +13,7 @@ class AddOnPackage extends Model
         'name'
     ];
 
-    public function AddOnPackageDetail(){
+    public function AddOnPackageDetails(){
         return $this->hasMany(AddOnPackageDetail::class, 'add_on_package_id','id');
     }
 }
