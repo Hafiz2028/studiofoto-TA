@@ -122,10 +122,14 @@
                                                         data-placement="auto" title="Detail Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="fas fa-info"></i></a>
-                                                    <a href="{{ route('owner.booking.edit', $rent->id) }}"
-                                                        class="btn btn-outline-primary" data-toggle="modal"
-                                                        data-target="#editBookingModal{{ $rent->id }}"><i
-                                                            class="fas fa-edit"></i></a>
+                                                    <a href="javascript:void(0)"
+                                                        class="btn btn-outline-primary edit-booking-btn" data-toggle="modal"
+                                                        data-rent-id="{{ $rent->id }}"
+                                                        data-time-status="{{ $rent->servicePackageDetail->time_status }}"
+                                                        data-package-detail-id="{{ $rent->service_package_detail_id }}"
+                                                        data-target="#editBookingModal{{ $rent->id }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
                                                     <a href="" class="btn btn-outline-danger exclude-alert"
                                                         data-toggle="tooltip" data-placement="auto" title="Hapus Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
@@ -140,10 +144,14 @@
                                                         data-placement="auto" title="Pembayaran"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="fas fa-money"></i></a>
-                                                    <a href="{{ route('owner.booking.edit', $rent->id) }}"
-                                                        class="btn btn-outline-primary" data-toggle="modal"
-                                                        data-target="#editBookingModal{{ $rent->id }}"><i
-                                                            class="fas fa-edit"></i></a>
+                                                    <a href="javascript:void(0)"
+                                                        class="btn btn-outline-primary edit-booking-btn" data-toggle="modal"
+                                                        data-rent-id="{{ $rent->id }}"
+                                                        data-time-status="{{ $rent->servicePackageDetail->time_status }}"
+                                                        data-package-detail-id="{{ $rent->service_package_detail_id }}"
+                                                        data-target="#editBookingModal{{ $rent->id }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
                                                     <a href="" class="btn btn-outline-danger exclude-alert"
                                                         data-toggle="tooltip" data-placement="auto" title="Hapus Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
@@ -493,13 +501,13 @@
             var dateSelect = document.getElementById('date');
             var scheduleContainer = document.getElementById('schedule-container');
             var dateInput = document.getElementById('date');
-            var scheduleContainer = document.getElementById('schedule-container');
             var venueIdInput = document.getElementById('venue_id');
             var openingHoursData = JSON.parse(document.getElementById('opening-hours').value);
             var uniqueDaysInput = document.getElementById('unique-days');
             var packagePriceSpan = document.getElementById('package-price');
             var printPhotoPriceSpan = document.getElementById('print-photo-price');
             var totalPriceSpan = document.getElementById('total-price');
+            var rentDetailsInput = document.getElementById('rent-details');
             packageDetailSelect.addEventListener('change', updatePrices);
             printPhotoDetailSelect.addEventListener('change', updatePrices);
             selectedPackageDetailId = null;
@@ -555,25 +563,6 @@
                     String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' +
                     String(selectedDate.getDate()).padStart(2, '0');
                 var selectedVenueId = document.getElementById('venue-id').value;
-
-                fetch('/api/get-book-dates', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            selected_date: selectedDateString,
-                            venue_id: selectedVenueId
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(bookDates => {
-                        console.log('bookDates:', bookDates);
-                        updateOpeningHours(openingHoursData, bookDates, selectedDateString);
-                    })
-                    .catch(error => console.error('Error fetching book dates:', error));
             });
 
             function updateOpeningHours(openingHoursData) {
@@ -660,16 +649,18 @@
             }
 
             function handleScheduleSelection(clickedLabel, clickedInput, clickedId) {
+                console.log('handleScheduleSelection called with:', {
+                    clickedLabel,
+                    clickedInput,
+                    clickedId
+                });
                 var packageDetail = packageDetails.find(function(detail) {
                     return detail.id == selectedPackageDetailId;
                 });
-
                 if (!packageDetail) {
                     return;
                 }
-
                 var timeStatus = packageDetail.time_status;
-
                 var slotsToSelect = timeStatus + 1;
                 var allLabels = Array.from(document.querySelectorAll('label.schedule-btn'));
                 var allInputs = Array.from(document.querySelectorAll('input[name="opening_hours[]"]'));
@@ -681,7 +672,6 @@
                 allInputs.forEach(function(input) {
                     input.checked = false;
                 });
-
                 if (endIndex > allLabels.length) {
                     Swal.fire({
                         icon: 'error',
@@ -690,7 +680,6 @@
                     });
                     return;
                 }
-
                 var validSelection = true;
                 for (var i = startIndex; i < endIndex; i++) {
                     if (allLabels[i].classList.contains('btn-secondary-disabled')) {
@@ -862,6 +851,303 @@
                 scheduleContainer.innerHTML =
                     '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
             });
+        });
+    </script>
+    {{-- update booking --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var editDateInput = document.getElementById('edit-date');
+            var editSelectedVenueIdInput = document.getElementById('edit-selected-venue-id');
+            console.log("Edit Selected Venue ID:", editSelectedVenueIdInput.value);
+            var editScheduleContainer = document.getElementById('edit-schedule-container');
+            var editOpeningHoursData = JSON.parse(document.getElementById('edit-opening-hours').value);
+            var editUniqueDaysInput = document.getElementById('edit-unique-days');
+            var bookDates = JSON.parse(document.getElementById('book-dates').value);
+            var dayMapping = {
+                0: 7,
+                1: 1,
+                2: 2,
+                3: 3,
+                4: 4,
+                5: 5,
+                6: 6
+            };
+
+            document.querySelectorAll('.edit-booking-btn').forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    var editSelectedRentId = event.currentTarget.getAttribute('data-rent-id');
+                    console.log("Edit Selected Rent ID:", editSelectedRentId);
+                    document.getElementById('selected_rent').value = editSelectedRentId;
+                    var timeStatus = parseInt(event.currentTarget.getAttribute('data-time-status'));
+                    var packageDetailId = event.currentTarget.getAttribute(
+                        'data-package-detail-id');
+                    var form = document.getElementById('editBookingForm' + editSelectedRentId);
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        var selectedHours = Array.from(editScheduleContainer
+                                .querySelectorAll('input[name="opening_hours[]"]:checked'))
+                            .map(input => parseInt(input.value));
+                        if (selectedHours.length === 0) {
+                            alert('Please select at least one opening hour.');
+                            return;
+                        }
+                        var selectedHoursJSON = JSON.stringify(selectedHours);
+                        document.getElementById('opening-hours-input').value =
+                            selectedHoursJSON;
+                        this.submit();
+                    });
+                    initializeDatePicker(editDateInput, editScheduleContainer, editSelectedRentId,
+                        timeStatus, packageDetailId);
+                    initializeScheduleForEdit(editDateInput, editSelectedVenueIdInput,
+                        editScheduleContainer, editSelectedRentId, timeStatus, packageDetailId);
+                });
+            });
+
+
+            function updateOpeningHoursForEdit(openingHoursData, bookDates, selectedDateString, editSelectedVenueId,
+                editSelectedRentId, editScheduleContainer, timeStatus) {
+                console.log(`Selected Date String: ${selectedDateString}`);
+                console.log(`Edit Selected Venue ID: ${editSelectedVenueId}`);
+                console.log(`Edit Selected Rent ID: ${editSelectedRentId}`);
+                console.log('test1');
+
+                var dateParts = selectedDateString.split('-');
+                console.log('test2');
+                console.log('ini dateparts', dateParts);
+                if (dateParts.length !== 3) {
+                    console.error('Invalid date format:', selectedDateString);
+                    return;
+                }
+
+                var selectedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                console.log(selectedDateString, "datpart", selectedDate, "dateparts");
+                if (isNaN(selectedDate.getTime())) {
+                    console.error('Invalid date:', selectedDateString);
+                    return;
+                }
+
+                var selectedDayIndex = selectedDate.getDay();
+                var selectedDayId = dayMapping[selectedDayIndex];
+                console.log(`Before filtering openingHoursData, length: ${openingHoursData.length}`);
+
+                var filteredOpeningHours = openingHoursData.filter(function(openingHour) {
+                    return openingHour.venue_id == editSelectedVenueId && openingHour.day_id ==
+                        selectedDayId;
+                });
+                console.log(`After filtering openingHoursData, length: ${filteredOpeningHours.length}`);
+
+                console.log(`Before filtering bookDates, length: ${bookDates.length}`);
+                bookDates.forEach(function(rentDetail) {
+                    console.log(`Rent ID: ${rentDetail.rent_id}, Date: ${rentDetail.date}`);
+                });
+
+                var filteredRentDetails = bookDates.filter(function(rentDetail) {
+                    var isValidRentId = rentDetail.rent_id == editSelectedRentId;
+                    console.log(
+                        `Checking rent_detail.rent_id (${rentDetail.rent_id}) against editSelectedRentId (${editSelectedRentId}): ${isValidRentId}`
+                    );
+                    return rentDetail.rent_id == editSelectedRentId && rentDetail.date ==
+                        selectedDateString;
+                });
+                console.log(`After filtering bookDates, length: ${filteredRentDetails.length}`);
+                console.log(`Filtered Rent Details: ${JSON.stringify(filteredRentDetails)}`);
+
+                editScheduleContainer.innerHTML = '';
+                if (filteredOpeningHours.length === 0) {
+                    var noScheduleAlert = document.createElement('div');
+                    noScheduleAlert.classList.add('alert', 'alert-danger');
+                    noScheduleAlert.textContent = 'Tidak ada jadwal venue';
+                    editScheduleContainer.appendChild(noScheduleAlert);
+                    return;
+                }
+
+                filteredOpeningHours.forEach(function(openingHour) {
+                    var hourText = openingHour.hour.hour;
+                    var isSelected = filteredRentDetails.some(function(rentDetail) {
+                        return rentDetail.opening_hour_id == openingHour.id;
+                    });
+                    var isBooked = bookDates.some(function(bookedDate) {
+                        return bookedDate.opening_hour_id == openingHour.id && bookedDate.date ==
+                            selectedDateString && bookedDate.rent_id !== editSelectedRentId && !
+                            isSelected;
+                    });
+                    var badgeClass = 'btn-primary';
+                    if (isSelected) {
+                        badgeClass = 'btn-success';
+                    } else if (isBooked) {
+                        badgeClass = 'btn-danger';
+                    } else if (openingHour.status == 1) {
+                        badgeClass = 'btn-secondary';
+                    }
+
+                    var labelElement = document.createElement('label');
+                    labelElement.classList.add('btn', badgeClass, 'm-1', 'schedule-btn');
+                    labelElement.textContent = hourText;
+                    labelElement.style.cursor = 'pointer';
+                    labelElement.style.width = '75px';
+                    labelElement.style.height = '30px';
+                    labelElement.style.lineHeight = '5px';
+
+                    var inputElement = document.createElement('input');
+                    inputElement.type = 'checkbox';
+                    inputElement.name = 'opening_hours[]';
+                    inputElement.value = openingHour.id;
+                    inputElement.style.display = 'none';
+
+                    if (openingHour.status == 1 || (isBooked && !isSelected)) {
+                        labelElement.classList.add('btn-secondary-disabled');
+                        labelElement.style.pointerEvents = 'none';
+                        labelElement.style.opacity = '0.65';
+                    } else {
+                        labelElement.addEventListener('click', function() {
+                            editHandleScheduleSelection(labelElement, inputElement, openingHour.id,
+                                timeStatus, editSelectedRentId);
+                        });
+                    }
+                    if (isSelected) {
+                        inputElement.checked = true;
+                    }
+                    editScheduleContainer.appendChild(inputElement);
+                    editScheduleContainer.appendChild(labelElement);
+                });
+            }
+
+            function editHandleScheduleSelection(clickedLabel, clickedInput, clickedId, timeStatus,
+                editSelectedRentId) {
+                console.log("Clicked Label:", clickedLabel);
+                var allLabels = Array.from(document.querySelectorAll('label.schedule-btn'));
+                var allInputs = Array.from(document.querySelectorAll('input[name="opening_hours[]"]'));
+                var slotsToSelect = timeStatus + 1;
+                var startIndex = allLabels.indexOf(clickedLabel);
+                var endIndex = startIndex + slotsToSelect;
+
+                allLabels.forEach(function(label) {
+                    label.classList.remove('btn-success');
+                    label.classList.add('btn-primary');
+                });
+                allInputs.forEach(function(input) {
+                    input.checked = false;
+                });
+
+                if (endIndex > allLabels.length) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Jadwal tidak bisa dipilih',
+                        text: 'Jadwal tidak bisa dipilih karena jadwal setelahnya tutup/telah dibooking'
+                    });
+                    return;
+                }
+                var validSelection = true;
+                var selectedIds = [];
+                for (var i = startIndex; i < endIndex; i++) {
+                    var currentLabel = allLabels[i];
+                    var currentInput = allInputs[i];
+                    var currentId = parseInt(currentInput.value);
+                    selectedIds.push(currentId);
+                    if (currentLabel.classList.contains('btn-secondary-disabled') || currentLabel.classList
+                        .contains('btn-danger')) {
+                        validSelection = false;
+                        break;
+                    }
+                }
+                if (validSelection) {
+                    console.log("Valid selection:", selectedIds);
+                    console.log("Selected Rent ID:", editSelectedRentId);
+                    var validIds = true;
+                    for (var j = 0; j < selectedIds.length - 1; j++) {
+                        if (selectedIds[j + 1] !== selectedIds[j] + 1) {
+                            validIds = false;
+                            break;
+                        }
+                    }
+                    if (validIds) {
+                        for (var k = 0; k < selectedIds.length; k++) {
+                            var selectedLabel = allLabels[allInputs.indexOf(document.querySelector('input[value="' +
+                                selectedIds[k] + '"]'))];
+                            selectedLabel.classList.add('btn-success');
+                            selectedLabel.classList.remove('btn-primary');
+                            document.querySelector('input[value="' + selectedIds[k] + '"]').checked = true;
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Jadwal tidak bisa dipilih',
+                            text: 'Jadwal yang dipilih tidak berurutan'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Jadwal tidak bisa dipilih',
+                        text: 'Jadwal tidak bisa dipilih karena jadwal setelahnya tutup/telah dibooking'
+                    });
+                }
+            }
+
+            function disableUnavailableDates(date, uniqueDays) {
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+                var selectedDayId = dayMapping[date.getDay()];
+                if (date.getTime() >= today.getTime() && uniqueDays.includes(selectedDayId)) {
+                    return [true, "", ""];
+                }
+                return [false];
+            }
+
+            function initializeDatePicker(editDateInput, editScheduleContainer, editSelectedRentId, timeStatus,
+                packageDetailId) {
+                var editOpeningHoursData = JSON.parse(document.getElementById('edit-opening-hours').value);
+                var editUniqueDaysInput = document.getElementById('edit-unique-days');
+                var bookDates = JSON.parse(document.getElementById('book-dates').value);
+                console.log("Sebelum onSelect:", editDateInput.value);
+                $(editDateInput).datepicker({
+                    dateFormat: 'dd/mm/yy',
+                    beforeShowDay: function(date) {
+                        return disableUnavailableDates(date, JSON.parse(editUniqueDaysInput.value));
+                    },
+                    onSelect: function(dateText) {
+                        var dateParts = dateText.split('/');
+                        if (dateParts.length === 3) {
+                            var selectedDateString = dateParts.reverse().join('-');
+                            updateOpeningHoursForEdit(editOpeningHoursData, bookDates,
+                                selectedDateString, editSelectedVenueIdInput.value,
+                                editSelectedRentId, editScheduleContainer, timeStatus);
+                            console.log(
+                                `Initializing update with in initializeDatePicker editSelectedRentId: ${editSelectedRentId}`
+                            );
+                        } else {
+                            console.error('Invalid date format:', dateText);
+                        }
+                    }
+                });
+                console.log("Setelah onSelect:", editDateInput.value);
+            }
+
+            function initializeScheduleForEdit(editDateInput, editSelectedVenueIdInput, editScheduleContainer,
+                editSelectedRentId, timeStatus, packageDetailId) {
+                var editOpeningHoursData = JSON.parse(document.getElementById('edit-opening-hours').value);
+                var bookDates = JSON.parse(document.getElementById('book-dates').value);
+
+                if (editDateInput.value && editSelectedVenueIdInput.value) {
+                    console.log('Both editDateInput.value and selectedVenueIdInput.value have values.');
+                    var dateParts = editDateInput.value.split('/');
+                    if (dateParts.length === 3) {
+                        var selectedDateString = dateParts.reverse().join('-');
+                        console.log('selectedDateString:', selectedDateString);
+                        updateOpeningHoursForEdit(editOpeningHoursData, bookDates, selectedDateString,
+                            editSelectedVenueIdInput.value, editSelectedRentId, editScheduleContainer,
+                            timeStatus);
+                        console.log(
+                            `Initializing update in schedule for edit with editSelectedRentId: ${editSelectedRentId}`
+                        );
+                    } else {
+                        console.error('Invalid date format:', editDateInput.value);
+                    }
+                } else {
+                    console.error(
+                        'Either editDateInput.value or editSelectedVenueIdInput.value does not have a value.');
+                }
+            }
         });
     </script>
 @endpush

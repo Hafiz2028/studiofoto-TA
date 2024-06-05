@@ -23,4 +23,4 @@ Route::get('/services/{venueId}/{serviceTypeId}', [BookingController::class, 'ge
 Route::get('/packages/{serviceEventId}', [BookingController::class, 'getPackages']);
 Route::get('/package-details/{packageId}', [BookingController::class, 'getPackageDetails']);
 Route::get('/print-photo-details/{packageId}', [BookingController::class, 'getPrintPhotoDetails']);
-Route::post('/get-book-dates', [BookingController::class, 'getBookDates'])->name('getBookDates');
+Route::get('/get-book-dates', [BookingController::class, 'getBookDates'])->name('getBookDates');

@@ -18,11 +18,13 @@ use App\Models\PaymentMethodDetail;
 use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
 {
     public function index(Request $request)
     {
+        $selectedRentId = $request->input('selectedRentId', null);
         $ownerId = Auth::guard('owner')->id();
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
         if ($venues->isEmpty()) {
@@ -64,14 +66,17 @@ class BookingController extends Controller
             ->whereHas('rent.servicePackageDetail.servicePackage.serviceEvent', function ($query) use ($venueIds) {
                 $query->whereIn('venue_id', $venueIds);
             })
+            ->where('rent_id', '!=', $selectedRentId)
             ->get()
             ->map(function ($rentDetail) {
                 return [
+                    'rent_id' => $rentDetail->rent_id,
                     'opening_hour_id' => $rentDetail->opening_hour_id,
                     'date' => $rentDetail->rent->date,
                 ];
             })
             ->toArray();
+
         $data = [
             'pageTitle' => 'Booking',
             'venues' => $venues,
@@ -88,53 +93,68 @@ class BookingController extends Controller
     }
     public function update(Request $request, string $id)
     {
-        $data = $request->validate([
-            'service_package_detail_id' => 'required|exists:service_package_details,id',
-            'opening_hour_id' => 'required|exists:opening_hours,id',
-        ]);
-
-        $rent = Rent::findOrFail($id);
-        $rent->update($data);
-
-        return redirect()->route('owner.booking.index')->with('success', 'Rent berhasil diperbarui.');
+        try {
+            $selectedRentId = $request->input('selected_rent');
+            Log::info("Selected Rent ID: {$selectedRentId}");
+            // dd($request->all());
+            $selectedRentId = $request->input('selected_rent');
+            if (!$selectedRentId) {
+                return redirect()->back()->withErrors(['selected_rent' => 'Selected rent ID is missing.'])->withInput();
+            }
+            if (!is_numeric($selectedRentId)) {
+                return redirect()->back()->withErrors(['selected_rent' => 'Selected rent ID is invalid.'])->withInput();
+            }
+            $openingHoursArray = json_decode($request->input('opening_hours')[0], true);
+            $date = $request->input('date');
+            Log::info("Received date: {$date}");
+            if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+                return redirect()->back()->withErrors(['date' => 'The date format is incorrect.'])->withInput();
+            }
+            Log::info("Before validation");
+            $validator = Validator::make(['opening_hours' => $openingHoursArray, 'date' => $date], [
+                'opening_hours' => 'required|array',
+                'opening_hours.*' => 'integer|exists:opening_hours,id',
+                'date' => 'required|date_format:d/m/Y',
+            ], [
+                'opening_hours.required' => 'Please select the opening hours.',
+                'opening_hours.*.exists' => 'One or more selected opening hours are invalid.',
+                'date.date_format' => 'The date format is incorrect.',
+            ]);
+            // dd('validasi benar');
+            if ($validator->fails()) {
+                dd('validasi salah', $validator->messages());
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+            Log::info("After validation");
+            $dateFormatted = Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+            $rent = Rent::findOrFail($id);
+            Log::info("Deleting old RentDetails for rent_id: {$id}");
+            RentDetail::where('rent_id', $id)->delete();
+            Log::info("Creating new RentDetails for rent_id: {$id}");
+            foreach ($openingHoursArray as $openingHourId) {
+                RentDetail::create([
+                    'rent_id' => $selectedRentId,
+                    'opening_hour_id' => $openingHourId,
+                ]);
+            }
+            $rent->date = $dateFormatted;
+            $rent->save();
+            Log::info("Updated date for rent_id: {$id} to {$date}");
+            return redirect()->route('owner.booking.index')->with('success', 'Jadwal booking berhasil diperbarui.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            Log::error('An error occurred while updating the booking schedule', ['exception' => $e]);
+            return redirect()->route('owner.booking.index')->with('error', 'An error occurred while updating the booking schedule. Please try again.');
+        }
     }
 
-    public function edit(string $id)
-    {
-        // $ownerId = Auth::guard('owner')->id();
-        // $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
-        // if ($venues->isEmpty()) {
-        //     return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');
-        // }
-        // $venueIds = $venues->pluck('id')->toArray();
-        // $openingHours = OpeningHour::with('day', 'hour')->whereIn('venue_id', $venueIds)->get();
-        // $uniqueDayIds = collect($openingHours)->unique('day_id')->pluck('day_id')->toArray();
-        // $services = ServiceEvent::with('serviceType')->whereIn('venue_id', $venueIds)->get();
-        // $serviceEventIds = $services->pluck('id')->toArray();
-        // $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
-        // $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
 
-        // $rent = Rent::with(['rentDetails.openingHour.hour'])->findOrFail($id);
-        // Log::info('Rent Details:', $rent->rentDetails);
-        // $data = [
-        //     'venues' => $venues,
-        //     'uniqueDayIds' => $uniqueDayIds,
-        //     'openingHours' => $openingHours,
-        //     'services' => $services,
-        //     'packages' => $packages,
-        //     'packageDetails' => $packageDetails,
-        //     'rent' => $rent,
-        // ];
-
-        // return view('back.pages.owner.booking-manage.edit', $data);
-    }
 
     public function getVenues($ownerId)
     {
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
         return response()->json($venues);
     }
-
     public function getServices($venueId)
     {
         $services = ServiceEvent::with('serviceType')->where('venue_id', $venueId)->get();
@@ -177,14 +197,11 @@ class BookingController extends Controller
     {
         $venueId = $request->input('venue_id');
         $selectedDate = $request->input('selected_date');
-
         $venue = Venue::find($venueId);
         if (!$venue) {
             return response()->json(['error' => 'Venue not found'], 404);
         }
-
         $openingHours = OpeningHour::where('venue_id', $venueId)->pluck('id');
-
         $bookDates = RentDetail::whereIn('opening_hour_id', $openingHours)
             ->whereHas('rent', function ($query) use ($selectedDate) {
                 $query->where('date', $selectedDate);
@@ -197,11 +214,8 @@ class BookingController extends Controller
                 ];
             })
             ->toArray();
-
         return response()->json($bookDates);
     }
-
-
     private function checkDuplicateOpeningHours(array $openingHours): bool
     {
         $query = DB::table('rent_details')
@@ -369,7 +383,9 @@ class BookingController extends Controller
     public function show(string $id)
     {
     }
-
+    public function edit(string $id)
+    {
+    }
 
 
 
