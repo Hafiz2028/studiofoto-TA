@@ -286,7 +286,6 @@ class AdminController extends Controller
             'password_confirmation.required' => ':Attribute is required.',
             'password_confirmation.min' => ':Attribute must be at least 5 characters.',
             'password_confirmation.max' => ':Attribute may not be greater than 45 characters.',
-            'handphone.required' => ':Attribute field is required.',
             'handphone.min' => ':Attribute must be at least 9 characters.',
             'handphone.max' => ':Attribute may not be greater than 15 characters.',
             'address.required' => ':Attribute is required.',

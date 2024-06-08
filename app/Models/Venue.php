@@ -37,11 +37,6 @@ class Venue extends Model
         return $this->hasMany(ServiceEvent::class, 'venue_id', 'id');
     }
 
-    public function chats()
-    {
-        return $this->hasMany(Chat::class, 'venue_id', 'id');
-    }
-
     public function venueImages()
     {
         return $this->hasMany(VenueImage::class, 'venue_id', 'id');

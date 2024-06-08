@@ -76,7 +76,19 @@
                             </div>
                         </div>
                     </div> --}}
-                        <a href="#" class="primary-btn">BOOKING</a>
+                        <div>
+                            <a href="" class="primary-btn">PAKET
+                                HARGA</a>
+                        </div>
+                        <div>
+                            <a href="https://wa.me/{{ $venue->phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
+                                target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto" data-placement="auto"
+                                class="primary-btn"><i class="fab fa-whatsapp" style="font-size:10mm;"></i></a>
+                            <a href="{{ route('customer.booking.create') }}" class="primary-btn" data-toggle="modal"
+                                data-target="#bookingModal">BOOKING</a>
+                        </div>
+
+                        @include('back.pages.owner.booking-manage.create')
                         {{-- <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a> --}}
                         <ul>
                             <li><b>Availability</b> <span>In Stock</span></li>

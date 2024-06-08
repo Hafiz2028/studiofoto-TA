@@ -91,20 +91,96 @@ class BookingController extends Controller
         ];
         return view('back.pages.owner.booking-manage.index', $data);
     }
+    
+    public function show(string $id)
+    {
+        $rent = Rent::findOrFail($id);
+
+        $data = [
+            'rent' => $rent,
+        ];
+
+        return view('back.pages.owner.booking-manage.show', $data);
+    }
+    public function edit(string $id)
+    {
+        $ownerId = Auth::guard('owner')->id();
+        $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
+        if ($venues->isEmpty()) {
+            return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');
+        }
+        $venueIds = $venues->pluck('id')->toArray();
+        $openingHours = OpeningHour::with('day', 'hour')->whereIn('venue_id', $venueIds)->get();
+        $uniqueDayIds = collect($openingHours)->unique('day_id')->pluck('day_id')->toArray();
+        $today = now()->format('Y-m-d');
+        $services = ServiceEvent::with('serviceType')->whereIn('venue_id', $venueIds)->get();
+        if ($services->isEmpty()) {
+            return back()->with('error', 'Belum ada layanan pada venue yang telah disetujui, tambahkan sekarang!!');
+        }
+        $serviceEventIds = $services->pluck('id')->toArray();
+        $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
+        if ($packages->isEmpty()) {
+            return back()->with('error', 'Belum Membuat Paket Foto pada Layanan, tambahkan sekarang!!');
+        }
+        $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
+        $rent = Rent::with(['rentDetails.openingHour.hour'])
+            ->whereIn('service_package_detail_id', $packageDetails->pluck('id'))
+            ->findOrFail($id);
+        $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
+        if ($openingHourIds->isNotEmpty()) {
+            $firstOpeningHourId = $openingHourIds->first();
+            $lastOpeningHourId = $openingHourIds->last();
+            $firstOpeningHour = OpeningHour::find($firstOpeningHourId)->hour;
+            $lastOpeningHour = OpeningHour::find($lastOpeningHourId)->hour;
+            $nextHour = Hour::where('id', $lastOpeningHour->id + 1)->first();
+            if ($nextHour) {
+                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $nextHour->hour;
+            } else {
+                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $lastOpeningHour->hour;
+            }
+        } else {
+            $rent->formatted_schedule = null;
+        }
+        $bookDates = RentDetail::with('rent')
+            ->get()
+            ->filter(function ($rentDetail) {
+                return in_array($rentDetail->rent->rent_status, [0, 1, 3, 5]);
+            })
+            ->map(function ($rentDetail) {
+                return [
+                    'rent_id' => $rentDetail->rent_id,
+                    'opening_hour_id' => $rentDetail->opening_hour_id,
+                    'date' => $rentDetail->rent->date,
+                ];
+            })
+            ->toArray();
+
+        $data = [
+            'pageTitle' => 'Edit Booking',
+            'venues' => $venues,
+            'uniqueDayIds' => $uniqueDayIds,
+            'openingHours' => $openingHours,
+            'today' => $today,
+            'services' => $services,
+            'packages' => $packages,
+            'packageDetails' => $packageDetails,
+            'rent' => $rent,
+            'bookDates' => $bookDates,
+        ];
+        return view('back.pages.owner.booking-manage.edit', $data);
+    }
     public function update(Request $request, string $id)
     {
         try {
-            $selectedRentId = $request->input('selected_rent');
-            Log::info("Selected Rent ID: {$selectedRentId}");
-            // dd($request->all());
-            $selectedRentId = $request->input('selected_rent');
+            $rent = Rent::findOrFail($id);
+            $selectedRentId = $rent->id;
             if (!$selectedRentId) {
-                return redirect()->back()->withErrors(['selected_rent' => 'Selected rent ID is missing.'])->withInput();
+                return redirect()->back()->with('error', 'Selected rent ID is missing.');
             }
             if (!is_numeric($selectedRentId)) {
-                return redirect()->back()->withErrors(['selected_rent' => 'Selected rent ID is invalid.'])->withInput();
+                return redirect()->back()->with('error', 'Selected rent ID is invalid.');
             }
-            $openingHoursArray = json_decode($request->input('opening_hours')[0], true);
+            $openingHoursArray = array_filter($request->input('opening_hours'), 'is_numeric');
             $date = $request->input('date');
             Log::info("Received date: {$date}");
             if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
@@ -122,12 +198,10 @@ class BookingController extends Controller
             ]);
             // dd('validasi benar');
             if ($validator->fails()) {
-                dd('validasi salah', $validator->messages());
                 return redirect()->back()->withErrors($validator)->withInput();
             }
             Log::info("After validation");
             $dateFormatted = Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
-            $rent = Rent::findOrFail($id);
             Log::info("Deleting old RentDetails for rent_id: {$id}");
             RentDetail::where('rent_id', $id)->delete();
             Log::info("Creating new RentDetails for rent_id: {$id}");
@@ -147,9 +221,6 @@ class BookingController extends Controller
             return redirect()->route('owner.booking.index')->with('error', 'An error occurred while updating the booking schedule. Please try again.');
         }
     }
-
-
-
     public function getVenues($ownerId)
     {
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
@@ -181,13 +252,11 @@ class BookingController extends Controller
 
         return response()->json($packages);
     }
-
     public function getPackageDetails($packageId)
     {
         $packageDetails = ServicePackageDetail::where('service_package_id', $packageId)->get();
         return response()->json($packageDetails);
     }
-
     public function getPrintPhotoDetails($packageId)
     {
         $printPhotoDetails = PrintPhotoDetail::with('printServiceEvent.printPhoto')->where('service_package_id', $packageId)->get();
@@ -375,16 +444,10 @@ class BookingController extends Controller
     }
     private function generateFaktur($venueName)
     {
-        $initials = strtoupper(substr($venueName, 0, 3));
+        $initials = strtoupper(substr($venueName, 0, 5));
         $timestamp = date('HisdmY');
         $randomNumber = rand(100, 999);
         return "{$initials}{$timestamp}{$randomNumber}";
-    }
-    public function show(string $id)
-    {
-    }
-    public function edit(string $id)
-    {
     }
 
 

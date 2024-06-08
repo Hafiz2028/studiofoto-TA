@@ -45,8 +45,6 @@
                     </div>
                 </div>
                 <hr>
-
-
                 <form
                     action="{{ route('owner.venue.services.packages.update', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
                     method="POST" enctype="multipart/form-data" class="mt-3">

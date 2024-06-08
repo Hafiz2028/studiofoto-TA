@@ -5,7 +5,7 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="header__top__left">
                         <ul>
-                            <li><i class="fa fa-envelope"></i> fotoyuk@studio.com</li>
+                            <li><i class="fa fa-envelope"></i> fotoyuk@example.com</li>
                             <li>Ayo cari Studio Foto di FOTOYUK</li>
                         </ul>
                     </div>
@@ -60,7 +60,6 @@
                                 </ul>
                             </li>
                             <li><a href="./blog.html">History</a></li>
-                            <li><a href="./contact.html">Chat</a></li>
                             <li class="{{ Route::is('customer.profile') ? 'active' : '' }}"><a href="{{ route('customer.profile') }}">Profile</a></li>
                         @endif
                     </ul>

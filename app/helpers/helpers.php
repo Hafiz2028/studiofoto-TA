@@ -50,23 +50,31 @@ if (!function_exists('sendEmail')) {
     if (!function_exists('get_venues_with_service_slug')) {
         function get_venues_with_service_slug()
         {
-            $venues = Venue::where('status', 1)->orderBy('id', 'DESC')->get();
+            $venues = Venue::where('status', 1)->orderBy('id', 'ASC')->get();
 
+            $filteredVenues = [];
             foreach ($venues as $venue) {
                 $serviceSlugs = [];
                 $minPrice = PHP_INT_MAX;
+                $hasPackageDetails = false;
                 foreach ($venue->serviceEvents as $serviceEvent) {
                     $serviceSlugs[] = $serviceEvent->serviceType->service_slug;
-                    foreach ($serviceEvent->servicePackages as $package) {
-                        if ($package->price < $minPrice) {
-                            $minPrice = $package->price;
+                    foreach ($serviceEvent->servicePackages as $servicePackage) {
+                        foreach ($servicePackage->servicePackageDetails as $packageDetail) {
+                            $hasPackageDetails = true;
+                            if ($packageDetail->price < $minPrice) {
+                                $minPrice = $packageDetail->price;
+                            }
                         }
                     }
                 }
-                $venue->service_slugs = $serviceSlugs;
-                $venue->min_price = $minPrice != PHP_INT_MAX ? $minPrice : null;
+                if ($hasPackageDetails) {
+                    $venue->service_slugs = $serviceSlugs;
+                    $venue->min_price = $minPrice != PHP_INT_MAX ? $minPrice : null;
+                    $filteredVenues[] = $venue;
+                }
             }
-            return !empty($venues) ? $venues : [];
+            return $filteredVenues;
         }
     }
 

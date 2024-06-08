@@ -8,7 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('pageTitle')</title>
-
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/back/vendors/images/favicon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/back/vendors/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/back/vendors/images/favicon-16.png" />
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
 

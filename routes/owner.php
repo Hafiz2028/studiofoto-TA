@@ -14,7 +14,6 @@ use App\Http\Controllers\DistrictController;
 Route::prefix('owner')->name('owner.')->group(function () {
     Route::middleware(['guest:owner', 'PreventBackHistory'])->group(function () {
 
-        //route saat owner tdk autentikasi
         Route::controller(OwnerController::class)->group(function () {
             Route::get('/login', 'login')->name('login');
             Route::post('/login_handler', 'loginHandler')->name('login-handler');
@@ -49,7 +48,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::resource('booking', BookingController::class);
         Route::get('/booking/{booking}/show-payment', [BookingController::class, 'showPayment'])->name('booking.show-payment');
         Route::post('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
- 
+
 
     });
 });

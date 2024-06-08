@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FrontEndController;
 
@@ -29,5 +30,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::get('/', 'home')->name('home');
             Route::get('/detail/{id}', 'detailVenue')->name('detail-venue');
         });
+        Route::resource('booking', BookingController::class);
+        Route::get('/booking/{booking}/show-payment', [BookingController::class, 'showPayment'])->name('booking.show-payment');
+        Route::post('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
     });
 });

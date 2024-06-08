@@ -11,10 +11,16 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('owner.booking.store') }}" method="POST" enctype="multipart/form-data"
-                    class="mt-3" id="bookingForm">
-                    @csrf
-                    <x-alert.form-alert />
+                @if (auth()->guard('owner')->check())
+                    <form action="{{ route('owner.booking.store') }}" method="POST" enctype="multipart/form-data"
+                        class="mt-3" id="bookingForm">
+                    @elseif(auth()->guard('customer')->check())
+                        <form action="{{ route('customer.booking.store') }}" method="POST"
+                            enctype="multipart/form-data" class="mt-3" id="bookingForm">
+                @endif
+                @csrf
+                <x-alert.form-alert />
+                @if (auth()->guard('owner')->check())
                     <div class="row">
                         <div class="col-lg-4 col-md-6 col-sm-6">
                             <div class="form-group">
@@ -93,12 +99,13 @@
                                 <label>8. Tanggal Booking</label>
                                 <input type="text" class="form-control" id="date" name="date" required
                                     disabled>
-                                <input type="hidden" id="opening-hours" value="{{ json_encode($openingHours) }}">
+                                <small class="text-muted">Format: DD/MM/YYYY</small> <input type="hidden"
+                                    id="opening-hours" value="{{ json_encode($openingHours) }}">
                                 <input type="hidden" id="unique-days" value="{{ json_encode($uniqueDayIds) }}">
                                 <input type="hidden" id="book-dates" value="{{ json_encode($bookDates) }}">
                             </div>
                         </div>
-                        <div class="col-lg-10 col-md-12">
+                        <div class="col-lg-7 col-md-12">
                             <div class="form-group">
                                 <label>9. Jadwal Tersedia</label>
                                 <div class="card">
@@ -114,29 +121,30 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-4 col-md-12">
+                        <div class="col-lg-3 col-md-12 mt-4">
                             <div class="form-group d-flex align-items-center">
-                                <label>Harga Paket Foto</label>
+                                <label>Paket Foto : </label>
                                 <span id="package-price" class="badge badge-primary ml-2">Rp 0</span>
                             </div>
                             <div class="form-group d-flex align-items-center">
-                                <label>Harga Cetak Foto</label>
+                                <label>Cetak Foto : </label>
                                 <span id="print-photo-price" class="badge badge-info ml-2">Rp 0</span>
                             </div>
                             <div class="form-group d-flex align-items-center">
-                                <label>Harga Total</label>
+                                <label>Total Harga : </label>
                                 <span id="total-price" class="badge badge-success ml-2">Rp 0</span>
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="total_price" id="total-price-input" value="0">
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success">Pembayaran</button>
-                    </div>
+                @elseif (auth()->guard('customer')->check())
+                @endif
+                <input type="hidden" name="total_price" id="total-price-input" value="0">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Pembayaran</button>
+                </div>
                 </form>
+
             </div>
         </div>
     </div>

@@ -7,9 +7,9 @@
     <title>@yield('pageTitle')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Site favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/back/vendors/images/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/back/vendors/images/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/back/vendors/images/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/back/vendors/images/favicon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/back/vendors/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/back/vendors/images/favicon-16.png" />
 
     <!-- Mobile Specific Metas -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -377,11 +377,6 @@
                                 class="dropdown-toggle no-arrow {{ Route::is('owner.booking.*') ? 'active' : '' }}">
                                 <span class="micon bi bi-journal-bookmark-fill"></span><span
                                     class="mtext">Booking</span>
-                            </a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="javascript:;" class="dropdown-toggle no-arrow">
-                                <span class="micon bi bi-chat-dots"></span><span class="mtext">Chat</span>
                             </a>
                         </li>
                         <li class="dropdown">

@@ -52,25 +52,31 @@
                                             <a href="{{ $venue->map_link }}" target="_blank"
                                                 onclick="return openLink(event, '{{ $venue->map_link }}')">
                                                 <i class="fa fa-map-marker" data-toggle="tooltip"
-                                                    title="Check on Map"></i>
+                                                    title="Lihat Lokasi di Maps"></i>
                                             </a>
                                         @else
                                             <a href="#" onclick="alert('Link tidak valid'); return false;">
-                                                <i class="fa fa-map-marker" data-toggle="tooltip"
-                                                    title="Check on Map"></i>
+                                                <i class="far fa-map-marker" data-toggle="tooltip"
+                                                    title="Lihat Lokasi di Maps"></i>
                                             </a>
                                         @endif
                                     </li>
                                     @if (auth()->guard('customer')->check())
                                         <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
-                                                <i class="fa fa-info" data-toogle="tooltip" title="Detail Studio Foto"
+                                                <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
                                                     data-placement="auto"></i></a>
                                         @else
                                         <li><a id="openDetailVenue" data-toogle="tooltip" title="Detail Studio Foto"><i
                                                     class="fa fa-info"></i></a>
                                     @endif
-                                    {{-- </li>
-                                    <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li> --}}
+                                    </li>
+                                    <li>
+                                        <a href="https://wa.me/{{ $venue->phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
+                                            target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto"
+                                            data-placement="auto">
+                                            <i class="fab fa-whatsapp" style="font-size:6mm;"></i>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="featured__item__text">
