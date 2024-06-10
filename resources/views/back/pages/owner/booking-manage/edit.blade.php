@@ -284,10 +284,19 @@
                     editScheduleContainer.appendChild(noScheduleAlert);
                     return;
                 }
+                var now = new Date();
+                now.setSeconds(0, 0);
+                console.log("Current Time:", now);
 
                 filteredOpeningHours.forEach(function(openingHour) {
                     var hourText = openingHour.hour.hour;
-                    var hourId = openingHour.id;
+                    var hourParts = hourText.split('.');
+                    var hour = parseInt(hourParts[0], 10);
+                    var minute = parseInt(hourParts[1], 10);
+                    var scheduleTime = new Date(selectedDate);
+                    scheduleTime.setHours(hour, minute, 0, 0);
+                    console.log("Checking schedule:", hourText, "against current time:", now);
+                    console.log("Schedule Time:", scheduleTime);
                     var isSelected = filteredRentDetails.some(function(rentDetail) {
                         return rentDetail.opening_hour_id == openingHour.id;
                     });
@@ -304,11 +313,14 @@
                         badgeClass = 'btn-danger';
                     } else if (openingHour.status == 1) {
                         badgeClass = 'btn-secondary';
+                    } else if (selectedDate.toDateString() === now.toDateString() && now > scheduleTime) {
+                        console.log("Schedule is in the past for today, setting to btn-secondary.");
+                        badgeClass = 'btn-secondary';
                     }
 
                     var labelElement = document.createElement('label');
                     labelElement.classList.add('btn', badgeClass, 'm-1', 'schedule-btn');
-                    labelElement.textContent = hourText + hourId;
+                    labelElement.textContent = hourText;
                     labelElement.style.cursor = 'pointer';
                     labelElement.style.width = '75px';
                     labelElement.style.height = '30px';
@@ -319,7 +331,8 @@
                     inputElement.value = openingHour.id;
                     inputElement.style.display = 'none';
 
-                    if (openingHour.status == 1 || (isBooked && !isSelected)) {
+                    if (openingHour.status == 1 || (isBooked && !isSelected) || (selectedDate
+                        .toDateString() === now.toDateString() && now > scheduleTime)) {
                         labelElement.classList.add('btn-secondary-disabled');
                         labelElement.style.pointerEvents = 'none';
                         labelElement.style.opacity = '0.65';

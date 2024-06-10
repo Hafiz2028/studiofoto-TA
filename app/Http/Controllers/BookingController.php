@@ -91,7 +91,6 @@ class BookingController extends Controller
         ];
         return view('back.pages.owner.booking-manage.index', $data);
     }
-    
     public function show(string $id)
     {
         $rent = Rent::findOrFail($id);
@@ -220,79 +219,6 @@ class BookingController extends Controller
             Log::error('An error occurred while updating the booking schedule', ['exception' => $e]);
             return redirect()->route('owner.booking.index')->with('error', 'An error occurred while updating the booking schedule. Please try again.');
         }
-    }
-    public function getVenues($ownerId)
-    {
-        $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
-        return response()->json($venues);
-    }
-    public function getServices($venueId)
-    {
-        $services = ServiceEvent::with('serviceType')->where('venue_id', $venueId)->get();
-        return response()->json($services);
-    }
-    public function getServicesByTypeAndVenue($venueId, $serviceTypeId)
-    {
-        $services = ServiceEvent::with('serviceType')
-            ->where('venue_id', $venueId)
-            ->where('service_type_id', $serviceTypeId)
-            ->get();
-        return response()->json($services);
-    }
-    public function getPackages($serviceEventId)
-    {
-        $packages = ServicePackage::with(['addOnPackageDetails.addOnPackage'])
-            ->where('service_event_id', $serviceEventId)
-            ->get();
-        $packages->each(function ($package) {
-            if ($package->addOnPackageDetails) {
-                $package->load('addOnPackageDetails.addOnPackage');
-            }
-        });
-
-        return response()->json($packages);
-    }
-    public function getPackageDetails($packageId)
-    {
-        $packageDetails = ServicePackageDetail::where('service_package_id', $packageId)->get();
-        return response()->json($packageDetails);
-    }
-    public function getPrintPhotoDetails($packageId)
-    {
-        $printPhotoDetails = PrintPhotoDetail::with('printServiceEvent.printPhoto')->where('service_package_id', $packageId)->get();
-        return response()->json($printPhotoDetails);
-    }
-    public function getBookDates(Request $request)
-    {
-        $venueId = $request->input('venue_id');
-        $selectedDate = $request->input('selected_date');
-        $venue = Venue::find($venueId);
-        if (!$venue) {
-            return response()->json(['error' => 'Venue not found'], 404);
-        }
-        $openingHours = OpeningHour::where('venue_id', $venueId)->pluck('id');
-        $bookDates = RentDetail::whereIn('opening_hour_id', $openingHours)
-            ->whereHas('rent', function ($query) use ($selectedDate) {
-                $query->where('date', $selectedDate);
-            })
-            ->get()
-            ->map(function ($rentDetail) {
-                return [
-                    'opening_hour_id' => $rentDetail->opening_hour_id,
-                    'date' => $rentDetail->rent->date,
-                ];
-            })
-            ->toArray();
-        return response()->json($bookDates);
-    }
-    private function checkDuplicateOpeningHours(array $openingHours): bool
-    {
-        $query = DB::table('rent_details')
-            ->select(DB::raw('COUNT(*) as total'))
-            ->whereIn('opening_hour_id', $openingHours)
-            ->groupBy('opening_hour_id')
-            ->havingRaw('total > 1');
-        return $query->exists();
     }
     public function store(Request $request)
     {
@@ -449,9 +375,6 @@ class BookingController extends Controller
         $randomNumber = rand(100, 999);
         return "{$initials}{$timestamp}{$randomNumber}";
     }
-
-
-
     public function destroy(string $id)
     {
     }
@@ -460,4 +383,79 @@ class BookingController extends Controller
 
     //     return view('back.pages.owner.booking-manage.create');
     // }
+
+    public function getVenues($ownerId)
+    {
+        $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
+        return response()->json($venues);
+    }
+    public function getServices($venueId)
+    {
+        $services = ServiceEvent::with('serviceType')->where('venue_id', $venueId)->get();
+        Log::info($services);
+        return response()->json($services);
+    }
+    public function getServicesByTypeAndVenue($venueId, $serviceTypeId)
+    {
+        $services = ServiceEvent::with('serviceType')
+            ->where('venue_id', $venueId)
+            ->where('service_type_id', $serviceTypeId)
+            ->get();
+        return response()->json($services);
+    }
+    public function getPackages($serviceEventId)
+    {
+        $packages = ServicePackage::with(['addOnPackageDetails.addOnPackage'])
+            ->where('service_event_id', $serviceEventId)
+            ->get();
+        $packages->each(function ($package) {
+            if ($package->addOnPackageDetails) {
+                $package->load('addOnPackageDetails.addOnPackage');
+            }
+        });
+
+        return response()->json($packages);
+    }
+    public function getPackageDetails($packageId)
+    {
+        $packageDetails = ServicePackageDetail::where('service_package_id', $packageId)->get();
+        return response()->json($packageDetails);
+    }
+    public function getPrintPhotoDetails($packageId)
+    {
+        $printPhotoDetails = PrintPhotoDetail::with('printServiceEvent.printPhoto')->where('service_package_id', $packageId)->get();
+        return response()->json($printPhotoDetails);
+    }
+    public function getBookDates(Request $request)
+    {
+        $venueId = $request->input('venue_id');
+        $selectedDate = $request->input('selected_date');
+        $venue = Venue::find($venueId);
+        if (!$venue) {
+            return response()->json(['error' => 'Venue not found'], 404);
+        }
+        $openingHours = OpeningHour::where('venue_id', $venueId)->pluck('id');
+        $bookDates = RentDetail::whereIn('opening_hour_id', $openingHours)
+            ->whereHas('rent', function ($query) use ($selectedDate) {
+                $query->where('date', $selectedDate);
+            })
+            ->get()
+            ->map(function ($rentDetail) {
+                return [
+                    'opening_hour_id' => $rentDetail->opening_hour_id,
+                    'date' => $rentDetail->rent->date,
+                ];
+            })
+            ->toArray();
+        return response()->json($bookDates);
+    }
+    private function checkDuplicateOpeningHours(array $openingHours): bool
+    {
+        $query = DB::table('rent_details')
+            ->select(DB::raw('COUNT(*) as total'))
+            ->whereIn('opening_hour_id', $openingHours)
+            ->groupBy('opening_hour_id')
+            ->havingRaw('total > 1');
+        return $query->exists();
+    }
 }

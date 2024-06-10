@@ -49,6 +49,7 @@
                                     <th>Paket Foto</th>
                                     <th>Jadwal</th>
                                     <th>Status</th>
+                                    <th>Pembayaran</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -97,10 +98,22 @@
                                                     @elseif ($rent->rent_status == 4)
                                                         <span class="badge badge-warning ">Expired</span>
                                                     @elseif ($rent->rent_status == 5)
-                                                        <span class="badge badge-warning ">Belum Bayar</span>
+                                                        <span class="badge badge-danger ">Belum Bayar</span>
                                                     @else
                                                         <span class="badge badge-danger ">Tidak Valid</span>
                                                     @endif
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($rent->dp_price == $rent->total_price)
+                                                    <span class="badge badge-success ">Lunas</span>
+                                                @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
+                                                    <span class="badge badge-warning ">Dp
+                                                        {{ number_format($rent->dp_price) }}</span>
+                                                @elseif ($rent->dp_price == null)
+                                                    <span class="badge badge-danger ">Belum Bayar</span>
+                                                @else
+                                                    <span class="badge badge-danger ">Tidak Valid</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -249,7 +262,7 @@
                     data.forEach(service => {
                         var option = document.createElement('option');
                         option.value = service.service_type_id;
-                        option.text = service.name;
+                        option.text = service.service_type.service_name;
                         serviceTypeSelect.appendChild(option);
                     });
                     enableSelect('service_type');
@@ -598,8 +611,20 @@
                     scheduleContainer.appendChild(noScheduleAlert);
                     return;
                 }
+                var now = new Date();
+                now.setSeconds(0, 0);
                 filteredOpeningHours.forEach(function(openingHour) {
                     var hourText = openingHour.hour.hour;
+
+                    var hourParts = hourText.split('.');
+                    var hour = parseInt(hourParts[0], 10);
+                    var minute = parseInt(hourParts[1], 10);
+                    var scheduleTime = new Date(selectedDate);
+                    scheduleTime.setHours(hour, minute, 0, 0);
+                    console.log("Checking schedule:", hourText, "against current time:", now);
+                    console.log("Schedule Time:", scheduleTime);
+
+
                     var isBooked = bookedDates.some(function(bookedDate) {
                         return bookedDate.opening_hour_id == openingHour.id && bookedDate.date ==
                             selectedDateString;
@@ -613,7 +638,10 @@
                     } else {
                         badgeClass = isBooked ? 'btn-danger' : 'btn-secondary';
                     }
-
+                    if (selectedDate.toDateString() === now.toDateString() && now > scheduleTime) {
+                        console.log("Schedule is in the past for today, setting to btn-secondary.");
+                        badgeClass = 'btn-secondary';
+                    }
                     var labelElement = document.createElement('label');
                     labelElement.classList.add('btn', badgeClass, 'm-1', 'schedule-btn');
                     labelElement.textContent = hourText;
@@ -628,7 +656,8 @@
                     inputElement.value = openingHour.id;
                     inputElement.style.display = 'none';
 
-                    if (openingHour.status == 1 || isBooked) {
+                    if (openingHour.status == 1 || isBooked || (selectedDate.toDateString() === now
+                            .toDateString() && now > scheduleTime)) {
                         labelElement.classList.add('btn-secondary-disabled');
                         labelElement.style.pointerEvents = 'none';
                         labelElement.style.opacity = '0.65';

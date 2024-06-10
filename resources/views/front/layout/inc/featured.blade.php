@@ -71,7 +71,13 @@
                                     @endif
                                     </li>
                                     <li>
-                                        <a href="https://wa.me/{{ $venue->phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
+                                        @php
+                                            $phone_number = $venue->phone_number;
+                                            if (substr($phone_number, 0, 2) == '08') {
+                                                $phone_number = '628' . substr($phone_number, 2);
+                                            }
+                                        @endphp
+                                        <a href="https://wa.me/{{ $phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
                                             target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto"
                                             data-placement="auto">
                                             <i class="fab fa-whatsapp" style="font-size:6mm;"></i>
