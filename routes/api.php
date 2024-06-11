@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FrontEndController;
+use App\Http\Controllers\OwnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +27,7 @@ Route::get('/package-details/{packageId}', [BookingController::class, 'getPackag
 Route::get('/print-photo-details/{packageId}', [BookingController::class, 'getPrintPhotoDetails']);
 Route::get('/get-book-dates', [BookingController::class, 'getBookDates'])->name('getBookDates');
 
-
+Route::get('/rent-events/{ownerId}', [OwnerController::class, 'getRentEvents']);
 
 Route::get('/cust/services/{serviceTypeId}', [FrontEndController::class, 'getServicesByTypeAndVenue']);
 Route::get('/cust/packages/{serviceEventId}', [FrontEndController::class, 'getPackages']);

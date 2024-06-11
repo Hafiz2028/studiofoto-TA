@@ -57,7 +57,7 @@
                     @endif
                     <div class="row justify-content-around">
                         @foreach ($venues as $venue)
-                            <div class="da-card col-12 col-sm-6 col-md-4 col-lg-3 mb-4 mr-1">
+                            <div class="da-card col-sm-5 col-md-5 col-lg-3 mb-4 mr-1">
                                 <div class="da-card-photo position-relative" style="height: 200px; overflow: hidden;">
                                     @if ($venue->venueImages->isNotEmpty())
                                         <img src="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"

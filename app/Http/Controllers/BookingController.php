@@ -66,6 +66,9 @@ class BookingController extends Controller
             ->whereHas('rent.servicePackageDetail.servicePackage.serviceEvent', function ($query) use ($venueIds) {
                 $query->whereIn('venue_id', $venueIds);
             })
+            ->whereHas('rent', function ($query) {
+                $query->whereIn('rent_status', [0, 1, 5, 6]);
+            })
             ->where('rent_id', '!=', $selectedRentId)
             ->get()
             ->map(function ($rentDetail) {
@@ -91,6 +94,67 @@ class BookingController extends Controller
         ];
         return view('back.pages.owner.booking-manage.index', $data);
     }
+
+    public function updateStatus(Request $request)
+    {
+
+        $cutoffTime = Carbon::now()->setSeconds(0);
+        $rents = Rent::where('rent_status', 1)->get();
+        $expiredRents = [];
+        foreach ($rents as $rent) {
+            $rentExpired = false;
+            $rentDetails = RentDetail::where('rent_id', $rent->id)->get();
+
+            if ($rentDetails->isNotEmpty()) {
+                $openingHours = [];
+                foreach ($rentDetails as $rentDetail) {
+                    $openingHour = OpeningHour::find($rentDetail->opening_hour_id);
+                    if ($openingHour) {
+                        $openingHours[] = $openingHour;
+                    }
+                }
+                $lastOpeningHour = end($openingHours);
+                if ($lastOpeningHour) {
+                    $hourParts = explode('.', $lastOpeningHour->hour->hour);
+                    $hour = intval($hourParts[0]);
+                    $minute = intval($hourParts[1]);
+                    $scheduleTime = Carbon::createFromFormat('Y-m-d H:i', $rent->date . ' ' . sprintf('%02d:%02d', $hour, $minute));
+                    $scheduleTime->addMinutes(30);
+                    if ($scheduleTime < $cutoffTime) {
+                        $rentExpired = true;
+                    }
+                }
+            }
+            if ($rentExpired) {
+                $rent->rent_status = 4;
+                $rent->save();
+                $expiredRents[] = ['faktur' => $rent->faktur, 'name' => $rent->name];
+            }
+        }
+
+        if (count($expiredRents) > 0) {
+            $message = [];
+            $message[] = 'Terdapat Jadwal yang Expired:';
+            foreach ($expiredRents as $rent) {
+                $message[] = "(Faktur: {$rent['faktur']}, Nama Cust: {$rent['name']})";
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+                'openingHour' => $openingHour->toArray(),
+                'scheduleTime' => $scheduleTime->toArray(),
+                'cutoffTime' => $cutoffTime->toArray()
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'info',
+                'message' => 'Tidak ada jadwal yang expired',
+                'openingHour' => $openingHour->toArray(),
+                'cutoffTime' => $cutoffTime->toArray()
+            ]);
+        }
+    }
+
     public function show(string $id)
     {
         $rent = Rent::findOrFail($id);

@@ -31,10 +31,7 @@ class Customer extends Authenticatable
         'email_verified_at',
         'verified',
     ];
-    public function chats()
-    {
-        return $this->hasMany(Chat::class, 'customer_id', 'id');
-    }
+
 
     /**
      * The attributes that should be hidden for serialization.

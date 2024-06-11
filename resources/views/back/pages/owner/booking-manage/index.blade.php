@@ -37,6 +37,10 @@
                                 <i class="fa fa-plus"></i> Offline Booking
                             </button>
                             @include('back.pages.owner.booking-manage.create')
+                            <a href="javascript:void(0);" id="refresh-schedule" type="button" class="btn btn-outline-info"
+                                data-toggle="tooltip" title="Cek Jadwal yang Expired"><i
+                                    class="icon-copy dw dw-wall-clock2"></i> Refresh
+                                Jadwal</a>
                         </div>
                     </div>
                     <div class="table-responsive mt-4">
@@ -83,7 +87,7 @@
                                                     {{ $rent->formatted_schedule }}
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td style="text-align: center;">
                                                 @if ($rent->formatted_schedule == null)
                                                     <span class="badge badge-danger">Jadwal Salah</span>
                                                 @else
@@ -96,24 +100,30 @@
                                                     @elseif ($rent->rent_status == 3)
                                                         <span class="badge badge-danger ">Ditolak</span>
                                                     @elseif ($rent->rent_status == 4)
-                                                        <span class="badge badge-warning ">Expired</span>
+                                                        <span class="badge badge-secondary ">Expired</span>
                                                     @elseif ($rent->rent_status == 5)
-                                                        <span class="badge badge-danger ">Belum Bayar</span>
+                                                        <span class="badge badge-warning ">Belum Bayar</span>
+                                                    @elseif ($rent->rent_status == 6)
+                                                        <span class="badge badge-dark ">Sedang Foto</span>
                                                     @else
                                                         <span class="badge badge-danger ">Tidak Valid</span>
                                                     @endif
                                                 @endif
                                             </td>
-                                            <td>
-                                                @if ($rent->dp_price == $rent->total_price)
-                                                    <span class="badge badge-success ">Lunas</span>
-                                                @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
-                                                    <span class="badge badge-warning ">Dp
-                                                        {{ number_format($rent->dp_price) }}</span>
-                                                @elseif ($rent->dp_price == null)
-                                                    <span class="badge badge-danger ">Belum Bayar</span>
+                                            <td style="text-align: center;">
+                                                @if ($rent->rent_status == 4)
+                                                    <span class="badge badge-secondary ">Expired</span>
                                                 @else
-                                                    <span class="badge badge-danger ">Tidak Valid</span>
+                                                    @if ($rent->dp_price == $rent->total_price)
+                                                        <span class="badge badge-success">Lunas</span>
+                                                    @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
+                                                        <span class="badge badge-info ">Dp (Rp
+                                                            {{ number_format($rent->dp_price) }})</span>
+                                                    @elseif ($rent->dp_price == null)
+                                                        <span class="badge badge-warning ">Belum Bayar</span>
+                                                    @else
+                                                        <span class="badge badge-danger ">Tidak Valid</span>
+                                                    @endif
                                                 @endif
                                             </td>
                                             <td>
@@ -164,7 +174,9 @@
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="fas fa-trash"></i></a>
                                                 @elseif ($rent->rent_status == 3 || $rent->rent_status == 4)
-                                                    <a href="" class="btn btn-info"
+                                                    <a href="{{ route('owner.booking.show', $rent->id) }}"
+                                                        class="btn btn-outline-info" data-toggle="tooltip"
+                                                        data-placement="auto" title="Detail Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="fas fa-info"></i></a>
                                                 @else
@@ -212,6 +224,56 @@
     </style>
 @endpush
 @push('scripts')
+    {{-- cek jadwal expired --}}
+    <script>
+        document.getElementById('refresh-schedule').addEventListener('click', function() {
+            $.ajax({
+                url: '{{ route('owner.booking.update-status') }}',
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        console.log(data.message);
+                        console.log(data.openingHour);
+                        console.log(data.scheduleTime);
+                        console.log(data.cutoffTime);
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Jadwal Expired',
+                            html: data.message.join('<br>')
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        console.log(data.message);
+                        console.log(data.openingHour);
+                        console.log(data.scheduleTime);
+                        console.log(data.cutoffTime);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Jadwal Expired',
+                            text: data.message
+                        });
+                    }
+                },
+                error: function() {
+                    console.log('Something went wrong!');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!'
+                    });
+                }
+            });
+        });
+    </script>
+
+    {{-- jadwal salah --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.btn:not(.btn-outline-primary):not(.exclude-alert)');
@@ -612,10 +674,11 @@
                     return;
                 }
                 var now = new Date();
+                now.setMinutes(now.getMinutes() - 30);
                 now.setSeconds(0, 0);
+                console.log("Current Time (minus 30 minutes):", now);
                 filteredOpeningHours.forEach(function(openingHour) {
                     var hourText = openingHour.hour.hour;
-
                     var hourParts = hourText.split('.');
                     var hour = parseInt(hourParts[0], 10);
                     var minute = parseInt(hourParts[1], 10);
@@ -623,8 +686,6 @@
                     scheduleTime.setHours(hour, minute, 0, 0);
                     console.log("Checking schedule:", hourText, "against current time:", now);
                     console.log("Schedule Time:", scheduleTime);
-
-
                     var isBooked = bookedDates.some(function(bookedDate) {
                         return bookedDate.opening_hour_id == openingHour.id && bookedDate.date ==
                             selectedDateString;

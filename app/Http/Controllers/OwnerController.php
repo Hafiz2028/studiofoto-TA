@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use constGuards;
 use constDefaults;
 use App\Models\Owner;
+use App\Models\Venue;
+use App\Models\Rent;
+use App\Models\RentDetail;
+use App\Models\Hour;
+use App\Models\OpeningHour;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -41,11 +46,39 @@ class OwnerController extends Controller
     }
     public function home(Request $request)
     {
+        $owner = Auth::guard('owner')->user();
+        $venues = Venue::where('owner_id', $owner->id)->get(['id', 'status']);
+        $venueIds = $owner->venues->pluck('id');
+        $rents = Rent::whereHas('servicePackageDetail.servicePackage.serviceEvent', function ($query) use ($venueIds) {
+            $query->whereIn('venue_id', $venueIds);
+        })->get(['id', 'rent_status']);
+
         $data = [
             'pageTitle' => 'Owner Home Page',
+            'venues' => $venues,
+            'rents' => $rents,
         ];
         return view('back.pages.owner.home', $data);
     }
+    public function getRentEvents($ownerId)
+    {
+        // Mengambil data rents dan rent_details
+        $rentEvents = Rent::with([
+            'servicePackageDetail.servicePackage.serviceEvent.venue',
+            'rentDetails.openingHour.hour'
+        ])
+            ->whereHas('servicePackageDetail.servicePackage.serviceEvent.venue', function ($query) use ($ownerId) {
+                $query->where('owner_id', $ownerId);
+            })
+            ->get();
+
+        // Mengirimkan data dalam format JSON
+        return response()->json($rentEvents);
+    }
+
+
+
+
     public function createOwner(Request $request)
     {
         $request->validate([
@@ -327,6 +360,7 @@ class OwnerController extends Controller
     //reset password & email end
 
     //profile page start
+
     public function profileView(Request $request)
     {
         $owner = null;

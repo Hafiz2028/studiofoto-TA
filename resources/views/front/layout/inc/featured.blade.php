@@ -19,21 +19,6 @@
             </div>
         </div>
         <div class="row featured__filter">
-            {{-- <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
-                <div class="featured__item">
-                    <div class="featured__item__pic set-bg" data-setbg="/front/img/featured/feature-1.jpg">
-                        <ul class="featured__item__pic__hover">
-                            <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                        </ul>
-                    </div>
-                    <div class="featured__item__text">
-                        <h6><a href="#">Crab Pool Security</a></h6>
-                        <h5>$30.00</h5>
-                    </div>
-                </div>
-            </div> --}}
             @if (count(get_venues_with_service_slug()) > 0)
                 @foreach (get_venues_with_service_slug() as $venue)
                     <div
@@ -61,14 +46,9 @@
                                             </a>
                                         @endif
                                     </li>
-                                    @if (auth()->guard('customer')->check())
-                                        <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
-                                                <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
-                                                    data-placement="auto"></i></a>
-                                        @else
-                                        <li><a id="openDetailVenue" data-toogle="tooltip" title="Detail Studio Foto"><i
-                                                    class="fa fa-info"></i></a>
-                                    @endif
+                                    <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
+                                            <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
+                                                data-placement="auto"></i></a>
                                     </li>
                                     <li>
                                         @php
@@ -86,19 +66,19 @@
                                 </ul>
                             </div>
                             <div class="featured__item__text">
-                                @if (auth()->guard('customer')->check())
-                                    <h6><a
-                                            href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
-                                    </h6>
-                                @else
-                                    <h6><a id="openDetailVenue">{{ $venue->name }}</a>
-                                    </h6>
-                                @endif
-                                <h5 style="font-size: 16px; color: #333; margin-top: 10px;">
+                                <h6><a href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
+                                </h6>
+                                <h5 style="font-size: 16px; color: #333; margin-top: 10px; text-align:left;">
                                     <span
                                         style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
                                         from</span> Rp. {{ number_format($venue->min_price ?? 0, 2, ',', '.') }}
                                 </h5>
+                                {{-- <h6 style="text-align: left;"> {{$phone_number}}</h6> --}}
+                                <p class="mt-2" style="text-align: left;">
+                                    {{ ucwords(strtolower($venue->address)) }},
+                                    {{ ucwords(strtolower($venue->village->district->name)) }},
+                                    {{ ucwords(strtolower($venue->village->name)) }},
+                                </p>
                             </div>
                         </div>
                     </div>

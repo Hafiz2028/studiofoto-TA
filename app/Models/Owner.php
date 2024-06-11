@@ -67,13 +67,13 @@ class Owner extends Authenticatable
             return asset('/images/users/owners/KTP_owner/ktp.png');
         }
     }
-    public function chats()
-    {
-        return $this->hasMany(Chat::class, 'owner_id', 'id');
-    }
 
     public function venues()
     {
         return $this->hasMany(Venue::class, 'owner_id', 'id');
+    }
+    public function rents()
+    {
+        return $this->hasManyThrough(Rent::class, Venue::class);
     }
 }

@@ -285,8 +285,9 @@
                     return;
                 }
                 var now = new Date();
+                now.setMinutes(now.getMinutes() - 30);
                 now.setSeconds(0, 0);
-                console.log("Current Time:", now);
+                console.log("Current Time (minus 30 minutes):", now);
 
                 filteredOpeningHours.forEach(function(openingHour) {
                     var hourText = openingHour.hour.hour;
@@ -332,7 +333,7 @@
                     inputElement.style.display = 'none';
 
                     if (openingHour.status == 1 || (isBooked && !isSelected) || (selectedDate
-                        .toDateString() === now.toDateString() && now > scheduleTime)) {
+                            .toDateString() === now.toDateString() && now > scheduleTime)) {
                         labelElement.classList.add('btn-secondary-disabled');
                         labelElement.style.pointerEvents = 'none';
                         labelElement.style.opacity = '0.65';
