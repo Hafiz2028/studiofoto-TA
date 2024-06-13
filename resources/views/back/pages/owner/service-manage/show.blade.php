@@ -86,14 +86,14 @@
         <div class="product-detail-wrap mb-30">
             <div class="row mb-3">
                 {{-- card detail venue --}}
-                <div class="col-lg-8 col-md-8 col-sm-12">
+                <div class="col-lg-5 col-md-12 col-sm-12">
                     <div class="card card-primary shadow">
                         <div class="card-header bg-info text-white">
                             <h3 class="text-white mb-0 text-center">Detail Layanan</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-lg-12 col-md-12">
                                     <h6 class="mb-2">
                                         <span style="display: inline-block; width: 135px;">Nama Layanan</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
@@ -115,8 +115,6 @@
                                     @else
                                         <div class="alert alert-secondary ml-3">Tidak ada deskripsi layanan.</div>
                                     @endif
-                                </div>
-                                <div class="col-md-6">
                                     <h6 class="mb-3 mt-3">
                                         <span style="display: inline-block; width: 170px;">Katalog Harga Layanan</span>
                                         :
@@ -151,32 +149,170 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-8 col-sm-12">
+
+                <div class="col-lg-7 col-md-12 col-sm-12">
                     <div class="card shadow">
                         <div class="card-header bg-info text-white">
-                            <h2 class="card-title text-center text-white mb-3">Paket Foto Layanan</h2>
+                            <h2 class="card-title text-center text-white mb-3">List Paket Foto Layanan</h2>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Ukuran Foto</th>
-                                        <th>Harga</th>
+                                        <th>#</th>
+                                        <th>Nama Paket</th>
+                                        <th>Metode Pembayaran</th>
+                                        <th>Add On</th>
+                                        @if (auth()->guard('owner')->check())
+                                            <th>Action</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if ($printServiceEvents->count() > 0)
-                                        @foreach ($printServiceEvents as $index => $printServiceEvent)
+                                    @if ($packages->count() > 0)
+                                        @foreach ($packages as $index => $package)
                                             <tr>
-                                                <td>{{ $printServiceEvent->printPhoto->size }}</td>
-                                                <td>Rp {{ number_format($printServiceEvent->price, 0, ',', '.') }}</td>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $package->name }}</td>
+                                                <td class="align-middle text-center">
+                                                    @if ($package->dp_status !== null)
+                                                        @switch($package->dp_status)
+                                                            @case(0)
+                                                                <span class="badge badge-info" style="font-size:small;">Lunas</span>
+                                                            @break
+
+                                                            @case(1)
+                                                                <span class="badge badge-success" style="font-size:small;">DP
+                                                                    {{ $package->dp_percentage * 100 }} %</span>
+                                                            @break
+
+                                                            @case(2)
+                                                                <span class="badge badge-success" style="font-size:small;">Min.
+                                                                    Bayar Rp
+                                                                    {{ number_format($package->dp_min, 0, ',', '.') }}</span>
+                                                            @break
+
+                                                            @default
+                                                                <span class="badge badge-danger" style="font-size:small;">Tidak
+                                                                    Valid</span>
+                                                        @endswitch
+                                                    @else
+                                                        <span class="badge badge-danger" style="font-size:small;">Belum
+                                                            Diatur</span>
+                                                    @endif
+                                                </td>
+                                                <td style="text-align: justify;">
+                                                    @if ($package->addOnPackageDetails->isNotEmpty())
+                                                        @foreach ($package->addOnPackageDetails as $index => $addOnDetail)
+                                                            {{ $addOnDetail->sum }}
+                                                            {{ $addOnDetail->addOnPackage->name }}
+                                                            @if (!$loop->last)
+                                                                <br>&
+                                                            @endif
+                                                        @endforeach
+                                                    @else
+                                                        Tidak ada
+                                                    @endif
+                                                </td>
+                                                @if (auth()->guard('owner')->check())
+                                                    <td>
+                                                        <a href="#" class="btn btn-outline-secondary btn-lg"
+                                                            onclick="showPackageDetail({{ $package->id }}, '{{ $venue->id }}', '{{ $service->id }}')"
+                                                            style="width: 50px;" data-toggle="tooltip"
+                                                            data-placement="auto" title="Detail Paket"
+                                                            data-venue="{{ $venue->id }}"
+                                                            data-service="{{ $service->id }}">
+                                                            <i class="fas fa-info"></i>
+                                                        </a>
+                                                        <div class="modal fade" id="detailPackageModal" tabindex="-1"
+                                                            role="dialog" aria-labelledby="detailPackageModalLabel"
+                                                            aria-hidden="true">
+                                                            <div class="modal-dialog modal-xl modal-dialog-centered"
+                                                                role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header bg-info text-white">
+                                                                        <h5 class="modal-title text-white"
+                                                                            id="detailPackageModalLabel">
+                                                                            Detail <span id="packageName"></span>
+                                                                            <i class="fas fa-info-circle ml-2"></i>
+                                                                        </h5>
+                                                                        <button type="button" class="close text-white"
+                                                                            data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div class="container-fluid">
+                                                                            <div class="row">
+                                                                                <div class="col-md-12 mt-3">
+                                                                                    <div class="card">
+                                                                                        <div class="card-body">
+                                                                                            <h6 class="card-title">
+                                                                                                Detail Paket
+                                                                                                Layanan</h6>
+                                                                                            <hr>
+                                                                                            <div id="servicePackageList"
+                                                                                                class="table-responsive">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <div class="card">
+                                                                                        <div class="card-body">
+                                                                                            <h6 class="card-title">
+                                                                                                Informasi
+                                                                                                Paket
+                                                                                            </h6>
+                                                                                            <hr>
+                                                                                            <div id="packageInfo">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <div class="card">
+                                                                                        <div class="card-body">
+                                                                                            <h6 class="card-title">
+                                                                                                Daftar Cetak
+                                                                                                Foto</h6>
+                                                                                            <hr>
+                                                                                            <div id="printPhotoList"
+                                                                                                class="table-responsive">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                            data-dismiss="modal">Tutup</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <a href="{{ route('owner.venue.services.packages.edit', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
+                                                            style="width: 50px;" class="btn btn-outline-info btn-lg"
+                                                            data-toggle="tooltip" data-placement="auto"
+                                                            title="Edit Paket">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="javascript:;"
+                                                            class="btn btn-outline-danger btn-lg deletePackageBtn"
+                                                            data-package-id="{{ $package->id }}" style="width: 50px;">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     @else
                                         <tr>
-                                            <td colspan="2">
-                                                <div class="alert alert-info text-center">Tidak Ada Cetak Foto Layanan
-                                                </div>
+                                            <td colspan="7">
+                                                <div class="alert alert-info text-center">Tidak Ada List Paket
+                                                    Harga.</div>
                                             </td>
                                         </tr>
                                     @endif
@@ -187,165 +323,33 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <div class="card shadow mb-3">
-                    <div class="card-header bg-info">
-                        <h2 class="card-title text-center text-white mb-0">List Paket Foto Layanan</h2>
-                    </div>
-                    <div class="card-body pt-0">
-                        @if (auth()->guard('owner')->check())
-                            <a href="{{ route('owner.venue.services.packages.create', ['venue' => $venue->id, 'service' => $service->id]) }}"
-                                class="btn btn-primary float-right my-3">
-                                <i class="fas fa-plus"></i> Paket Foto
-                            </a>
-                        @endif
-                        <table class="table table-bordered">
-                            <thead class="thead-light">
+            {{-- <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Ukuran Foto</th>
+                            <th>Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($printServiceEvents->count() > 0)
+                            @foreach ($printServiceEvents as $index => $printServiceEvent)
                                 <tr>
-                                    <th>#</th>
-                                    <th>Nama Paket</th>
-                                    <th>Metode Pembayaran</th>
-                                    <th>Add On</th>
-                                    <th>Action</th>
+                                    <td>{{ $printServiceEvent->printPhoto->size }}</td>
+                                    <td>Rp {{ number_format($printServiceEvent->price, 0, ',', '.') }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @if ($packages->count() > 0) 
-                                    @foreach ($packages as $index => $package)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $package->name }}</td>
-                                            <td class="align-middle text-center">
-                                                @if ($package->dp_status !== null)
-                                                    @switch($package->dp_status)
-                                                        @case(0)
-                                                            <span class="badge badge-info" style="font-size:small;">Lunas</span>
-                                                        @break
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="2">
+                                    <div class="alert alert-info text-center">Tidak Ada Cetak Foto Layanan
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table> --}}
 
-                                                        @case(1)
-                                                            <span class="badge badge-success" style="font-size:small;">DP {{$package->dp_percentage*100}} %</span>
-                                                        @break
 
-                                                        @case(2)
-                                                            <span class="badge badge-success" style="font-size:small;">Min.
-                                                                Bayar Rp {{ number_format($package->dp_min, 0, ',', '.') }}</span>
-                                                        @break
-
-                                                        @default
-                                                            <span class="badge badge-danger" style="font-size:small;">Tidak
-                                                                Valid</span>
-                                                    @endswitch
-                                                @else
-                                                    <span class="badge badge-danger" style="font-size:small;">Belum Diatur</span>
-                                                @endif
-                                            </td>
-                                            <td style="text-align: justify;">
-                                                @if ($package->addOnPackageDetails->isNotEmpty())
-                                                    @foreach ($package->addOnPackageDetails as $index => $addOnDetail)
-                                                        {{ $addOnDetail->sum }} {{ $addOnDetail->addOnPackage->name }}
-                                                        @if (!$loop->last)
-                                                            <br>&
-                                                        @endif
-                                                    @endforeach
-                                                @else
-                                                    Tidak ada
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <a href="#" class="btn btn-outline-secondary btn-lg"
-                                                    onclick="showPackageDetail({{ $package->id }}, '{{ $venue->id }}', '{{ $service->id }}')"
-                                                    style="width: 50px;" data-toggle="tooltip" data-placement="auto"
-                                                    title="Detail Paket" data-venue="{{ $venue->id }}"
-                                                    data-service="{{ $service->id }}">
-                                                    <i class="fas fa-info"></i>
-                                                </a>
-                                                <div class="modal fade" id="detailPackageModal" tabindex="-1"
-                                                    role="dialog" aria-labelledby="detailPackageModalLabel"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-xl modal-dialog-centered"
-                                                        role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header bg-info text-white">
-                                                                <h5 class="modal-title text-white"
-                                                                    id="detailPackageModalLabel">
-                                                                    Detail <span id="packageName"></span> <i
-                                                                        class="fas fa-info-circle ml-2"></i>
-                                                                </h5>
-                                                                <button type="button" class="close text-white"
-                                                                    data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="container-fluid">
-                                                                    <div class="row">
-                                                                        <div class="col-md-12 mt-3">
-                                                                            <div class="card">
-                                                                                <div class="card-body">
-                                                                                    <h6 class="card-title">Detail Paket
-                                                                                        Layanan</h6>
-                                                                                    <hr>
-                                                                                    <div id="servicePackageList"
-                                                                                        class="table-responsive"></div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-md-6">
-                                                                            <div class="card">
-                                                                                <div class="card-body">
-                                                                                    <h6 class="card-title">Informasi Paket
-                                                                                    </h6>
-                                                                                    <hr>
-                                                                                    <div id="packageInfo"></div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-md-6">
-                                                                            <div class="card">
-                                                                                <div class="card-body">
-                                                                                    <h6 class="card-title">Daftar Cetak
-                                                                                        Foto</h6>
-                                                                                    <hr>
-                                                                                    <div id="printPhotoList"
-                                                                                        class="table-responsive"></div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary"
-                                                                    data-dismiss="modal">Tutup</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <a href="{{ route('owner.venue.services.packages.edit', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
-                                                    style="width: 50px;" class="btn btn-outline-info btn-lg"
-                                                    data-toggle="tooltip" data-placement="auto" title="Edit Paket">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="javascript:;"
-                                                    class="btn btn-outline-danger btn-lg deletePackageBtn"
-                                                    data-package-id="{{ $package->id }}" style="width: 50px;">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="7">
-                                            <div class="alert alert-info text-center">Tidak Ada List Paket Harga.</div>
-                                        </td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
 
             <div class="card shadow">
                 <div class="card-header bg-info">

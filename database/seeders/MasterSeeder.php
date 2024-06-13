@@ -267,6 +267,10 @@ class MasterSeeder extends Seeder
             [
                 'service_name' => 'Couple',
                 'service_slug' => 'couple'
+            ],
+            [
+                'service_name' => 'Lainnya',
+                'service_slug' => 'lainnya'
             ]
 
         ]);
@@ -352,15 +356,25 @@ class MasterSeeder extends Seeder
             [
                 'size' => 'B3'
             ],
-
-
         ]);
         DB::table('add_on_packages')->insert([
             [
-                'name' => 'Moment'
+                'name' => 'Momen'
             ],
             [
                 'name' => 'Outfit'
+            ],
+            [
+                'name' => 'Kostum'
+            ],
+            [
+                'name' => 'Latar'
+            ],
+            [
+                'name' => 'Frame Foto'
+            ],
+            [
+                'name' => 'Cetak Foto'
             ],
 
         ]);

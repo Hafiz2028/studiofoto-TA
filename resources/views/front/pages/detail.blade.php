@@ -68,10 +68,15 @@
                             <a href="https://wa.me/{{ $venue->phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
                                 target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto" data-placement="auto"
                                 class="primary-btn"><i class="fab fa-whatsapp" style="font-size:10mm;"></i></a>
-                            <a href="{{ route('customer.booking.create') }}" class="primary-btn" data-toggle="modal"
-                                data-target="#bookingModal">BOOKING</a>
+                            @if (auth()->guard('customer')->check())
+                                <a href="{{ route('customer.booking.create') }}" class="primary-btn" data-toggle="modal"
+                                    data-target="#bookingModal">BOOKING</a>
+                                @include('back.pages.owner.booking-manage.create')
+                            @else
+                            <a href="javascript:;" id="openDetailVenue" class="primary-btn" data-toggle="modal"
+                            data-target="#openDetailVenue">BOOKING</a>
+                            @endif
                         </div>
-                        @include('back.pages.owner.booking-manage.create')
                         <ul>
                             <li><b>Availability</b> <span>In Stock</span></li>
                             <li><b>Shipping</b> <span>01 day shipping. <samp>Free pickup today</samp></span></li>
@@ -250,133 +255,39 @@
 
 @endsection
 @push('scripts')
-    {{-- <script>
-        $(document).ready(function() {
-            let venueId = $('#venue_id').val();
-            $('#service_type').change(function() {
-                let serviceTypeId = $(this).val();
-                console.log("Selected serviceTypeId:", serviceTypeId);
-                console.log("Using venueId:", venueId);
-                resetSelects(['#service_event', '#package', '#package_detail', '#print_photo_detail']);
+    {{-- modal back login --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const openDetailVenue = document.getElementById('openDetailVenue');
 
-                if (serviceTypeId) {
-                    $.get(`/api/cust/services/${serviceTypeId}`, {
-                        venue_id: venueId
-                    }, function(data) {
-                        console.log("Service Events:", data);
-                        $('#service_event').html(
-                            '<option value="" disabled selected>Pilih Layanan...</option>');
-                        data.forEach(service => {
-                            console.log("Adding service to select:", service.name, service
-                                .id);
-                            if (!$('#service_event').find(`[value="${service.id}"]`)
-                                .length) {
-                                $('#service_event').append($('<option>', {
-                                    value: service.id,
-                                    text: service.name
-                                }));
-                            }
-                        });
-                        console.log($('#service_event').html());
-                    }).fail(function() {
-                        console.log("Failed to fetch service events.");
-                    });
-                }
-            });
-
-            $('#service_event').change(function() {
-                let serviceEventId = $(this).val();
-                resetSelects(['#package', '#package_detail', '#print_photo_detail']);
-                if (serviceEventId) {
-                    $.get(`/api/cust/packages/${serviceEventId}`, function(data) {
-                        console.log("Packages:", data);
-                        let $select = $('#package');
-                        $select.empty().append(
-                            '<option value="" disabled selected>Pilih Paket Foto...</option>');
-                        data.forEach(package => {
-                            let optionText = `${package.name}`;
-                            if (package.addOnPackageDetails) {
-                                package.addOnPackageDetails.forEach(detail => {
-                                    optionText +=
-                                        ` - ${detail.addOnPackage.name} (${detail.sum})`;
-                                });
-                            }
-                            $select.append(new Option(optionText, package.id));
-                        });
-                    }).fail(function() {
-                        console.log("Failed to fetch packages.");
-                    });;
-                }
-            });
-
-            $('#package').change(function() {
-                let packageId = $(this).val();
-                resetSelects(['#package_detail', '#print_photo_detail']);
-                if (packageId) {
-                    $.get(`/api/cust/package-details/${packageId}`, function(data) {
-                        console.log("Package Details:", data);
-                        let $select = $('#package_detail');
-                        $select.empty().append(
-                            '<option value="" disabled selected>Pilih Jumlah Orang...</option>');
-                        data.forEach(detail => {
-                            let optionText =
-                                `${detail.sum_person} Orang - Rp ${number_format(detail.price, 0, 0)}`;
-                            $select.append(new Option(optionText, detail.id));
-                        });
-
-                        $.get(`/api/cust/print-photo-details/${packageId}`, function(data) {
-                            console.log("Print Photo Details:", data);
-                            let $select = $('#print_photo_detail');
-                            $select.empty().append(
-                                '<option value="" disabled selected>Pilih Cetak Foto...</option>'
-                            );
-                            data.forEach(printPhotoDetail => {
-                                let optionText =
-                                    `Size ${printPhotoDetail.printServiceEvent.printPhoto.size} - Rp ${number_format(printPhotoDetail.printServiceEvent.price, 0, 0)}`;
-                                $select.append(new Option(optionText,
-                                    printPhotoDetail.id));
-                            });
-                        });
-                    }).fail(function() {
-                        console.log("Failed to fetch packages.");
-                    });;
-                }
-            });
-
-            function resetSelects(selectIds) {
-                selectIds.forEach(id => {
-                    $(id).empty().append('<option value="" disabled selected>Pilih...</option>');
+            openDetailVenue.addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Belum Login',
+                    text: 'Silahkan untuk melakukan login atau register akun.',
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonText: 'Register',
+                    cancelButtonColor: '#2843da',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('customer.login') }}";
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        window.location.href = "{{ route('customer.register') }}";
+                    }
                 });
-            }
-
-            function number_format(number, decimals, decPoint, thousandsSep) {
-                number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-                let n = !isFinite(+number) ? 0 : +number,
-                    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-                    sep = (typeof thousandsSep === 'undefined') ? ',' : thousandsSep,
-                    dec = (typeof decPoint === 'undefined') ? '.' : decPoint,
-                    s = '',
-                    toFixedFix = function(n, prec) {
-                        let k = Math.pow(10, prec);
-                        return '' + (Math.round(n * k) / k).toFixed(prec);
-                    };
-                s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-                if (s[0].length > 3) {
-                    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-                }
-                if ((s[1] || '').length < prec) {
-                    s[1] = s[1] || '';
-                    s[1] += new Array(prec - s[1].length + 1).join('0');
-                }
-                return s.join(dec);
-            }
-
-            document.addEventListener('touchstart', function() {}, {
-                passive: true
             });
         });
-    </script> --}}
-
+    </script>
+    <script>
+        function openLink(event, url) {
+            event.preventDefault();
+            window.open(url, '_blank');
+            return false;
+        }
+    </script>
     {{-- create booking --}}
     <script>
         var selectedPackageDetailId;
@@ -766,7 +677,8 @@
                     inputElement.value = openingHour.id;
                     inputElement.style.display = 'none';
 
-                    if (openingHour.status == 1 || isBooked || (selectedDate.toDateString() === now.toDateString() && now > scheduleTime)) {
+                    if (openingHour.status == 1 || isBooked || (selectedDate.toDateString() === now
+                            .toDateString() && now > scheduleTime)) {
                         labelElement.classList.add('btn-secondary-disabled');
                         labelElement.style.pointerEvents = 'none';
                         labelElement.style.opacity = '0.65';
@@ -983,4 +895,131 @@
             });
         });
     </script>
+
+    {{-- <script>
+        $(document).ready(function() {
+            let venueId = $('#venue_id').val();
+            $('#service_type').change(function() {
+                let serviceTypeId = $(this).val();
+                console.log("Selected serviceTypeId:", serviceTypeId);
+                console.log("Using venueId:", venueId);
+                resetSelects(['#service_event', '#package', '#package_detail', '#print_photo_detail']);
+
+                if (serviceTypeId) {
+                    $.get(`/api/cust/services/${serviceTypeId}`, {
+                        venue_id: venueId
+                    }, function(data) {
+                        console.log("Service Events:", data);
+                        $('#service_event').html(
+                            '<option value="" disabled selected>Pilih Layanan...</option>');
+                        data.forEach(service => {
+                            console.log("Adding service to select:", service.name, service
+                                .id);
+                            if (!$('#service_event').find(`[value="${service.id}"]`)
+                                .length) {
+                                $('#service_event').append($('<option>', {
+                                    value: service.id,
+                                    text: service.name
+                                }));
+                            }
+                        });
+                        console.log($('#service_event').html());
+                    }).fail(function() {
+                        console.log("Failed to fetch service events.");
+                    });
+                }
+            });
+
+            $('#service_event').change(function() {
+                let serviceEventId = $(this).val();
+                resetSelects(['#package', '#package_detail', '#print_photo_detail']);
+                if (serviceEventId) {
+                    $.get(`/api/cust/packages/${serviceEventId}`, function(data) {
+                        console.log("Packages:", data);
+                        let $select = $('#package');
+                        $select.empty().append(
+                            '<option value="" disabled selected>Pilih Paket Foto...</option>');
+                        data.forEach(package => {
+                            let optionText = `${package.name}`;
+                            if (package.addOnPackageDetails) {
+                                package.addOnPackageDetails.forEach(detail => {
+                                    optionText +=
+                                        ` - ${detail.addOnPackage.name} (${detail.sum})`;
+                                });
+                            }
+                            $select.append(new Option(optionText, package.id));
+                        });
+                    }).fail(function() {
+                        console.log("Failed to fetch packages.");
+                    });;
+                }
+            });
+
+            $('#package').change(function() {
+                let packageId = $(this).val();
+                resetSelects(['#package_detail', '#print_photo_detail']);
+                if (packageId) {
+                    $.get(`/api/cust/package-details/${packageId}`, function(data) {
+                        console.log("Package Details:", data);
+                        let $select = $('#package_detail');
+                        $select.empty().append(
+                            '<option value="" disabled selected>Pilih Jumlah Orang...</option>');
+                        data.forEach(detail => {
+                            let optionText =
+                                `${detail.sum_person} Orang - Rp ${number_format(detail.price, 0, 0)}`;
+                            $select.append(new Option(optionText, detail.id));
+                        });
+
+                        $.get(`/api/cust/print-photo-details/${packageId}`, function(data) {
+                            console.log("Print Photo Details:", data);
+                            let $select = $('#print_photo_detail');
+                            $select.empty().append(
+                                '<option value="" disabled selected>Pilih Cetak Foto...</option>'
+                            );
+                            data.forEach(printPhotoDetail => {
+                                let optionText =
+                                    `Size ${printPhotoDetail.printServiceEvent.printPhoto.size} - Rp ${number_format(printPhotoDetail.printServiceEvent.price, 0, 0)}`;
+                                $select.append(new Option(optionText,
+                                    printPhotoDetail.id));
+                            });
+                        });
+                    }).fail(function() {
+                        console.log("Failed to fetch packages.");
+                    });;
+                }
+            });
+
+            function resetSelects(selectIds) {
+                selectIds.forEach(id => {
+                    $(id).empty().append('<option value="" disabled selected>Pilih...</option>');
+                });
+            }
+
+            function number_format(number, decimals, decPoint, thousandsSep) {
+                number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+                let n = !isFinite(+number) ? 0 : +number,
+                    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                    sep = (typeof thousandsSep === 'undefined') ? ',' : thousandsSep,
+                    dec = (typeof decPoint === 'undefined') ? '.' : decPoint,
+                    s = '',
+                    toFixedFix = function(n, prec) {
+                        let k = Math.pow(10, prec);
+                        return '' + (Math.round(n * k) / k).toFixed(prec);
+                    };
+                s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                if (s[0].length > 3) {
+                    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                }
+                if ((s[1] || '').length < prec) {
+                    s[1] = s[1] || '';
+                    s[1] += new Array(prec - s[1].length + 1).join('0');
+                }
+                return s.join(dec);
+            }
+
+            document.addEventListener('touchstart', function() {}, {
+                passive: true
+            });
+        });
+    </script> --}}
 @endpush

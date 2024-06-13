@@ -46,7 +46,7 @@
                 </div>
                 <hr>
 
-                <form id="payment_form"
+                <form id="payment_form" 
                     action="{{ route('owner.venue.services.packages.store', ['venue' => $venue->id, 'service' => $service->id]) }}"
                     method="POST" enctype="multipart/form-data" class="mt-3">
                     <input type="hidden" name="venue_id" value="{{ $venue->id }}">

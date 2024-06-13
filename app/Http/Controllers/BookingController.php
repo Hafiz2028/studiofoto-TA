@@ -99,7 +99,7 @@ class BookingController extends Controller
     {
 
         $cutoffTime = Carbon::now()->setSeconds(0);
-        $rents = Rent::where('rent_status', 1)->get();
+        $rents = Rent::whereIn('rent_status', [1, 5, 0])->get();
         $expiredRents = [];
         foreach ($rents as $rent) {
             $rentExpired = false;
@@ -134,10 +134,11 @@ class BookingController extends Controller
 
         if (count($expiredRents) > 0) {
             $message = [];
-            $message[] = 'Terdapat Jadwal yang Expired:';
+            $message[] = 'Terdapat Jadwal Expired:';
             foreach ($expiredRents as $rent) {
                 $message[] = "(Faktur: {$rent['faktur']}, Nama Cust: {$rent['name']})";
             }
+            $message[] = 'Jika ada booking yang expired, jadwal tidak bisa diperbaharui.';
             return response()->json([
                 'status' => 'success',
                 'message' => $message,
@@ -148,7 +149,7 @@ class BookingController extends Controller
         } else {
             return response()->json([
                 'status' => 'info',
-                'message' => 'Tidak ada jadwal yang expired',
+                'message' => 'Tidak ada Jadwal Expired',
                 'openingHour' => $openingHour->toArray(),
                 'cutoffTime' => $cutoffTime->toArray()
             ]);
@@ -216,6 +217,7 @@ class BookingController extends Controller
                     'date' => $rentDetail->rent->date,
                 ];
             })
+            ->values()
             ->toArray();
 
         $data = [

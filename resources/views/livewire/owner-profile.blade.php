@@ -1,4 +1,4 @@
-<div> 
+<div>
     <div class="row">
         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
             <div class="pd-20 card-box height-100-p">
@@ -21,21 +21,43 @@
                         <a href="javascript:;"
                             onclick="event.preventDefault();document.getElementById('ownerKtpImageFile').click();"
                             class="edit-avatar"
-                            style="position: absolute; top: 0; right: 0; background-color: white; border-radius: 50%; padding: 5px; transition: background-color 0.3s, color 0.3s;"
-                            onmouseover="this.style.backgroundColor='black'; this.querySelector('i').style.color='white';"
-                            onmouseout="this.style.backgroundColor='white'; this.querySelector('i').style.color='black';">
+                            style="position: absolute; top: 0; right: 0; background-color: #757575; border-radius: 50%; padding: 5px; transition: background-color 0.3s, color 0.3s;"
+                            onmouseover="this.style.backgroundColor='white'; this.querySelector('i').style.color='#757575';"
+                            onmouseout="this.style.backgroundColor='#757575'; this.querySelector('i').style.color='white';">
                             <i class="fas fa-pencil-alt"
-                                style="color: black; font-size: 20px; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center;"></i>
+                                style="color: white; font-size: 20px; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center;"></i>
                         </a>
                         <img src="{{ $owner->ktp }}" alt="" class="avatar-photo" id="ownerKtpImage">
                         <input type="file" name="ownerKtpImageFile" id="ownerKtpImageFile" class="d-none"
                             style="opacity:0;">
                     </div>
-                    <h5 class="text-center h5 mb-0">KTP</h5>
+                    <h5 class="text-center h5 my-2">KTP Owner</h5>
                     @if ($owner->ktp !== 'http://studiofoto.test/images/users/owners/KTP_owner/ktp.png')
-                        <p class="alert alert-success">Ada</p>
+                        <p class="alert alert-success mb-4">Ada</p>
                     @else
-                        <p class="alert alert-danger">Tidak Ada</p>
+                        <p class="alert alert-danger mb-4">Tidak Ada</p>
+                    @endif
+                </div>
+                <div class="divider"></div>
+                <div class="logo-section text-center">
+                    <div class="logo-photo" style="position: relative;">
+                        <a href="javascript:;"
+                            onclick="event.preventDefault();document.getElementById('ownerLogoImageFile').click();"
+                            class="edit-avatar"
+                            style="position: absolute; top: 0; right: 0; background-color: #757575; border-radius: 50%; padding: 5px; transition: background-color 0.3s, color 0.3s;"
+                            onmouseover="this.style.backgroundColor='white'; this.querySelector('i').style.color='#757575';"
+                            onmouseout="this.style.backgroundColor='#757575'; this.querySelector('i').style.color='white';"><i
+                                class="fas fa-pencil-alt"
+                                style="color: white; font-size: 20px; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center;"></i></a>
+                        <img src="{{ $owner->logo }}" alt="" class="avatar-photo" id="ownerLogoImage">
+                        <input type="file" name="ownerLogoImageFile" id="ownerLogoImageFile" class="d-none"
+                            style="opacity:0">
+                    </div>
+                    <h5 class="text-center h5 my-2">Logo Studio Foto</h5>
+                    @if ($owner->logo !== 'http://studiofoto.test/images/users/owners/LOGO_owner/default-logo.png')
+                        <p class="alert alert-success mb-4">Ada</p>
+                    @else
+                        <p class="alert alert-danger mb-4">Tidak Ada</p>
                     @endif
                 </div>
             </div>

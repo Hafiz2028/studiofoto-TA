@@ -58,6 +58,64 @@
                                     @enderror
                                 </div>
                             </div>
+                            {{-- <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Single Select</label>
+                                    <select class="custom-select2 form-control" name="state"
+                                        style="width: 100%; height: 38px">
+                                        <optgroup label="Alaskan/Hawaiian Time Zone">
+                                            <option value="AK">Alaska</option>
+                                            <option value="HI">Hawaii</option>
+                                        </optgroup>
+                                        <optgroup label="Pacific Time Zone">
+                                            <option value="CA">California</option>
+                                            <option value="NV">Nevada</option>
+                                            <option value="OR">Oregon</option>
+                                            <option value="WA">Washington</option>
+                                        </optgroup>
+                                        <optgroup label="Mountain Time Zone">
+                                            <option value="AZ">Arizona</option>
+                                            <option value="CO">Colorado</option>
+                                            <option value="ID">Idaho</option>
+                                            <option value="MT">Montana</option>
+                                            <option value="NE">Nebraska</option>
+                                            <option value="NM">New Mexico</option>
+                                            <option value="ND">North Dakota</option>
+                                            <option value="UT">Utah</option>
+                                            <option value="WY">Wyoming</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Multiple Select</label>
+                                    <select class="custom-select2 form-control" multiple="multiple" style="width: 100%;background-color:#e27201">
+                                        <optgroup label="Alaskan/Hawaiian Time Zone">
+                                            <option value="AK">Alaska</option>
+                                            <option value="HI">Hawaii</option>
+                                        </optgroup>
+                                        <optgroup label="Pacific Time Zone">
+                                            <option value="CA">California</option>
+                                            <option value="NV">Nevada</option>
+                                            <option value="OR">Oregon</option>
+                                            <option value="WA">Washington</option>
+                                        </optgroup>
+                                        <optgroup label="Mountain Time Zone">
+                                            <option value="AZ">Arizona</option>
+                                            <option value="CO">Colorado</option>
+                                            <option value="ID">Idaho</option>
+                                            <option value="MT">Montana</option>
+                                            <option value="NE">Nebraska</option>
+                                            <option value="NM">New Mexico</option>
+                                            <option value="ND">North Dakota</option>
+                                            <option value="UT">Utah</option>
+                                            <option value="WY">Wyoming</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div> --}}
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="service_type_id"><strong>2. Jenis Layanan</strong></label>
@@ -85,7 +143,8 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6 col-lg-12">
+                        </div>
+                        {{-- <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch"><strong>4. Cetak Foto Layanan</strong></label>
                                     <div class="custom-control custom-switch">
@@ -125,7 +184,8 @@
                                                                 id="print_photo_{{ $printPhoto->id }}"
                                                                 name="print_photos[]" value="{{ $printPhoto->id }}">
                                                             <label class="custom-control-label"
-                                                                for="print_photo_{{ $printPhoto->id }}">Size <strong>{{ $printPhoto->size }}</strong></label>
+                                                                for="print_photo_{{ $printPhoto->id }}">Size
+                                                                <strong>{{ $printPhoto->size }}</strong></label>
                                                         </div>
                                                     @endif
                                                 @endfor
@@ -133,16 +193,12 @@
                                         @endfor
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
-                        </div>
-                        <div class="row">
-
-                        </div>
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label><strong>5. Katalog Harga Layanan (optional)</strong></label>
+                                    <label><strong>4. Katalog Harga Layanan (optional)</strong></label>
                                     <div class="custom-file">
                                         <input type="file"
                                             class="custom-file-input @error('catalog') is-invalid @enderror"
@@ -159,7 +215,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label><strong>6. Foto Layanan</strong></label>
+                                    <label><strong>5. Foto Layanan</strong></label>
                                     <div class="custom-file">
                                         <input type="file"
                                             class="custom-file-input @error('images.*') is-invalid @enderror"

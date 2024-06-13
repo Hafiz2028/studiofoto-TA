@@ -412,6 +412,27 @@ class OwnerController extends Controller
             return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
         }
     }
+    public function changeLogoImage(Request $request)
+    {
+        $owner = Owner::findOrFail(auth('owner')->id());
+        $path = 'images/users/owners/LOGO_owner';
+        $file = $request->file('ownerLogoImageFile');
+        $old_logo = $owner->getAttributes()['logo'];
+        $file_path = $path . $old_logo;
+        $filename = 'OWNER_LOGO_IMG_' . rand(2, 1000) . $owner->id . time() . uniqid() . '.jpg';
+
+        $upload = $file->move(public_path($path), $filename);
+
+        if ($upload) {
+            if ($old_logo != null && File::exists(public_path($file_path))) {
+                File::delete(public_path($file_path));
+            }
+            $owner->update(['logo' => $filename]);
+            return response()->json(['status' => 1, 'msg' => 'Your Profile Company has been successfully uploaded']);
+        } else {
+            return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
+        }
+    }
 
 
 

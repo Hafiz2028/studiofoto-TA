@@ -50,8 +50,8 @@
                                     <th>Tanggal</th>
                                     <th>Nama</th>
                                     <th>Venue</th>
-                                    <th>Paket Foto</th>
                                     <th>Jadwal</th>
+                                    <th>Total Harga</th>
                                     <th>Status</th>
                                     <th>Pembayaran</th>
                                     <th>Actions</th>
@@ -67,19 +67,19 @@
                                 @else
                                     @foreach ($rents as $rent)
                                         <tr id="rent-{{ $rent->id }}">
-                                            <td>{{ $rent->date }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</td>
                                             <td>{{ $rent->name }}
                                             </td>
                                             <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}
                                             </td>
-                                            <td>{{ $rent->servicePackageDetail->servicePackage->name }}
+                                            {{-- <td>{{ $rent->servicePackageDetail->servicePackage->name }}
                                                 @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty())
                                                     @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
                                                         + ({{ $addOnPackageDetail->sum }}
                                                         {{ $addOnPackageDetail->addOnPackage->name }})
                                                     @endforeach
                                                 @endif
-                                            </td>
+                                            </td> --}}
                                             <td>
                                                 @if ($rent->formatted_schedule == null)
                                                     <div class="badge badge-danger">Tidak ada</div>
@@ -87,24 +87,40 @@
                                                     {{ $rent->formatted_schedule }}
                                                 @endif
                                             </td>
+                                            <td>
+                                                Rp {{ number_format($rent->total_price) }}
+                                            </td>
                                             <td style="text-align: center;">
                                                 @if ($rent->formatted_schedule == null)
                                                     <span class="badge badge-danger">Jadwal Salah</span>
                                                 @else
                                                     @if ($rent->rent_status == 0)
-                                                        <span class="badge badge-info ">Diajukan</span>
+                                                        <span class="badge badge-info "><i
+                                                                class="icon-copy dw dw-question"></i> Diajukan</span>
                                                     @elseif ($rent->rent_status == 1)
-                                                        <span class="badge badge-success ">Dibooking</span>
+                                                        <span class="badge badge-success "><i
+                                                                class="icon-copy dw dw-checked"></i> Dibooking</span>
                                                     @elseif ($rent->rent_status == 2)
-                                                        <span class="badge badge-primary ">Selesai</span>
+                                                        <span class="badge badge-primary "><i
+                                                                class="icon-copy fa fa-calendar-check-o"
+                                                                aria-hidden="true"></i> Selesai</span>
                                                     @elseif ($rent->rent_status == 3)
-                                                        <span class="badge badge-danger ">Ditolak</span>
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy dw dw-cancel"></i> Ditolak</span>
                                                     @elseif ($rent->rent_status == 4)
-                                                        <span class="badge badge-secondary ">Expired</span>
+                                                        <span class="badge badge-secondary "><i
+                                                                class="icon-copy dw dw-calendar-8"></i> Expired</span>
                                                     @elseif ($rent->rent_status == 5)
-                                                        <span class="badge badge-warning ">Belum Bayar</span>
+                                                        <span class="badge badge-warning "><i
+                                                                class="icon-copy dw dw-money-1"></i> Belum Bayar</span>
                                                     @elseif ($rent->rent_status == 6)
-                                                        <span class="badge badge-dark ">Sedang Foto</span>
+                                                        <span class="badge badge-dark "><i
+                                                                class="icon-copy fa fa-camera-retro" aria-hidden="true"></i>
+                                                            Sedang Foto</span>
+                                                    @elseif ($rent->rent_status == 7)
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy fa fa-calendar-times-o"
+                                                                aria-hidden="true"></i> Dibatalkan</span>
                                                     @else
                                                         <span class="badge badge-danger ">Tidak Valid</span>
                                                     @endif
@@ -115,14 +131,18 @@
                                                     <span class="badge badge-secondary ">Expired</span>
                                                 @else
                                                     @if ($rent->dp_price == $rent->total_price)
-                                                        <span class="badge badge-success">Lunas</span>
+                                                        <span class="badge badge-success"><i
+                                                                class="icon-copy dw dw-money-2"></i> Lunas</span>
                                                     @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
-                                                        <span class="badge badge-info ">Dp (Rp
+                                                        <span class="badge badge-info "><i
+                                                                class="icon-copy dw dw-money-2"></i> Dp (Rp
                                                             {{ number_format($rent->dp_price) }})</span>
                                                     @elseif ($rent->dp_price == null)
-                                                        <span class="badge badge-warning ">Belum Bayar</span>
+                                                        <span class="badge badge-warning "><i
+                                                                class="icon-copy dw dw-question"></i> Belum Bayar</span>
                                                     @else
-                                                        <span class="badge badge-danger ">Tidak Valid</span>
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy dw dw-cancel"></i> Tidak Valid</span>
                                                     @endif
                                                 @endif
                                             </td>
@@ -146,11 +166,15 @@
                                                         data-placement="auto" title="Detail Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="fas fa-info"></i></a>
-                                                    <a href="{{ route('owner.booking.edit', $rent->id) }}"
-                                                        class="btn btn-outline-primary" data-toggle="tooltip"
+                                                    <a href="javascript:void(0);"
+                                                        class="btn btn-outline-primary edit-schedule"
+                                                        data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
                                                         data-placement="auto" title="Edit Jadwal">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
+                                                    <script>
+                                                        const editUrlBase = "{{ route('owner.booking.edit', ':id') }}";
+                                                    </script>
                                                     <a href="" class="btn btn-outline-danger exclude-alert"
                                                         data-toggle="tooltip" data-placement="auto" title="Hapus Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
@@ -226,6 +250,67 @@
 @push('scripts')
     {{-- cek jadwal expired --}}
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('refresh-schedule').addEventListener('click', function() {
+                checkExpiredSchedule();
+            });
+
+            document.querySelectorAll('.edit-schedule').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const rentId = this.getAttribute('data-rent-id');
+                    checkExpiredSchedule(function(isExpired) {
+                        if (!isExpired) {
+                            const editUrl = editUrlBase.replace(':id', rentId);
+                            setTimeout(function() {
+                                window.location.href = editUrl;
+                            }, 1000);
+                        }
+                    });
+                });
+            });
+        });
+
+        function checkExpiredSchedule(callback) {
+            $.ajax({
+                url: '{{ route('owner.booking.update-status') }}',
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Jadwal Expired',
+                            html: data.message.join('<br>')
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                        if (callback) callback(true);
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Jadwal Tidak Expired',
+                            text: data.message
+                        });
+                        if (callback) callback(false);
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!'
+                    });
+                    if (callback) callback(true);
+                }
+            });
+        }
+    </script>
+    {{-- <script>
         document.getElementById('refresh-schedule').addEventListener('click', function() {
             $.ajax({
                 url: '{{ route('owner.booking.update-status') }}',
@@ -271,8 +356,7 @@
                 }
             });
         });
-    </script>
-
+    </script> --}}
     {{-- jadwal salah --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {

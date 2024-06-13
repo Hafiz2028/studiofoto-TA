@@ -12,7 +12,7 @@ class OwnerProfile extends Component
     public $tab = null;
     public $tabname = 'personal_details';
     protected $queryString = ['tab' => ['keep' => true]];
-    public $name, $email, $username, $owner_id, $handphone, $address, $ktp;
+    public $name, $email, $username, $owner_id, $handphone, $address, $ktp, $logo;
     public $current_password, $new_password, $new_password_confirmation;
 
     public function selectTab($tab)
@@ -32,6 +32,7 @@ class OwnerProfile extends Component
             $this->handphone = $owner->handphone;
             $this->address = $owner->address;
             $this->ktp = $owner->ktp;
+            $this->logo = $owner->logo;
         }
     }
     public function updateOwnerPersonalDetails()

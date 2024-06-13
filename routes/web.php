@@ -21,6 +21,7 @@ Route::controller(FrontEndController::class)->group(function () {
     Route::get('/search', 'searchPage')->name('search-page');
 });
 
+
 Route::view('/example-page', 'example-page');
 Route::view('/example-auth', 'example-auth');
 Route::view('/example-frontend', 'example-frontend');

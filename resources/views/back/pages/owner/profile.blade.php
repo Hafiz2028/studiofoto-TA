@@ -30,7 +30,6 @@
 @push('styles')
 @endpush
 @push('scripts')
-
     <script>
         window.addEventListener('updateOwnerInfo', function(event) {
             $('#ownerProfileName').html(event.detail.ownerName);
@@ -62,6 +61,27 @@
             withCSRF: ['_token', '{{ csrf_token() }}'],
             onSuccess: function(message, element, status) {
                 toastr.success(message);
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            },
+            onError: function(message, element, status) {
+                toastr.error(message);
+            }
+        });
+        $('input[type="file"][name="ownerLogoImageFile"][id="ownerLogoImageFile"]').ijaboCropTool({
+            preview: '#ownerLogoImage',
+            setRatio: 1,
+            allowedExtensions: ['jpg', 'jpeg', 'png'],
+            buttonsText: ['CROP', 'QUIT'],
+            buttonsColor: ['#30bf7d', '#ee5155', -15],
+            processUrl: '{{ route('owner.change-logo-image') }}',
+            withCSRF: ['_token', '{{ csrf_token() }}'],
+            onSuccess: function(message, element, status) {
+                toastr.success(message);
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
             },
             onError: function(message, element, status) {
                 toastr.error(message);

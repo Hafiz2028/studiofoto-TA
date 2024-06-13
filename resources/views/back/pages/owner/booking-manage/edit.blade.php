@@ -237,8 +237,27 @@
             var editScheduleContainer = document.getElementById('edit-schedule-container');
             var editOpeningHoursData = JSON.parse(document.getElementById('edit-opening-hours').value);
             var editUniqueDaysInput = document.getElementById('edit-unique-days');
-            var bookDates = JSON.parse(document.getElementById('book-dates').value);
-            console.log('Data bookDates:', bookDates);
+
+
+            var bookDatesElement = document.getElementById('book-dates');
+            var bookDates = [];
+            if (bookDatesElement) {
+                try {
+                    bookDates = JSON.parse(bookDatesElement.value);
+                    if (!Array.isArray(bookDates)) {
+                        console.error('bookDates is not an array:', bookDates);
+                        bookDates = Object.values(bookDates);
+                    }
+                    console.log('Type of bookDates:', Array.isArray(bookDates) ? 'array' : typeof bookDates);
+                    console.log('Content of bookDates:', bookDates);
+                } catch (e) {
+                    console.error('Failed to parse bookDates JSON:', e);
+                }
+            } else {
+                console.error('book-dates element not found');
+            }
+
+
             var editSelectedRentId = document.getElementById('selected_rent').value;
             var timeStatus = parseInt(document.querySelector('[data-time-status]').getAttribute(
                 'data-time-status'));

@@ -20,6 +20,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::post('/reset-password-handler', 'resetPasswordHandler')->name('reset-password-handler');
         });
     });
+    Route::controller(FrontEndController::class)->group(function () {
+        Route::get('/detail-not/{id}', 'detailVenueNotLogin')->name('detail-venue-not-login');
+    });
     Route::middleware(['auth:customer', 'PreventBackHistory'])->group(function () {
         Route::controller(CustomerController::class)->group(function () {
             Route::post('/logout', 'logoutHandler')->name('logout');

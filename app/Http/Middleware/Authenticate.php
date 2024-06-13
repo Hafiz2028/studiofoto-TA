@@ -20,7 +20,7 @@ class Authenticate extends Middleware
             } elseif ($request->routeIs('owner.*')) {
                 session()->flash('fail', 'you must login first');
                 return route('owner.login');
-            } elseif ($request->routeIs('customer.*')) {
+            } elseif ($request->routeIs('customer.*') && !$request->routeIs('customer.detail-venue.*')) {
                 session()->flash('fail', 'you must login first');
                 return route('home');
             }

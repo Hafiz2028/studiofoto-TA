@@ -85,7 +85,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-md-6 col-lg-12">
                                 <div class="form-group">
                                     <label for="print_photos_switch"><strong>3. Cetak Foto Layanan</strong></label>
@@ -143,13 +143,11 @@
                                     </div>
                                 </div>
                             </div>
-
-
-                        </div>
+                        </div> --}}
                         <div class="row mt-3">
                             <div class="col-md-6 col-lg-6">
                                 <div class="mb-0">
-                                    <label><strong>5. Preview Katalog Harga</strong></label>
+                                    <label><strong>4. Preview Katalog Harga</strong></label>
                                 </div>
                                 <div id="catalogPreview" class="image-preview mb-3">
                                     <img id="previewImage" src="/images/venues/Katalog/{{ $service->catalog }}"
@@ -164,7 +162,7 @@
                             </div>
                             <div class="col-md-6 col-lg-6">
                                 <div class="form-group">
-                                    <label for="description"><strong>6. Deskripsi Layanan</strong></label>
+                                    <label for="description"><strong>5. Deskripsi Layanan</strong></label>
                                     <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
                                         rows="4" placeholder="Isi deskripsi untuk venue">{{ $service->description }}</textarea>
                                     @error('description')
@@ -178,7 +176,8 @@
                             <div class="col-lg-12">
                                 <div class="row mb-3 px-3"
                                     style="display: flex; justify-content: space-between; align-items: center;">
-                                    <label style="margin-right: auto;"><strong>7. Preview Hasil Foto Layanan :</strong></label>
+                                    <label style="margin-right: auto;"><strong>6. Preview Hasil Foto Layanan
+                                            :</strong></label>
                                     <a href="javascript:void(0);" onclick="addPhoto()"
                                         class="btn btn-outline-primary btn-md">
                                         <i class="fas fa-plus"></i> Tambah gambar
@@ -186,8 +185,7 @@
                                 </div>
 
                                 <div class="row" id="imageContainer">
-                                    <input type="hidden" name="deletedImageIds" id="deletedImageIdsInput"
-                                        value="">
+                                    <input type="hidden" name="deletedImageIds" id="deletedImageIdsInput" value="">
                                     <!-- Gambar-gambar dari perulangan -->
                                     @foreach ($serviceEventImages as $key => $serviceEventImage)
                                         <div class="col-lg-3 col-md-4 col-sm-6 clone-{{ $key + 1 }}"
@@ -290,10 +288,10 @@
             var fileInputDiv = $("<div class='fileinput fileinput-new' data-provides='fileinput'></div>");
             var defaultImage = $(
                 "<div class='fileinput-new img-thumbnail default-photo' style='width: 300px; height: 200px; position: relative; overflow: hidden;'>\
-                                                        <img id='previewImage-" +
+                                                            <img id='previewImage-" +
                 newCloneNumber +
                 "' src='/images/venues/upload.png' style='width:auto; height:100%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);' alt='Preview Image'>\
-                                                    </div>"
+                                                        </div>"
             );
             fileInputDiv.append(defaultImage);
             var fileInputSpan = $(
@@ -302,8 +300,8 @@
             fileInputDiv.append(fileInputSpan);
             var deleteButton = $(
                 "<a href='javascript:void(0);' onclick='delClone(this)' class='btn btn-outline-danger btn-block'>\
-                                                        <i class='fas fa-trash'></i> Delete\
-                                                    </a>"
+                                                            <i class='fas fa-trash'></i> Delete\
+                                                        </a>"
             );
             fileInputDiv.append(deleteButton);
             var imageToDeleteInput = $("<input type='hidden' name='image_to_delete[]'>");
@@ -435,7 +433,7 @@
             reader.readAsDataURL(file);
         }
     </script>
-    {{-- print foto --}}
+    {{-- print foto
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const printPhotosSwitch = document.getElementById('print_photos_switch');
@@ -549,5 +547,5 @@
                 printPhotosOptions.style.display = 'block';
             }
         });
-    </script>
+    </script> --}}
 @endpush

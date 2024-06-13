@@ -52,30 +52,30 @@ class FrontEndController extends Controller
     public function detailVenue(Request $request, $id)
     {
         $customer = Auth::guard('customer')->user();
-        if ($customer) {
-            $this->venueId = $id;
-            $venue = Venue::findOrFail($id);
-            $minPrice = null;
+        $this->venueId = $id;
+        $venue = Venue::findOrFail($id);
+        $minPrice = null;
+        $maxPrice = 0;
+        $hasPackage = false;
+        foreach ($venue->serviceEvents as $serviceEvent) {
+            foreach ($serviceEvent->servicePackages as $package) {
+                $hasPackage = true;
+
+                foreach ($package->servicePackageDetails as $packageDetail) {
+                    $minPrice = ($minPrice == 0) ? $packageDetail->price : min($minPrice, $packageDetail->price);
+                    $maxPrice = max($maxPrice, $packageDetail->price);
+                }
+            }
+
+            foreach ($serviceEvent->printServiceEvents as $printEvent) {
+                $maxPrice += $printEvent->price;
+            }
+        }
+        if (!$hasPackage) {
+            $minPrice = 0;
             $maxPrice = 0;
-            $hasPackage = false;
-            foreach ($venue->serviceEvents as $serviceEvent) {
-                foreach ($serviceEvent->servicePackages as $package) {
-                    $hasPackage = true;
-
-                    foreach ($package->servicePackageDetails as $packageDetail) {
-                        $minPrice = ($minPrice == 0) ? $packageDetail->price : min($minPrice, $packageDetail->price);
-                        $maxPrice = max($maxPrice, $packageDetail->price);
-                    }
-                }
-
-                foreach ($serviceEvent->printServiceEvents as $printEvent) {
-                    $maxPrice += $printEvent->price;
-                }
-            }
-            if (!$hasPackage) {
-                $minPrice = 0;
-                $maxPrice = 0;
-            }
+        }
+        if ($customer) {
             $serviceTypes = ServiceType::whereHas('serviceEvents', function ($query) use ($id) {
                 $query->where('venue_id', $id);
             })->get();
@@ -138,6 +138,94 @@ class FrontEndController extends Controller
                 'serviceTypes' => $serviceTypes,
             ];
         }
+        return view('front.pages.detail', $data);
+    }
+
+    public function detailVenueNotLogin(Request $request, $id)
+    {
+        $this->venueId = $id;
+        $venue = Venue::findOrFail($id);
+        $minPrice = null;
+        $maxPrice = 0;
+        $hasPackage = false;
+        foreach ($venue->serviceEvents as $serviceEvent) {
+            foreach ($serviceEvent->servicePackages as $package) {
+                $hasPackage = true;
+
+                foreach ($package->servicePackageDetails as $packageDetail) {
+                    $minPrice = ($minPrice == 0) ? $packageDetail->price : min($minPrice, $packageDetail->price);
+                    $maxPrice = max($maxPrice, $packageDetail->price);
+                }
+            }
+
+            foreach ($serviceEvent->printServiceEvents as $printEvent) {
+                $maxPrice += $printEvent->price;
+            }
+        }
+        if (!$hasPackage) {
+            $minPrice = 0;
+            $maxPrice = 0;
+        }
+        $serviceTypes = ServiceType::whereHas('serviceEvents', function ($query) use ($id) {
+            $query->where('venue_id', $id);
+        })->get();
+        $openingHours = OpeningHour::with('day', 'hour')->where('venue_id', $id)->get();
+        $uniqueDayIds = collect($openingHours)->unique('day_id')->pluck('day_id')->toArray();
+        $today = now()->format('Y-m-d');
+        $services = ServiceEvent::with('serviceType')->where('venue_id', $id)->get();
+        $serviceEventIds = $services->pluck('id')->toArray();
+        $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto', 'addOnPackageDetails.addOnPackage')->whereIn('service_event_id', $serviceEventIds)->get();
+        $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
+        $rents = Rent::with(['rentDetails.openingHour.hour'])->whereIn('service_package_detail_id', $packageDetails->pluck('id'))->get();
+        foreach ($rents as $rent) {
+            $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
+            if ($openingHourIds->isNotEmpty()) {
+                $firstOpeningHourId = $openingHourIds->first();
+                $lastOpeningHourId = $openingHourIds->last();
+                $firstOpeningHour = OpeningHour::find($firstOpeningHourId)->hour;
+                $lastOpeningHour = OpeningHour::find($lastOpeningHourId)->hour;
+                $nextHour = Hour::where('id', $lastOpeningHour->id + 1)->first();
+                if ($nextHour) {
+                    $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $nextHour->hour;
+                } else {
+                    $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $lastOpeningHour->hour;
+                }
+            } else {
+                $rent->formatted_schedule = null;
+            }
+        }
+        $bookDates = RentDetail::with('rent')
+            ->whereHas('rent.servicePackageDetail.servicePackage.serviceEvent', function ($query) use ($id) {
+                $query->where('venue_id', $id);
+            })
+            ->whereHas('rent.rentDetails.openingHour', function ($query) use ($id) {
+                $query->where('venue_id', $id);
+            })
+            ->get()
+            ->map(function ($rentDetail) {
+                return [
+                    'rent_id' => $rentDetail->rent_id,
+                    'opening_hour_id' => $rentDetail->opening_hour_id,
+                    'date' => $rentDetail->rent->date,
+                ];
+            })
+            ->toArray();
+
+        $data = [
+            'pageTitle' => 'FotoYuk | Detail Venue Page',
+            'venue' => $venue,
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
+            'uniqueDayIds' => $uniqueDayIds,
+            'openingHours' => $openingHours,
+            'today' => $today,
+            'services' => $services,
+            'packages' => $packages,
+            'packageDetails' => $packageDetails,
+            'rents' => $rents,
+            'bookDates' => $bookDates,
+            'serviceTypes' => $serviceTypes,
+        ];
         return view('front.pages.detail', $data);
     }
 

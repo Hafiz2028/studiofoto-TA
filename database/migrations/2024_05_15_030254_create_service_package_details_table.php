@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('service_package_id');
             $table->foreign('service_package_id')->references('id')->on('service_packages')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
+            
         });
     }
 

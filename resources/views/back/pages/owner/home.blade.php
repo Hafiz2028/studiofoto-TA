@@ -4,8 +4,16 @@
     <div class="page-header">
         <div class="row">
             <div class="col-md-12 col-sm-12">
-                <div class="title">
-                    <h4>Welcome, {{ Auth::user()->name }} </h4>
+                <div class="pull-left">
+                    <div class="title">
+                        <h4>Welcome, {{ Auth::user()->name }} </h4>
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <a href="javascript:void(0);" id="refresh-schedule" type="button" class="btn btn-info"
+                        data-toggle="tooltip" title="Cek Jadwal yang Expired"><i class="icon-copy dw dw-wall-clock2"></i>
+                        Refresh
+                        Jadwal</a>
                 </div>
             </div>
         </div>
@@ -106,9 +114,9 @@
             calendar.render();
         });
     </script>
-    <h3 class="mb-3">Venue</h3>
-    <div class="row">
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mb-20">
+    <h3 class="px-0 mb-3">Venue</h3>
+    <div class="row p-0 ">
+        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-primary">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
@@ -125,7 +133,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-success">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
@@ -142,7 +150,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-info">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
@@ -159,7 +167,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-danger">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
@@ -178,7 +186,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-9">
+        <div class="col-lg-9 p-0">
             <div class="col-md-12 col-sm-12 col-lg-12">
                 <div class="pd-10 card-box mb-30">
                     <div class="clearfix mb-4">
@@ -198,6 +206,8 @@
                                     title="Belum membayar DP">Belum Bayar</span>
                                 <span class="badge badge-dark" data-toggle="tooltip" data-placement="auto"
                                     title="Sedang dalam proses pemotretan">Sedang Foto</span>
+                                <span class="badge badge-danger" data-toggle="tooltip" data-placement="auto"
+                                    title="Jadwal Booking Dibatalkan">Dibatalkan</span>
                             </div>
                         </div>
                     </div>
@@ -205,8 +215,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3">
-            <h3 class="my-3">Booking</h3>
+        <div class="col-lg-3 p-0">
+            <h3 class="mb-3 p-0 pl-3">Booking</h3>
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
                 <div class="card-box height-100-p widget-style3 bg-info">
                     <div class="d-flex flex-wrap">
@@ -272,7 +282,7 @@
                         </div>
                         <div class="widget-icon bg-white">
                             <div class="icon text-primary">
-                                <i class="icon-copy dw dw-calendar-6"></i>
+                                <i class="icon-copy fa fa-calendar-check-o" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
@@ -332,6 +342,74 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
+                <div class="card-box height-100-p widget-style3 bg-danger">
+                    <div class="d-flex flex-wrap">
+                        <div class="widget-data">
+                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 6)->count() }}
+                            </div>
+                            <div class="font-14 text-white weight-500">
+                                Dibatalkan
+                            </div>
+                        </div>
+                        <div class="widget-icon bg-white">
+                            <div class="icon text-danger">
+                                <i class="icon-copy fa fa-calendar-times-o" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
+@push('scripts')
+    {{-- cek jadwal expired --}}
+    <script>
+        document.getElementById('refresh-schedule').addEventListener('click', function() {
+            $.ajax({
+                url: '{{ route('owner.booking.update-status') }}',
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        console.log(data.message);
+                        console.log(data.openingHour);
+                        console.log(data.scheduleTime);
+                        console.log(data.cutoffTime);
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Jadwal Expired',
+                            html: data.message.join('<br>')
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        console.log(data.message);
+                        console.log(data.openingHour);
+                        console.log(data.scheduleTime);
+                        console.log(data.cutoffTime);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Jadwal Expired',
+                            text: data.message
+                        });
+                    }
+                },
+                error: function() {
+                    console.log('Something went wrong!');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!'
+                    });
+                }
+            });
+        });
+    </script>
+@endpush

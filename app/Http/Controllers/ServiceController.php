@@ -43,9 +43,8 @@ class ServiceController extends Controller
         try {
             $venue = Venue::findOrFail($venueId);
             $serviceTypes = ServiceType::all();
-            $printPhotos = PrintPhoto::all();
 
-            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes', 'printPhotos'));
+            return view('back.pages.owner.service-manage.create', compact('venue', 'serviceTypes'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -97,20 +96,6 @@ class ServiceController extends Controller
                 ]);
             }
         }
-        if ($request->has('print_photos')) {
-            foreach ($request->print_photos as $printPhotoId) {
-                $priceInputName = 'price_' . $printPhotoId;
-                $price = $request->input($priceInputName);
-                $price = str_replace(' ', '', $price);
-
-                PrintServiceEvent::create([
-                    'service_event_id' => $serviceEvent->id,
-                    'print_photo_id' => $printPhotoId,
-                    'price' => $price,
-                ]);
-            }
-        }
-
         return redirect()->route('owner.venue.show', ['venue' => $request->venue_id])->with('success', 'Layanan berhasil ditambahkan.');
     }
 
@@ -140,11 +125,11 @@ class ServiceController extends Controller
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
             $serviceTypes = ServiceType::all();
-            $printPhotos = PrintPhoto::all();
-            $printServiceEvents = PrintServiceEvent::where('service_event_id', $service->id)->get();
+            // $printPhotos = PrintPhoto::all();
+            // $printServiceEvents = PrintServiceEvent::where('service_event_id', $service->id)->get();
             $serviceEventImages = ServiceEventImage::where('service_event_id', $service->id)->get();
             session()->put('temp_catalog', $service->catalog);
-            return view('back.pages.owner.service-manage.update', compact('venue', 'serviceTypes', 'printPhotos', 'service', 'printServiceEvents', 'serviceEventImages'));
+            return view('back.pages.owner.service-manage.update', compact('venue', 'serviceTypes','service', 'serviceEventImages'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -167,43 +152,43 @@ class ServiceController extends Controller
             $service->description = $validatedData['description'];
 
 
-            if ($request->has('print_photos_switch')) {
-                $print_photos_switch = $request->input('print_photos_switch');
-                if ($print_photos_switch) {
-                    $printPhotos = $request->input('print_photos', []);
-                    $prices = $request->input('prices', []);
+            // if ($request->has('print_photos_switch')) {
+            //     $print_photos_switch = $request->input('print_photos_switch');
+            //     if ($print_photos_switch) {
+            //         $printPhotos = $request->input('print_photos', []);
+            //         $prices = $request->input('prices', []);
 
-                    // Ambil semua print photos yang sudah ada untuk service event ini
-                    $existingPrintPhotos = PrintServiceEvent::where('service_event_id', $service->id)
-                        ->pluck('print_photo_id')
-                        ->toArray();
+            //         // Ambil semua print photos yang sudah ada untuk service event ini
+            //         $existingPrintPhotos = PrintServiceEvent::where('service_event_id', $service->id)
+            //             ->pluck('print_photo_id')
+            //             ->toArray();
 
-                    foreach ($printPhotos as $printPhotoId) {
-                        if (isset($prices[$printPhotoId])) {
-                            $price = $prices[$printPhotoId];
-                            PrintServiceEvent::updateOrCreate(
-                                ['print_photo_id' => $printPhotoId, 'service_event_id' => $service->id],
-                                ['price' => $price]
-                            );
-                        } else {
-                            if (in_array($printPhotoId, $existingPrintPhotos)) {
-                                PrintServiceEvent::where('print_photo_id', $printPhotoId)
-                                    ->where('service_event_id', $service->id)
-                                    ->delete();
-                            } else {
-                                dd("Harga tidak valid atau tidak ditemukan untuk Print Photo ID: $printPhotoId");
-                            }
-                        }
-                    }
-                    PrintServiceEvent::where('service_event_id', $service->id)
-                        ->whereNotIn('print_photo_id', $printPhotos)
-                        ->delete();
-                } else {
-                    dd('Data cetak foto akan dihapus');
-                }
-            } else {
-                PrintServiceEvent::where('service_event_id', $service->id)->delete();
-            }
+            //         foreach ($printPhotos as $printPhotoId) {
+            //             if (isset($prices[$printPhotoId])) {
+            //                 $price = $prices[$printPhotoId];
+            //                 PrintServiceEvent::updateOrCreate(
+            //                     ['print_photo_id' => $printPhotoId, 'service_event_id' => $service->id],
+            //                     ['price' => $price]
+            //                 );
+            //             } else {
+            //                 if (in_array($printPhotoId, $existingPrintPhotos)) {
+            //                     PrintServiceEvent::where('print_photo_id', $printPhotoId)
+            //                         ->where('service_event_id', $service->id)
+            //                         ->delete();
+            //                 } else {
+            //                     dd("Harga tidak valid atau tidak ditemukan untuk Print Photo ID: $printPhotoId");
+            //                 }
+            //             }
+            //         }
+            //         PrintServiceEvent::where('service_event_id', $service->id)
+            //             ->whereNotIn('print_photo_id', $printPhotos)
+            //             ->delete();
+            //     } else {
+            //         dd('Data cetak foto akan dihapus');
+            //     }
+            // } else {
+            //     PrintServiceEvent::where('service_event_id', $service->id)->delete();
+            // }
             if ($request->hasFile('new_catalog')) {
                 if ($service->catalog) {
                     $catalogPath = public_path('/images/venues/Katalog/' . $service->catalog);

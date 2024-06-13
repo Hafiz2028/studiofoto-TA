@@ -27,6 +27,7 @@ class Owner extends Authenticatable
         'password',
         'handphone',
         'ktp',
+        'logo',
         'address',
         'picture',
         'email_verified_at',
@@ -65,6 +66,14 @@ class Owner extends Authenticatable
             return asset('/images/users/owners/KTP_owner/' . $value);
         } else {
             return asset('/images/users/owners/KTP_owner/ktp.png');
+        }
+    }
+    public function getLogoAttribute($value)
+    {
+        if ($value) {
+            return asset('/images/users/owners/LOGO_owner/' . $value);
+        } else {
+            return asset('/images/users/owners/LOGO_owner/default-logo.png');
         }
     }
 

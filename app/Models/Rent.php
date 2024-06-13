@@ -12,7 +12,6 @@ class Rent extends Model
     protected $fillable = [
         'faktur',
         'name',
-        'customer_id',
         'service_package_detail_id',
         'date',
         'payment_status',
@@ -34,10 +33,6 @@ class Rent extends Model
         return $this->belongsTo(PrintPhotoDetail::class, 'print_photo_detail_id', 'id');
     }
 
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id', 'id');
-    }
     public function rentDetails()
     {
         return $this->hasMany(RentDetail::class, 'rent_id', 'id');

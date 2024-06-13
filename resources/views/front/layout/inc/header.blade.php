@@ -41,7 +41,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="header__logo">
-                    <a href="{{ route('home') }}"><img src="/front/img/logo.png" alt=""></a>
+                    <a href="{{ route('home') }}"><img src="/front/img/logo_name.png" alt=""></a>
                 </div>
             </div>
             <div class="col-lg-7">

@@ -47,7 +47,7 @@
                                     <label><strong>2. No Handphone / WA :</strong></label>
                                     <input type="text"
                                         class="form-control @error('phone_number') is-invalid @enderror"
-                                        name="phone_number" placeholder="No Handphone"
+                                        name="phone_number" placeholder="Nomor yang terdaftar di Aplikasi WhatsApp..."
                                         @if ($this->venue->exists) value="{{ $phone_number }}" @else value="{{ old('phone_number') }}" @endif
                                         wire:model="phone_number">
                                     @error('phone_number')
@@ -71,6 +71,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label><strong>4. Surat Izin Mendirikan Bangunan (IMB) :</strong></label>
+                                    <br><small>Format file .pdf & max size 5mb</small>
                                     <input type="file" class="form-control @error('imb') is-invalid @enderror"
                                         name="imb" wire:model="imb"
                                         @if (!$this->venue->exists || !$this->venue->imb) required @endif>

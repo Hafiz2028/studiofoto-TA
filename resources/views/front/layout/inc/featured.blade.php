@@ -66,8 +66,15 @@
                                 </ul>
                             </div>
                             <div class="featured__item__text">
-                                <h6><a href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
-                                </h6>
+                                @if (auth()->guard('customer')->check())
+                                    <h6><a
+                                            href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
+                                    </h6>
+                                @else
+                                    <h6><a
+                                            href="{{ route('customer.detail-venue-not-login', $venue->id) }}">{{ $venue->name }}</a>
+                                    </h6>
+                                @endif
                                 <h5 style="font-size: 16px; color: #333; margin-top: 10px; text-align:left;">
                                     <span
                                         style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
@@ -89,35 +96,4 @@
     </div>
 </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const openDetailVenue = document.getElementById('openDetailVenue');
 
-        openDetailVenue.addEventListener('click', function() {
-            Swal.fire({
-                title: 'Belum Login',
-                text: 'Silahkan untuk melakukan login atau register akun.',
-                icon: 'error',
-                showCancelButton: true,
-                confirmButtonText: 'Login',
-                confirmButtonColor: '#28a745',
-                cancelButtonText: 'Register',
-                cancelButtonColor: '#2843da',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ route('customer.login') }}";
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    window.location.href = "{{ route('customer.register') }}";
-                }
-            });
-        });
-    });
-</script>
-<script>
-    function openLink(event, url) {
-        event.preventDefault();
-        window.open(url, '_blank');
-        return false;
-    }
-</script>
