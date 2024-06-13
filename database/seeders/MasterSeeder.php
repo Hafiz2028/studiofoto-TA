@@ -370,13 +370,6 @@ class MasterSeeder extends Seeder
             [
                 'name' => 'Latar'
             ],
-            [
-                'name' => 'Frame Foto'
-            ],
-            [
-                'name' => 'Cetak Foto'
-            ],
-
         ]);
         $regencyId = 1371;
         $response = Http::get("https://apiwilayah.metrosoftware.id/api-wilayah-indonesia/api/districts/{$regencyId}.json");

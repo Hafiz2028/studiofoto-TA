@@ -46,7 +46,7 @@
                 </div>
                 <hr>
 
-                <form id="payment_form" 
+                <form id="payment_form"
                     action="{{ route('owner.venue.services.packages.store', ['venue' => $venue->id, 'service' => $service->id]) }}"
                     method="POST" enctype="multipart/form-data" class="mt-3">
                     <input type="hidden" name="venue_id" value="{{ $venue->id }}">
@@ -119,7 +119,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group mb-0">
-                                    <label for="add_on_switch"><strong>4. Add On (optional)</strong></label>
+                                    <label for="add_on_switch"><strong>4. Add On (Optional)</strong></label>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="add_on_switch"
                                             name="add_on_switch">
@@ -151,8 +151,102 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+                            <div class="col-lg-6 col-md-12">
+                                <div class="form-group">
+                                    <label for="print_photos_switch"><strong>5. Cetak Foto (Optional)</strong></label>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
+                                            name="print_photos_switch">
+                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
+                                            Foto</label>
+                                    </div>
+                                </div>
+                                <div id="print_photos_options" style="display: none;">
+                                    <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
+                                    <div class="row mb-2">
+                                        <div class="col-md-12">
+                                            <button id="check-all-button" type="button"
+                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
+                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
+                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
+                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
+                                                    class="fa fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        @php
+                                            $columnCount = 3;
+                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
+                                        @endphp
+                                        @for ($i = 0; $i < $rowCount; $i++)
+                                            <div class="col-md-{{ 12 / $columnCount }}">
+                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
+                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="print_photo_{{ $printServiceEvent->id }}"
+                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
+                                                            data-price="{{ $printServiceEvent->price }}">
+                                                        <label class="custom-control-label"
+                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
+                                                            (Harga Rp
+                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12">
+                                <div class="form-group">
+                                    <label for="print_photos_switch"><strong>6. Frame (Optional)</strong></label>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
+                                            name="print_photos_switch">
+                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
+                                            Foto</label>
+                                    </div>
+                                </div>
+                                <div id="print_photos_options" style="display: none;">
+                                    <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
+                                    <div class="row mb-2">
+                                        <div class="col-md-12">
+                                            <button id="check-all-button" type="button"
+                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
+                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
+                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
+                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
+                                                    class="fa fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        @php
+                                            $columnCount = 3;
+                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
+                                        @endphp
+                                        @for ($i = 0; $i < $rowCount; $i++)
+                                            <div class="col-md-{{ 12 / $columnCount }}">
+                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
+                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="print_photo_{{ $printServiceEvent->id }}"
+                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
+                                                            data-price="{{ $printServiceEvent->price }}">
+                                                        <label class="custom-control-label"
+                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
+                                                            (Harga Rp
+                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-lg-12">
-                                <label for=""><strong>5. Paket Harga & Waktu Pemotretan</strong></label>
+                                <label for=""><strong>7. Paket Harga & Waktu Pemotretan</strong></label>
                                 <div class="form-group mb-0">
                                     <div class="row">
                                         <div class="col-md-4 col-sm-6">
@@ -207,54 +301,6 @@
                                     <button type="button" class="btn btn-outline-info mb-1"
                                         onclick="addNewInputGroup()">Tambah
                                         Harga Baru</button>
-                                </div>
-                                <p class="alert alert-info">Harga Cetak Foto Terpisah</p>
-                            </div>
-                            <div class="col-lg-12 col-md-12">
-                                <div class="form-group">
-                                    <label for="print_photos_switch"><strong>6. Cetak Foto Paket</strong></label>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
-                                            name="print_photos_switch">
-                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
-                                            Foto</label>
-                                    </div>
-                                </div>
-                                <div id="print_photos_options" style="display: none;">
-                                    <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
-                                    <div class="row mb-2">
-                                        <div class="col-md-12">
-                                            <button id="check-all-button" type="button"
-                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
-                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
-                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
-                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
-                                                    class="fa fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        @php
-                                            $columnCount = 3;
-                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
-                                        @endphp
-                                        @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-{{ 12 / $columnCount }}">
-                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
-                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input"
-                                                            id="print_photo_{{ $printServiceEvent->id }}"
-                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
-                                                            data-price="{{ $printServiceEvent->price }}">
-                                                        <label class="custom-control-label"
-                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
-                                                            (Harga Rp
-                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
-                                                    </div>
-                                                @endfor
-                                            </div>
-                                        @endfor
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-12 mt-2">
