@@ -25,6 +25,10 @@ class ServicePackage extends Model
     {
         return $this->hasMany(PrintPhotoDetail::class, 'service_package_id', 'id');
     }
+    public function framePhotoDetails()
+    {
+        return $this->hasMany(FramePhotoDetail::class, 'service_package_id', 'id');
+    }
 
     public function addOnPackageDetails()
     {

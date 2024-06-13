@@ -27,11 +27,6 @@ class ServiceEvent extends Model
         return $this->belongsTo(ServiceType::class, 'service_type_id', 'id');
     }
 
-    public function printServiceEvents()
-    {
-        return $this->hasMany(PrintServiceEvent::class, 'service_event_id', 'id');
-    }
-
     public function servicePackages()
     {
         return $this->hasMany(ServicePackage::class, 'service_event_id', 'id');
@@ -41,6 +36,6 @@ class ServiceEvent extends Model
     {
         return $this->hasMany(ServiceEventImage::class, 'service_event_id', 'id');
     }
-    
+
 
 }

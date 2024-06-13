@@ -31,70 +31,58 @@
                             <h4 class="h4 text">List User Admin</h4>
                         </div>
                         <div class="pull-right">
-                            <a href="{{ route('admin.user.add-admin')}}" class="btn btn-primary btn-sm" type="button">
+                            <a href="{{ route('admin.user.add-admin') }}" class="btn btn-primary btn-sm" type="button">
                                 <i class="fa fa-plus"></i> Add Admin
                             </a>
                         </div>
                     </div>
-                    <div class="table-responsive mt-4">
-                        <table class="table table-borderless table-striped">
-                            <thead class="bg-secondary text-white">
+                    <div class="pb-20 mt-30">
+                        <table class="data-table table stripe hover nowrap">
+                            <thead>
                                 <tr>
-                                    <th>Name</th>
+                                    <th class="table-plus">Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
-                                    <th>Actions</th>
+                                    <th class="datatable-nosort">Action</th>
                                 </tr>
                             </thead>
-                            <tbody class="table-border-bottom-0" id="sortable_services">
-                                @forelse ($admins as $item )
-                                <tr data-index="{{ $item->id}}" data-ordering="">
-                                    <td>{{ $item->name}}</td>
-                                    <td>{{ $item->email}}</td>
-                                    <td>{{ $item->handphone}}</td>
-                                    <td>
-                                        <div class="table-actions">
-                                            {{-- <a href="{{ route('admin.user.edit-admin',['id'=>$item->id])}}" class="text-primary"> --}}
-                                            <a href="{{ route('admin.user.edit-admin',['id'=>$item->id])}}" class="text-primary">
-                                                <i class="dw dw-edit2"></i>
-                                            </a>
-                                            <a type="button" class="text-danger" data-toggle="modal" data-target="#exampleModal{{$item->id}}">
-                                                <i class="dw dw-delete-3"></i>
-                                              </a>
-                                            <form method="POST" action="{{ route('admin.user.delete-admin', ['id' => $item->id])}}" id="deleteForm" >
-                                                @csrf
-                                                @method('DELETE')
-                                                  <div class="modal fade" id="exampleModal{{$item->id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog" role="document">
-                                                      <div class="modal-content">
-                                                        <div class="modal-header">
-                                                          <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
-                                                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                          </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                          Are you sure to delete this user?
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                          <button type="submit" class="btn btn-danger">Delete</button>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
+                            <tbody>
+                                @forelse ($admins as $item)
+                                    <tr>
+                                        <td class="table-plus">{{ $item->name }}</td>
+                                        <td>{{ $item->email }}</td>
+                                        <td>{{ $item->handphone }}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                    href="#" role="button" data-toggle="dropdown">
+                                                    <i class="dw dw-more"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                                    <a class="dropdown-item text-primary"
+                                                        href="{{ route('admin.user.edit-admin', ['id' => $item->id]) }}"><i
+                                                            class="dw dw-edit2"></i> Edit </a>
+                                                    <a type="button" class="dropdown-item text-danger"
+                                                        onclick="confirmDelete({{ $item->id }})">
+                                                        <i class="dw dw-delete-3"></i> Delete
+                                                    </a>
+                                                    <form id="delete-form-{{ $item->id }}"
+                                                        action="{{ route('admin.user.delete-admin', ['id' => $item->id]) }}"
+                                                        method="POST" style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </div>
                                             </div>
-                                            </form>
-
                                         </td>
-                                </tr>
+                                    </tr>
                                 @empty
                                     <tr>
                                         <td colspan="4">
-                                            <span class="text-danger">No services found!</span>
+                                            <span class="text-danger">Tidak Ada Akun Admin</span>
                                         </td>
                                     </tr>
                                 @endforelse
-
                             </tbody>
                         </table>
                     </div>
@@ -105,26 +93,21 @@
 
 @endsection
 @push('scripts')
-<script>
-    $(document).on('click','deleteServiceBtn',function(e){
-        e.preventDefault();
-        var admins_id = $(this).data('id');
-        Swal.fire({
-            title:"Are you sure?",
-            html:"You want to delete this service",
-            showCloseButton:true,
-            showCancelButton:true,
-            cancelButtonText:'cancel',
-            confirmButtonText:'Yes, Delete',
-            cancelButtonColor: '#d33',
-            confirmButtonColor:'#3085d6',
-            width:300,
-            allowOutsideClick:false
-        }).then(function(result){
-            if(result.value){
-                alert('Yes, delete Service');
-            }
-        });
-    });
-</script>
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Apakah yakin untuk menghapus?',
+                text: "Akun tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
+    </script>
 @endpush

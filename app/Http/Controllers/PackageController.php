@@ -19,6 +19,7 @@ use App\Models\PaymentMethod;
 use App\Models\ServicePackage;
 use Illuminate\Support\Carbon;
 use PhpParser\Node\Stmt\Catch_;
+use App\Models\FramePhotoDetail;
 use App\Models\PrintPhotoDetail;
 use App\Models\PrintServiceEvent;
 use App\Models\ServiceEventImage;
@@ -47,8 +48,7 @@ class PackageController extends Controller
             $service = ServiceEvent::findOrFail($serviceId);
             $addOnPackages = AddOnPackage::all();
             $printPhotos = PrintPhoto::all();
-            $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
-            return view('back.pages.owner.package-manage.create', compact('venue', 'service', 'addOnPackages', 'printServiceEvents'));
+            return view('back.pages.owner.package-manage.create', compact('venue', 'service', 'addOnPackages', 'printPhotos'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -130,12 +130,20 @@ class PackageController extends Controller
             }
 
             // Simpan data ukuran cetak foto jika dipilih
-            if ($request->has('print_photos')) {
-                foreach ($request->input('print_photos') as $printPhotoId) {
+            if ($request->has('print_photo_details')) {
+                foreach ($request->input('print_photo_details') as $printPhotoId) {
                     $printPhotoDetail = new PrintPhotoDetail();
                     $printPhotoDetail->service_package_id = $package->id;
-                    $printPhotoDetail->print_service_event_id = $printPhotoId;
+                    $printPhotoDetail->print_photo_id = $printPhotoId;
                     $printPhotoDetail->save();
+                }
+            }
+            if ($request->has('frame_photo_details')) {
+                foreach ($request->input('frame_photo_details') as $framePhotoId) {
+                    $framePhotoDetail = new FramePhotoDetail();
+                    $framePhotoDetail->service_package_id = $package->id;
+                    $framePhotoDetail->print_photo_id = $framePhotoId;
+                    $framePhotoDetail->save();
                 }
             }
 
@@ -172,12 +180,30 @@ class PackageController extends Controller
             $serviceTypes = ServiceType::all();
             $addOnPackages = AddOnPackage::all();
             $addOnDetail = AddOnPackageDetail::where('service_package_id', $package->id)->get();
-            $printServiceEvents = PrintServiceEvent::where('service_event_id', $serviceId)->get();
+            $printPhotos = PrintPhoto::all();
             $printPhotoDetails = PrintPhotoDetail::where('service_package_id', $package->id)->get();
+            $framePhotoDetails = FramePhotoDetail::where('service_package_id', $package->id)->get();
+            $selectedPrintPhotoIds = $printPhotoDetails->pluck('print_photo_id')->toArray();
+            $selectedFramePhotoIds = $framePhotoDetails->pluck('print_photo_id')->toArray();
             $getQtyByAddOnPackageId = function ($addOnPackageId) use ($package) {
                 return $package->addOnPackageDetails->where('add_on_package_id', $addOnPackageId)->first()->sum ?? '';
             };
-            return view('back.pages.owner.package-manage.update', compact('venue', 'service', 'package', 'packageDetails', 'serviceTypes', 'addOnDetail', 'printPhotoDetails', 'addOnPackages', 'printServiceEvents', 'getQtyByAddOnPackageId'));
+            $data = [
+                'venue' => $venue,
+                'service' => $service,
+                'package' => $package,
+                'packageDetails' => $packageDetails,
+                'serviceTypes' => $serviceTypes,
+                'addOnPackages' => $addOnPackages,
+                'addOnDetail' => $addOnDetail,
+                'printPhotos' => $printPhotos,
+                'printPhotoDetails' => $printPhotoDetails,
+                'framePhotoDetails' => $framePhotoDetails,
+                'selectedPrintPhotoIds' => $selectedPrintPhotoIds,
+                'selectedFramePhotoIds' => $selectedFramePhotoIds,
+                'getQtyByAddOnPackageId' => $getQtyByAddOnPackageId,
+            ];
+            return view('back.pages.owner.package-manage.update', $data);
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -188,21 +214,36 @@ class PackageController extends Controller
         try {
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
-
-            $package = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto', 'servicePackageDetails')
+            $package = ServicePackage::with('printPhotoDetails.printPhoto', 'servicePackageDetails', 'framePhotoDetails.printServiceEvent', 'addOnPackageDetails.addOnPackage')
                 ->findOrFail($packageId);
+
+            $addOnDetails = $package->addOnPackageDetails->map(function ($addOnPackageDetail) {
+                return  $addOnPackageDetail->sum . ' ' . $addOnPackageDetail->addOnPackage->name;
+            })->implode(', ');
+
+            $framePhotoDetails = $package->framePhotoDetails->map(function ($framePhotoDetail) {
+                return 'Size ' . $framePhotoDetail->printServiceEvent->size;
+            })->implode(', ');
+
+            $printPhotoDetails = $package->printPhotoDetails->map(function ($printPhotoDetail) {
+                return 'Size ' . $printPhotoDetail->printPhoto->size;
+            })->implode(', ');
+
+            $detailedInformation = $package->information . "\n\nDidalam paket foto ini telah include: \n" .
+                ($addOnDetails ? "<b>Add-Ons</b> : $addOnDetails\n" : '') .
+                ($framePhotoDetails ? "<b>Frame Foto</b> : $framePhotoDetails\n" : '') .
+                ($printPhotoDetails ? "<b>Print Foto</b> : $printPhotoDetails\n" : '');
 
             $responseData = [
                 'package' => $package,
                 'packageName' => $package->name,
-                'information' => $package->information,
+                'information' => $detailedInformation,
             ];
 
             if ($package->printPhotoDetails->isNotEmpty()) {
                 $formattedPrintPhotoDetails = $package->printPhotoDetails->map(function ($printPhotoDetail) {
                     return [
-                        'size' => $printPhotoDetail->printServiceEvent->printPhoto->size,
-                        'price' => $printPhotoDetail->printServiceEvent->price,
+                        'size' => $printPhotoDetail->printPhoto->size,
                     ];
                 });
                 $responseData['printPhotoDetails'] = $formattedPrintPhotoDetails;
@@ -217,6 +258,23 @@ class PackageController extends Controller
                     ];
                 });
                 $responseData['servicePackageDetails'] = $formattedServicePackageDetails;
+            }
+            if ($package->framePhotoDetails->isNotEmpty()) {
+                $formattedFramePhotoDetails = $package->framePhotoDetails->map(function ($framePhotoDetail) {
+                    return [
+                        'size' => $framePhotoDetail->printServiceEvent->size,
+                    ];
+                });
+                $responseData['framePhotoDetails'] = $formattedFramePhotoDetails;
+            }
+            if ($package->addOnPackageDetails->isNotEmpty()) {
+                $formattedAddOnPackageDetails = $package->addOnPackageDetails->map(function ($addOnPackageDetail) {
+                    return [
+                        'name' => $addOnPackageDetail->addOnPackage->name,
+                        'sum' => $addOnPackageDetail->sum,
+                    ];
+                });
+                $responseData['addOnPackageDetails'] = $formattedAddOnPackageDetails;
             }
             return response()->json($responseData);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -329,13 +387,22 @@ class PackageController extends Controller
             }
 
             // Update data ukuran cetak foto
-            $package->printPhotoDetails()->delete(); // Hapus semua detail cetak foto terkait dengan paket ini
-            if ($request->has('print_photos')) {
-                foreach ($request->input('print_photos') as $printPhotoId) {
+            $package->printPhotoDetails()->delete();
+            if ($request->has('print_photo_details')) {
+                foreach ($request->input('print_photo_details') as $printPhotoId) {
                     $printPhotoDetail = new PrintPhotoDetail();
                     $printPhotoDetail->service_package_id = $package->id;
-                    $printPhotoDetail->print_service_event_id = $printPhotoId;
+                    $printPhotoDetail->print_photo_id = $printPhotoId;
                     $printPhotoDetail->save();
+                }
+            }
+            $package->framePhotoDetails()->delete();
+            if ($request->has('frame_photo_details')) {
+                foreach ($request->input('frame_photo_details') as $framePhotoId) {
+                    $framePhotoDetail = new FramePhotoDetail();
+                    $framePhotoDetail->service_package_id = $package->id;
+                    $framePhotoDetail->print_photo_id = $framePhotoId;
+                    $framePhotoDetail->save();
                 }
             }
 

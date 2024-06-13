@@ -30,44 +30,44 @@
                             <h4 class="h4 text">List Approved Venue</h4>
                         </div>
                     </div>
-                    <div class="table-responsive mt-4">
-                        <table class="table table-borderless table-striped">
-                            <thead class="bg-secondary text-white">
+
+                    <div class="pb-20 mt-30">
+                        <table class="data-table table stripe hover nowrap">
+                            <thead>
                                 <tr>
-                                    <th>Nama Venue</th>
+                                    <th class="table-plus">Nama Venue</th>
                                     <th>Owner</th>
                                     <th>Alamat</th>
                                     <th>Tanggal Dibuat</th>
-                                    <th>Actions</th>
+                                    <th class="datatable-nosort">Action</th>
                                 </tr>
                             </thead>
-                            <tbody class="table-border-bottom-0" id="sortable_services">
+                            <tbody>
                                 @forelse ($venue as $item)
-                                    @if ($item->status == 1)
-                                        <tr data-index="{{ $item->id }}" data-ordering="">
-                                            <td>{{ $item->name }}</td>
-                                            <td>{{ $item->owner->name }}</td>
-                                            <td>{{ $item->address }}</td>
-                                            <td>{{ $item->created_at }}</td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <form
-                                                        action="{{ route('admin.venue.show', ['venue' => $item->id]) }}"
-                                                        method="GET">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-outline-info mr-2"
-                                                            data-toggle="tooltip" title="Informasi Venue">
-                                                            <i class="fa fa-info"></i>
-                                                        </button>
-                                                    </form>
+                                    <tr>
+                                        <td class="table-plus">{{ $item->name }}</td>
+                                        <td>{{ $item->owner->name }}</td>
+                                        <td>{{ $item->address }}</td>
+                                        <td>{{ $item->created_at }}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                    href="#" role="button" data-toggle="dropdown">
+                                                    <i class="dw dw-more"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                                    <a class="dropdown-item text-info"
+                                                        href="{{ route('admin.venue.show', ['venue' => $item->id]) }}"><i
+                                                            class="dw dw-eye"></i>
+                                                        View</a>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    @endif
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
                                     <tr>
                                         <td colspan="4">
-                                            <span class="text-danger">No Venues found!</span>
+                                            <span class="text-danger">Tidak Ada Akun Admin</span>
                                         </td>
                                     </tr>
                                 @endforelse

@@ -58,64 +58,6 @@
                                     @enderror
                                 </div>
                             </div>
-                            {{-- <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Single Select</label>
-                                    <select class="custom-select2 form-control" name="state"
-                                        style="width: 100%; height: 38px">
-                                        <optgroup label="Alaskan/Hawaiian Time Zone">
-                                            <option value="AK">Alaska</option>
-                                            <option value="HI">Hawaii</option>
-                                        </optgroup>
-                                        <optgroup label="Pacific Time Zone">
-                                            <option value="CA">California</option>
-                                            <option value="NV">Nevada</option>
-                                            <option value="OR">Oregon</option>
-                                            <option value="WA">Washington</option>
-                                        </optgroup>
-                                        <optgroup label="Mountain Time Zone">
-                                            <option value="AZ">Arizona</option>
-                                            <option value="CO">Colorado</option>
-                                            <option value="ID">Idaho</option>
-                                            <option value="MT">Montana</option>
-                                            <option value="NE">Nebraska</option>
-                                            <option value="NM">New Mexico</option>
-                                            <option value="ND">North Dakota</option>
-                                            <option value="UT">Utah</option>
-                                            <option value="WY">Wyoming</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Multiple Select</label>
-                                    <select class="custom-select2 form-control" multiple="multiple" style="width: 100%;background-color:#e27201">
-                                        <optgroup label="Alaskan/Hawaiian Time Zone">
-                                            <option value="AK">Alaska</option>
-                                            <option value="HI">Hawaii</option>
-                                        </optgroup>
-                                        <optgroup label="Pacific Time Zone">
-                                            <option value="CA">California</option>
-                                            <option value="NV">Nevada</option>
-                                            <option value="OR">Oregon</option>
-                                            <option value="WA">Washington</option>
-                                        </optgroup>
-                                        <optgroup label="Mountain Time Zone">
-                                            <option value="AZ">Arizona</option>
-                                            <option value="CO">Colorado</option>
-                                            <option value="ID">Idaho</option>
-                                            <option value="MT">Montana</option>
-                                            <option value="NE">Nebraska</option>
-                                            <option value="NM">New Mexico</option>
-                                            <option value="ND">North Dakota</option>
-                                            <option value="UT">Utah</option>
-                                            <option value="WY">Wyoming</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div> --}}
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="service_type_id"><strong>2. Jenis Layanan</strong></label>

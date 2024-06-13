@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PrintPhotoDetail extends Model
+class FramePhotoDetail extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -13,7 +13,7 @@ class PrintPhotoDetail extends Model
         'service_package_id',
     ];
 
-    public function printPhoto()
+    public function printServiceEvent()
     {
         return $this->belongsTo(PrintPhoto::class, 'print_photo_id', 'id');
     }

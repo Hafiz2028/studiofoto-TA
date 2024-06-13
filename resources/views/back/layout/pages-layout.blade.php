@@ -27,6 +27,9 @@
     <link rel="stylesheet" type="text/css" href="/back/vendors/styles/style.css" />
     <link rel="stylesheet" type="text/css" href="/back/src/plugins/jquery-steps/jquery.steps.css" />
     <link rel="stylesheet" type="text/css" href="/back/src/plugins/switchery/switchery.min.css" />
+    <link rel="stylesheet" type="text/css" href="/back/src/plugins/datatables/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" type="text/css" href="/back/src/plugins/datatables/css/responsive.bootstrap4.min.css" />
+
 
     <link rel="stylesheet" href="/extra-assets/ijaboCropTool/ijaboCropTool.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
@@ -372,6 +375,21 @@
     <script src="/back/src/plugins/jquery-steps/jquery.steps.js"></script>
     <script src="/back/vendors/scripts/steps-setting.js"></script>
     <script src="/back/src/plugins/switchery/switchery.min.js"></script>
+    <!-- Datatable Setting js -->
+    <script src="/back/src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+    <!-- buttons for Export datatable -->
+    <script src="/back/src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/buttons.print.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/buttons.html5.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/buttons.flash.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/pdfmake.min.js"></script>
+    <script src="/back/src/plugins/datatables/js/vfs_fonts.js"></script>
+    <script src="/back/vendors/scripts/datatable-setting.js"></script>
+    <!-- Datatable Setting js -->
 
 
     <script>

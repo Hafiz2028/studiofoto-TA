@@ -151,9 +151,9 @@
                 </div>
 
                 <div class="col-lg-7 col-md-12 col-sm-12">
-                    <div class="card shadow">
+                    <div class="card card-primary shadow">
                         <div class="card-header bg-info text-white">
-                            <h2 class="card-title text-center text-white mb-3">List Paket Foto Layanan</h2>
+                            <h2 class="text-center text-white mb-3">List Paket Foto Layanan</h2>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
@@ -162,7 +162,6 @@
                                         <th>#</th>
                                         <th>Nama Paket</th>
                                         <th>Metode Pembayaran</th>
-                                        <th>Add On</th>
                                         @if (auth()->guard('owner')->check())
                                             <th>Action</th>
                                         @endif
@@ -201,19 +200,6 @@
                                                             Diatur</span>
                                                     @endif
                                                 </td>
-                                                <td style="text-align: justify;">
-                                                    @if ($package->addOnPackageDetails->isNotEmpty())
-                                                        @foreach ($package->addOnPackageDetails as $index => $addOnDetail)
-                                                            {{ $addOnDetail->sum }}
-                                                            {{ $addOnDetail->addOnPackage->name }}
-                                                            @if (!$loop->last)
-                                                                <br>&
-                                                            @endif
-                                                        @endforeach
-                                                    @else
-                                                        Tidak ada
-                                                    @endif
-                                                </td>
                                                 @if (auth()->guard('owner')->check())
                                                     <td>
                                                         <a href="#" class="btn btn-outline-secondary btn-lg"
@@ -244,7 +230,7 @@
                                                                     <div class="modal-body">
                                                                         <div class="container-fluid">
                                                                             <div class="row">
-                                                                                <div class="col-md-12 mt-3">
+                                                                                <div class="col-md-7 mb-4">
                                                                                     <div class="card">
                                                                                         <div class="card-body">
                                                                                             <h6 class="card-title">
@@ -257,7 +243,7 @@
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div class="col-md-6">
+                                                                                <div class="col-md-5">
                                                                                     <div class="card">
                                                                                         <div class="card-body">
                                                                                             <h6 class="card-title">
@@ -270,14 +256,37 @@
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
+                                                                                <div class="col-md-3">
+                                                                                    <div class="card">
+                                                                                        <div class="card-body">
+                                                                                            <h6 class="card-title">
+                                                                                                Cetak Foto</h6>
+                                                                                            <hr>
+                                                                                            <div id="printPhotoList"
+                                                                                                class="table-responsive">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-md-3">
+                                                                                    <div class="card">
+                                                                                        <div class="card-body">
+                                                                                            <h6 class="card-title">
+                                                                                                Frame Foto</h6>
+                                                                                            <hr>
+                                                                                            <div id="framePhotoList"
+                                                                                                class="table-responsive">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
                                                                                 <div class="col-md-6">
                                                                                     <div class="card">
                                                                                         <div class="card-body">
                                                                                             <h6 class="card-title">
-                                                                                                Daftar Cetak
-                                                                                                Foto</h6>
+                                                                                                Add On</h6>
                                                                                             <hr>
-                                                                                            <div id="printPhotoList"
+                                                                                            <div id="addOnPackageList"
                                                                                                 class="table-responsive">
                                                                                             </div>
                                                                                         </div>
@@ -322,35 +331,6 @@
                     </div>
                 </div>
             </div>
-
-            {{-- <table class="table table-bordered">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Ukuran Foto</th>
-                            <th>Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if ($printServiceEvents->count() > 0)
-                            @foreach ($printServiceEvents as $index => $printServiceEvent)
-                                <tr>
-                                    <td>{{ $printServiceEvent->printPhoto->size }}</td>
-                                    <td>Rp {{ number_format($printServiceEvent->price, 0, ',', '.') }}</td>
-                                </tr>
-                            @endforeach
-                        @else
-                            <tr>
-                                <td colspan="2">
-                                    <div class="alert alert-info text-center">Tidak Ada Cetak Foto Layanan
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
-                    </tbody>
-                </table> --}}
-
-
-
             <div class="card shadow">
                 <div class="card-header bg-info">
                     <h2 class="card-title text-center text-white">Foto Layanan</h2>
@@ -385,37 +365,36 @@
                 '{{ route('owner.venue.services.packages.showDetail', ['venue' => ':venue', 'service' => ':service', 'package' => ':package']) }}';
             ajaxUrl = ajaxUrl.replace(':venue', venue).replace(':service', service).replace(':package', packageId);
 
+            console.log('AJAX URL:', ajaxUrl);
+
             $.ajax({
                 url: ajaxUrl,
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
+                    console.log('Response:', response);
                     if (response.information) {
-                        $('#packageInfo').html('<p>' + response.information + '</p>');
+                        $('#packageInfo').html('<p>' + response.information.replace(/\n/g, '<br>') + '</p>');
                     } else {
                         $('#packageInfo').html('<p class="alert alert-info">Tidak ada Deskripsi Paket.</p>');
                     }
                     $('#packageName').text(response.packageName);
                     $('#printPhotoList').empty();
                     $('#servicePackageList').empty();
+                    $('#framePhotoList').empty();
+                    $('#addOnPackageList').empty();
 
                     if (response.printPhotoDetails && response.printPhotoDetails.length > 0) {
                         var printPhotoTableHtml = '<table class="table">';
                         printPhotoTableHtml += '<thead>';
                         printPhotoTableHtml += '<tr>';
                         printPhotoTableHtml += '<th scope="col">Size</th>';
-                        printPhotoTableHtml += '<th scope="col">Harga</th>';
                         printPhotoTableHtml += '</tr>';
                         printPhotoTableHtml += '</thead>';
                         printPhotoTableHtml += '<tbody>';
                         response.printPhotoDetails.forEach(function(printPhoto) {
-                            var formattedPrice = new Intl.NumberFormat('id-ID', {
-                                style: 'currency',
-                                currency: 'IDR'
-                            }).format(printPhoto.price);
                             printPhotoTableHtml += '<tr>';
                             printPhotoTableHtml += '<td>' + printPhoto.size + '</td>';
-                            printPhotoTableHtml += '<td>' + formattedPrice + '</td>';
                             printPhotoTableHtml += '</tr>';
                         });
                         printPhotoTableHtml += '</tbody>';
@@ -473,13 +452,54 @@
                                 '">' +
                                 timeText + '</span></td>';
                             servicePackageTableHtml += '<td>' + formattedPrice + '</td>';
-
-
                             servicePackageTableHtml += '</tr>';
                         });
                         servicePackageTableHtml += '</tbody>';
                         servicePackageTableHtml += '</table>';
                         $('#servicePackageList').append(servicePackageTableHtml);
+                    }
+                    if (response.framePhotoDetails && response.framePhotoDetails.length > 0) {
+                        var framePhotoTableHtml = '<table class="table">';
+                        framePhotoTableHtml += '<thead>';
+                        framePhotoTableHtml += '<tr>';
+                        framePhotoTableHtml += '<th scope="col">Size</th>';
+                        framePhotoTableHtml += '</tr>';
+                        framePhotoTableHtml += '</thead>';
+                        framePhotoTableHtml += '<tbody>';
+                        response.framePhotoDetails.forEach(function(framePhoto) {
+                            framePhotoTableHtml += '<tr>';
+                            framePhotoTableHtml += '<td>' + framePhoto.size + '</td>';
+                            framePhotoTableHtml += '</tr>';
+                        });
+                        framePhotoTableHtml += '</tbody>';
+                        framePhotoTableHtml += '</table>';
+                        $('#framePhotoList').append(framePhotoTableHtml);
+                    } else {
+                        $('#framePhotoList').html(
+                            '<p class="alert alert-info">Paket ini tidak memiliki detail foto frame.</p>');
+                    }
+                    if (response.addOnPackageDetails && response.addOnPackageDetails.length > 0) {
+                        var addOnPackageTableHtml = '<table class="table">';
+                        addOnPackageTableHtml += '<thead>';
+                        addOnPackageTableHtml += '<tr>';
+                        addOnPackageTableHtml += '<th scope="col">Nama Paket Tambahan</th>';
+                        addOnPackageTableHtml += '<th scope="col">Jumlah</th>';
+                        addOnPackageTableHtml += '</tr>';
+                        addOnPackageTableHtml += '</thead>';
+                        addOnPackageTableHtml += '<tbody>';
+                        response.addOnPackageDetails.forEach(function(addOnPackage) {
+                            addOnPackageTableHtml += '<tr>';
+                            addOnPackageTableHtml += '<td>' + addOnPackage.name + '</td>';
+                            addOnPackageTableHtml += '<td>' + addOnPackage.sum + '</td>';
+                            addOnPackageTableHtml += '</tr>';
+                        });
+                        addOnPackageTableHtml += '</tbody>';
+                        addOnPackageTableHtml += '</table>';
+                        $('#addOnPackageList').append(addOnPackageTableHtml);
+                    } else {
+                        $('#addOnPackageList').html(
+                            '<p class="alert alert-info">Paket ini tidak memiliki detail paket tambahan.</p>'
+                            );
                     }
                 },
                 error: function(xhr, status, error) {

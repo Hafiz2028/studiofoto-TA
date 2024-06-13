@@ -153,96 +153,26 @@
                             </div>
                             <div class="col-lg-6 col-md-12">
                                 <div class="form-group">
-                                    <label for="print_photos_switch"><strong>5. Cetak Foto (Optional)</strong></label>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
-                                            name="print_photos_switch">
-                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
-                                            Foto</label>
-                                    </div>
-                                </div>
-                                <div id="print_photos_options" style="display: none;">
-                                    <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
-                                    <div class="row mb-2">
-                                        <div class="col-md-12">
-                                            <button id="check-all-button" type="button"
-                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
-                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
-                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
-                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
-                                                    class="fa fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        @php
-                                            $columnCount = 3;
-                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
-                                        @endphp
-                                        @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-{{ 12 / $columnCount }}">
-                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
-                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input"
-                                                            id="print_photo_{{ $printServiceEvent->id }}"
-                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
-                                                            data-price="{{ $printServiceEvent->price }}">
-                                                        <label class="custom-control-label"
-                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
-                                                            (Harga Rp
-                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
-                                                    </div>
-                                                @endfor
-                                            </div>
-                                        @endfor
-                                    </div>
+                                    <label><strong>5. Cetak Foto (Optional)</strong></label>
+                                    <select class="custom-select2 form-control" multiple="multiple"
+                                        style="width: 100%;background-color:#e27201" id="print_photo_details"
+                                        name="print_photo_details[]">
+                                        @foreach ($printPhotos as $printPhoto)
+                                            <option value="{{ $printPhoto->id }}">Size {{ $printPhoto->size }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-12">
                                 <div class="form-group">
-                                    <label for="print_photos_switch"><strong>6. Frame (Optional)</strong></label>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
-                                            name="print_photos_switch">
-                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Cetak
-                                            Foto</label>
-                                    </div>
-                                </div>
-                                <div id="print_photos_options" style="display: none;">
-                                    <label for="print_photos">Pilih Ukuran Cetak Paket Foto:</label><br>
-                                    <div class="row mb-2">
-                                        <div class="col-md-12">
-                                            <button id="check-all-button" type="button"
-                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
-                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
-                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
-                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
-                                                    class="fa fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        @php
-                                            $columnCount = 3;
-                                            $rowCount = ceil(count($printServiceEvents) / $columnCount);
-                                        @endphp
-                                        @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-{{ 12 / $columnCount }}">
-                                                @for ($j = $i * $columnCount; $j < min(($i + 1) * $columnCount, count($printServiceEvents)); $j++)
-                                                    @php $printServiceEvent = $printServiceEvents[$j]; @endphp
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input"
-                                                            id="print_photo_{{ $printServiceEvent->id }}"
-                                                            name="print_photos[]" value="{{ $printServiceEvent->id }}"
-                                                            data-price="{{ $printServiceEvent->price }}">
-                                                        <label class="custom-control-label"
-                                                            for="print_photo_{{ $printServiceEvent->id }}">{{ $printServiceEvent->printPhoto->size }}
-                                                            (Harga Rp
-                                                            <strong>{{ $printServiceEvent->price ? number_format($printServiceEvent->price, 0, ',', '.') : '0' }}</strong>)</label>
-                                                    </div>
-                                                @endfor
-                                            </div>
-                                        @endfor
-                                    </div>
+                                    <label><strong>6. Frame (Optional)</strong></label>
+                                    <select class="custom-select2 form-control" multiple="multiple"
+                                        style="width: 100%;background-color:#e27201" id="frame_photo_details"
+                                        name="frame_photo_details[]">
+                                        @foreach ($printPhotos as $printPhoto)
+                                            <option value="{{ $printPhoto->id }}">Size {{ $printPhoto->size }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -310,7 +240,6 @@
                             </div>
                         </div>
                     </div>
-
                 </form>
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -402,8 +331,6 @@
             $(button).closest('.row').remove();
         }
     </script>
-
-
     {{-- metode pembayaran  --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -456,39 +383,6 @@
             if (!minPaymentOption.checked) {
                 priceInput.value = '';
             }
-        });
-    </script>
-    {{-- print foto --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const printServiceEventsSwitch = document.getElementById('print_photos_switch');
-            const printServiceEventsOptions = document.getElementById('print_photos_options');
-            const checkAllButton = document.querySelector('[data-toggle="check-all"]');
-            const uncheckAllButton = document.querySelector('[data-toggle="uncheck-all"]');
-            const printServiceEventCheckboxes = document.querySelectorAll('input[name="print_photos[]"]');
-
-            printServiceEventsSwitch.addEventListener('change', function() {
-                if (this.checked) {
-                    printServiceEventsOptions.style.display = 'block';
-                } else {
-                    printServiceEventsOptions.style.display = 'none';
-                    printServiceEventCheckboxes.forEach(function(checkbox) {
-                        checkbox.checked = false;
-                    });
-                }
-            });
-
-            checkAllButton.addEventListener('click', function() {
-                printServiceEventCheckboxes.forEach(function(checkbox) {
-                    checkbox.checked = true;
-                });
-            });
-
-            uncheckAllButton.addEventListener('click', function() {
-                printServiceEventCheckboxes.forEach(function(checkbox) {
-                    checkbox.checked = false;
-                });
-            });
         });
     </script>
     {{-- time status --}}
