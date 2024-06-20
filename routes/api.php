@@ -21,9 +21,15 @@ use App\Http\Controllers\OwnerController;
 
 Route::get('/venues/{ownerId}', [BookingController::class, 'getVenues']);
 Route::get('/services/{venueId}', [BookingController::class, 'getServices']);
-Route::get('/services/{venueId}/{serviceTypeId}', [BookingController::class, 'getServicesByTypeAndVenue']);
-Route::get('/packages/{serviceEventId}', [BookingController::class, 'getPackages']);
+Route::get('/services-and-events/{venueId}', [BookingController::class, 'getServicesAndEvents']);
+Route::get('/packages/{serviceEventId}', [BookingController::class, 'getPackageAndDetails']);
 Route::get('/package-details/{packageId}', [BookingController::class, 'getPackageDetails']);
+
+//not used
+Route::get('/services/{venueId}/{serviceTypeId}', [BookingController::class, 'getServicesByTypeAndVenue']);
+//not used
+
+
 Route::get('/print-photo-details/{packageId}', [BookingController::class, 'getPrintPhotoDetails']);
 Route::get('/get-book-dates', [BookingController::class, 'getBookDates'])->name('getBookDates');
 

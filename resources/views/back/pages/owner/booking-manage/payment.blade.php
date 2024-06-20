@@ -59,9 +59,16 @@
                             <th>Nama Paket</th>
                             <td>
                                 {{ $rent->servicePackageDetail->servicePackage->name }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Add On</th>
+                            <td>
                                 @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty())
                                     @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
-                                        + ({{ $addOnPackageDetail->sum }} {{ $addOnPackageDetail->addOnPackage->name }})
+                                        <div class="badge badge-info"><i class="icon-copy dw dw-photo-camera1"></i>
+                                            {{ $addOnPackageDetail->sum }} {{ $addOnPackageDetail->addOnPackage->name }}
+                                        </div>
                                     @endforeach
                                 @endif
                             </td>
@@ -69,11 +76,26 @@
                         <tr>
                             <th>Cetak Foto</th>
                             <td>
-                                @if ($rent->print_photo_detail_id > 0)
-                                    Size {{ $rent->printPhotoDetail->printServiceEvent->printPhoto->size }} - Harga Rp
-                                    {{ number_format($rent->printPhotoDetail->printServiceEvent->price) }}
+                                @if ($rent->servicePackageDetail->servicePackage->printPhotoDetails->isNotEmpty())
+                                    @foreach ($rent->servicePackageDetail->servicePackage->printPhotoDetails as $printPhotoDetail)
+                                        <div class="badge badge-info"><i class="icon-copy dw dw-print"></i> Size
+                                            {{ $printPhotoDetail->printPhoto->size }}</div>
+                                    @endforeach
                                 @else
-                                    <div class="badge badge-warning">Tidak Cetak Foto</div>
+                                    <div class="badge badge-warning">Tidak ada Cetak Foto</div>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Frame Foto</th>
+                            <td>
+                                @if ($rent->servicePackageDetail->servicePackage->printPhotoDetails->isNotEmpty())
+                                    @foreach ($rent->servicePackageDetail->servicePackage->framePhotoDetails as $framePhotoDetail)
+                                        <div class="badge badge-info"><i class="icon-copy dw dw-image1"></i> Size
+                                            {{ $framePhotoDetail->printPhoto->size }}</div>
+                                    @endforeach
+                                @else
+                                    <div class="badge badge-warning">Tidak ada Frame Foto</div>
                                 @endif
                             </td>
                         </tr>
@@ -81,9 +103,9 @@
                             <th>Metode Booking</th>
                             <td>
                                 @if ($rent->book_type == 0)
-                                    <div class="badge badge-info"><i class="fa fa-user"></i> Offline</div>
+                                    <div class="badge badge-success"><i class="fa fa-user"></i> Offline</div>
                                 @elseif ($rent->book_type == 1)
-                                    <div class="badge badge-info"><i class="fa fa-user"></i> Online</div>
+                                    <div class="badge badge-success"><i class="fa fa-user"></i> Online</div>
                                 @else
                                     <div class="badge badge-danger"><i class="fa fa-user"></i> Tidak Valid</div>
                                 @endif

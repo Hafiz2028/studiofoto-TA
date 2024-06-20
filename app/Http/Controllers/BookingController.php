@@ -9,6 +9,7 @@ use App\Models\Venue;
 use App\Models\RentDetail;
 use App\Models\OpeningHour;
 use App\Models\RentPayment;
+use App\Models\ServiceType;
 use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
 use App\models\ServicePackage;
@@ -38,8 +39,8 @@ class BookingController extends Controller
         if ($services->isEmpty()) {
             return back()->with('error', 'Belum ada layanan pada venue yang telah disetujui, tambahkan sekarang!!');
         }
-        $serviceEventIds = $services->pluck('id')->toArray();
-        $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
+        $packages = ServicePackage::with('printPhotoDetails.printPhoto', 'servicePackageDetails', 'framePhotoDetails.printPhoto', 'addOnPackageDetails.addOnPackage')
+            ->get();
         if ($packages->isEmpty()) {
             return back()->with('error', 'Belum Membuat Paket Foto pada Layanan, tambahkan sekarang!!');
         }
@@ -159,9 +160,30 @@ class BookingController extends Controller
     public function show(string $id)
     {
         $rent = Rent::findOrFail($id);
+        $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
+        $firstOpeningHour = null;
+        $lastOpeningHour = null;
+        $formattedLastOpeningHour = null;
+        if ($openingHourIds->isNotEmpty()) {
+            $firstOpeningHourId = $openingHourIds->first();
+            $lastOpeningHourId = $openingHourIds->last();
+            $firstOpeningHour = OpeningHour::find($firstOpeningHourId)->hour;
+            $lastOpeningHour = OpeningHour::find($lastOpeningHourId)->hour;
+            $lastOpeningHourFormatted = Carbon::createFromFormat('H.i', $lastOpeningHour->hour)->format('H:i');
+            Log::info('Nilai lastOpeningHour sebelum penambahan 30 menit: ' . $lastOpeningHourFormatted);
+            $formattedLastOpeningHour = Carbon::parse($lastOpeningHourFormatted)->addMinutes(30)->format('H:i');
+            Log::info('Nilai formattedLastOpeningHour setelah penambahan 30 menit: ' . $formattedLastOpeningHour);
+            $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $formattedLastOpeningHour;
+        } else {
+            $rent->formatted_schedule = null;
+        }
 
         $data = [
             'rent' => $rent,
+            'firstOpeningHour' => $firstOpeningHour,
+            'lastOpeningHour' => $lastOpeningHour,
+            'formattedLastOpeningHour' => $formattedLastOpeningHour,
+
         ];
 
         return view('back.pages.owner.booking-manage.show', $data);
@@ -182,7 +204,7 @@ class BookingController extends Controller
             return back()->with('error', 'Belum ada layanan pada venue yang telah disetujui, tambahkan sekarang!!');
         }
         $serviceEventIds = $services->pluck('id')->toArray();
-        $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
+        $packages = ServicePackage::with('printPhotoDetails.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
         if ($packages->isEmpty()) {
             return back()->with('error', 'Belum Membuat Paket Foto pada Layanan, tambahkan sekarang!!');
         }
@@ -191,17 +213,19 @@ class BookingController extends Controller
             ->whereIn('service_package_detail_id', $packageDetails->pluck('id'))
             ->findOrFail($id);
         $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
+        $firstOpeningHour = null;
+        $lastOpeningHour = null;
+        $formattedLastOpeningHour = null;
         if ($openingHourIds->isNotEmpty()) {
             $firstOpeningHourId = $openingHourIds->first();
             $lastOpeningHourId = $openingHourIds->last();
             $firstOpeningHour = OpeningHour::find($firstOpeningHourId)->hour;
             $lastOpeningHour = OpeningHour::find($lastOpeningHourId)->hour;
-            $nextHour = Hour::where('id', $lastOpeningHour->id + 1)->first();
-            if ($nextHour) {
-                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $nextHour->hour;
-            } else {
-                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $lastOpeningHour->hour;
-            }
+            $lastOpeningHourFormatted = Carbon::createFromFormat('H.i', $lastOpeningHour->hour)->format('H:i');
+            Log::info('Nilai lastOpeningHour sebelum penambahan 30 menit: ' . $lastOpeningHourFormatted);
+            $formattedLastOpeningHour = Carbon::parse($lastOpeningHourFormatted)->addMinutes(30)->format('H:i');
+            Log::info('Nilai formattedLastOpeningHour setelah penambahan 30 menit: ' . $formattedLastOpeningHour);
+            $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $formattedLastOpeningHour;
         } else {
             $rent->formatted_schedule = null;
         }
@@ -230,6 +254,9 @@ class BookingController extends Controller
             'packages' => $packages,
             'packageDetails' => $packageDetails,
             'rent' => $rent,
+            'firstOpeningHour' => $firstOpeningHour,
+            'lastOpeningHour' => $lastOpeningHour,
+            'formattedLastOpeningHour' => $formattedLastOpeningHour,
             'bookDates' => $bookDates,
         ];
         return view('back.pages.owner.booking-manage.edit', $data);
@@ -293,25 +320,26 @@ class BookingController extends Controller
         try {
             $validatedData = $request->validate([
                 'name_tenant' => 'required|string|max:255',
+                'no_hp' => 'required|string|min:5|max:13',
                 'venue' => 'required|integer',
-                'service_type' => 'required|integer',
                 'service' => 'required|integer',
-                'package' => 'required|integer',
                 'package_detail' => 'required|integer',
-                'print_photo_detail_id' => 'nullable|integer',
                 'date' => 'required|date_format:d/m/Y',
                 'opening_hours' => 'required|array',
                 'opening_hours.*' => 'integer',
                 'total_price' => 'required|integer|min:0',
             ], [
                 'name_tenant.required' => 'Mohon diisi nama dari penyewa',
+                'no_hp.required' => 'Mohon diisi nomor handphone penyewa yang bisa dihubungi',
+                'no_hp.min' => 'Minimal nomor hp adalah 11 angka',
+                'no_hp.max' => 'Maksimal nomor hp adalah 13 angka',
                 'venue.required' => 'Mohon diisi venue yang akan booking',
                 'service_type.required' => 'Mohon diisi tipe layanan dari foto',
                 'service.required' => 'Mohon diisi nama layanan yang akan dibooking',
                 'package.required' => 'Mohon diisi nama paket yang akan dibooking',
                 'package_detail.required' => 'Mohon diisi jumlah orang yang akan melakukan foto',
-                'print_photo_detail_id.integer' => 'Mohon diisi ukuran cetak foto dengan benar',
                 'date.required' => 'Mohon diisi tanggal booking',
+                'opening_hours.required' => 'Mohon diisi Jadwal Booking dengan benar.',
                 'total_price.required' => 'Mohon pilih paket foto dan cetak foto.',
             ]);
 
@@ -326,11 +354,11 @@ class BookingController extends Controller
                 $faktur = $this->generateFaktur($venueName);
                 $rent = new Rent();
                 $rent->name = $validatedData['name_tenant'];
+                $rent->no_hp = $validatedData['no_hp'];
                 $rent->faktur = $faktur;
                 $rent->book_type = 0;
                 $rent->rent_status = 5;
                 $rent->service_package_detail_id = $validatedData['package_detail'];
-                $rent->print_photo_detail_id = $validatedData['print_photo_detail_id'];
                 $rent->date = $date;
                 $rent->total_price = $validatedData['total_price'];
                 $rent->save();
@@ -443,6 +471,14 @@ class BookingController extends Controller
     }
     public function destroy(string $id)
     {
+        try {
+            $rent = Rent::findOrFail($id);
+            // $rentName = $rent->name;
+            $rent->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
     // public function create()
     // {
@@ -469,16 +505,27 @@ class BookingController extends Controller
             ->get();
         return response()->json($services);
     }
-    public function getPackages($serviceEventId)
+    public function getServicesAndEvents($venueId)
     {
-        $packages = ServicePackage::with(['addOnPackageDetails.addOnPackage'])
+        $serviceTypes = ServiceType::whereHas('serviceEvents', function ($query) use ($venueId) {
+            $query->where('venue_id', $venueId);
+        })->with(['serviceEvents' => function ($query) use ($venueId) {
+            $query->where('venue_id', $venueId);
+        }])->get();
+
+        return response()->json($serviceTypes);
+    }
+
+    public function getPackageAndDetails($serviceEventId)
+    {
+        $packages = ServicePackage::with([
+            'servicePackageDetails',
+            'printPhotoDetails.printPhoto',
+            'framePhotoDetails.printPhoto',
+            'addOnPackageDetails.addOnPackage'
+        ])
             ->where('service_event_id', $serviceEventId)
             ->get();
-        $packages->each(function ($package) {
-            if ($package->addOnPackageDetails) {
-                $package->load('addOnPackageDetails.addOnPackage');
-            }
-        });
 
         return response()->json($packages);
     }
@@ -489,7 +536,7 @@ class BookingController extends Controller
     }
     public function getPrintPhotoDetails($packageId)
     {
-        $printPhotoDetails = PrintPhotoDetail::with('printServiceEvent.printPhoto')->where('service_package_id', $packageId)->get();
+        $printPhotoDetails = PrintPhotoDetail::with('printPhoto')->where('service_package_id', $packageId)->get();
         return response()->json($printPhotoDetails);
     }
     public function getBookDates(Request $request)

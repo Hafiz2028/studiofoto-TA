@@ -12,6 +12,7 @@ class Rent extends Model
     protected $fillable = [
         'faktur',
         'name',
+        'no_hp',
         'service_package_detail_id',
         'date',
         'payment_status',

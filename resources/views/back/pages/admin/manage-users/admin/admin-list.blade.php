@@ -40,7 +40,8 @@
                         <table class="data-table table stripe hover nowrap">
                             <thead>
                                 <tr>
-                                    <th class="table-plus">Name</th>
+                                    <th class="table-plus">#</th>
+                                    <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
                                     <th class="datatable-nosort">Action</th>
@@ -49,7 +50,8 @@
                             <tbody>
                                 @forelse ($admins as $item)
                                     <tr>
-                                        <td class="table-plus">{{ $item->name }}</td>
+                                        <td class="table-plus">{{ $loop->iteration }}</td>
+                                        <td>{{ $item->name }}</td>
                                         <td>{{ $item->email }}</td>
                                         <td>{{ $item->handphone }}</td>
                                         <td>

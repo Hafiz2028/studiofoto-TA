@@ -156,14 +156,14 @@
                             <h2 class="text-center text-white mb-3">List Paket Foto Layanan</h2>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead class="thead-light">
+                            <table class="data-table table stripe hover nowrap">
+                                <thead>
                                     <tr>
-                                        <th>#</th>
+                                        <th class="table-plus">#</th>
                                         <th>Nama Paket</th>
                                         <th>Metode Pembayaran</th>
                                         @if (auth()->guard('owner')->check())
-                                            <th>Action</th>
+                                            <th class="datatable-nosort">Action</th>
                                         @endif
                                     </tr>
                                 </thead>
@@ -202,14 +202,31 @@
                                                 </td>
                                                 @if (auth()->guard('owner')->check())
                                                     <td>
-                                                        <a href="#" class="btn btn-outline-secondary btn-lg"
-                                                            onclick="showPackageDetail({{ $package->id }}, '{{ $venue->id }}', '{{ $service->id }}')"
-                                                            style="width: 50px;" data-toggle="tooltip"
-                                                            data-placement="auto" title="Detail Paket"
-                                                            data-venue="{{ $venue->id }}"
-                                                            data-service="{{ $service->id }}">
-                                                            <i class="fas fa-info"></i>
-                                                        </a>
+                                                        <div class="dropdown">
+                                                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                                href="#" role="button" data-toggle="dropdown">
+                                                                <i class="dw dw-more"></i>
+                                                            </a>
+                                                            <div
+                                                                class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                                                <a href="javascript:;" class="dropdown-item text-primary"
+                                                                    onclick="showPackageDetail({{ $package->id }}, '{{ $venue->id }}', '{{ $service->id }}')"
+                                                                    data-venue="{{ $venue->id }}"
+                                                                    data-service="{{ $service->id }}">
+                                                                    <i class="dw dw-eye"></i>
+                                                                    Detail
+                                                                </a>
+                                                                <a href="{{ route('owner.venue.services.packages.edit', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
+                                                                    class="dropdown-item text-info">
+                                                                    <i class="dw dw-edit2"></i> Edit
+                                                                </a>
+                                                                <a href="javascript:;"
+                                                                    class="dropdown-item text-danger deletePackageBtn"
+                                                                    data-package-id="{{ $package->id }}">
+                                                                    <i class="icon-copy dw dw-delete-3"></i> Delete
+                                                                </a>
+                                                            </div>
+                                                        </div>
                                                         <div class="modal fade" id="detailPackageModal" tabindex="-1"
                                                             role="dialog" aria-labelledby="detailPackageModalLabel"
                                                             aria-hidden="true">
@@ -302,17 +319,6 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <a href="{{ route('owner.venue.services.packages.edit', ['venue' => $venue->id, 'service' => $service->id, 'package' => $package->id]) }}"
-                                                            style="width: 50px;" class="btn btn-outline-info btn-lg"
-                                                            data-toggle="tooltip" data-placement="auto"
-                                                            title="Edit Paket">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <a href="javascript:;"
-                                                            class="btn btn-outline-danger btn-lg deletePackageBtn"
-                                                            data-package-id="{{ $package->id }}" style="width: 50px;">
-                                                            <i class="fas fa-trash"></i>
-                                                        </a>
                                                     </td>
                                                 @endif
                                             </tr>
@@ -499,7 +505,7 @@
                     } else {
                         $('#addOnPackageList').html(
                             '<p class="alert alert-info">Paket ini tidak memiliki detail paket tambahan.</p>'
-                            );
+                        );
                     }
                 },
                 error: function(xhr, status, error) {

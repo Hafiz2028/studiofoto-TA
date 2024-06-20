@@ -13,7 +13,7 @@ class FramePhotoDetail extends Model
         'service_package_id',
     ];
 
-    public function printServiceEvent()
+    public function printPhoto()
     {
         return $this->belongsTo(PrintPhoto::class, 'print_photo_id', 'id');
     }

@@ -62,6 +62,7 @@ class AdminController extends Controller
         session()->flash('fail', 'You are logged out');
         return redirect()->route('admin.login');
     }
+    
     //logout end
 
     //send email reset password start

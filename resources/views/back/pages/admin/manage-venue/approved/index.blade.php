@@ -30,12 +30,12 @@
                             <h4 class="h4 text">List Approved Venue</h4>
                         </div>
                     </div>
-
                     <div class="pb-20 mt-30">
                         <table class="data-table table stripe hover nowrap">
                             <thead>
                                 <tr>
-                                    <th class="table-plus">Nama Venue</th>
+                                    <th class="table-plus">#</th>
+                                    <th>Nama Venue</th>
                                     <th>Owner</th>
                                     <th>Alamat</th>
                                     <th>Tanggal Dibuat</th>
@@ -45,7 +45,8 @@
                             <tbody>
                                 @forelse ($venue as $item)
                                     <tr>
-                                        <td class="table-plus">{{ $item->name }}</td>
+                                        <td class="table-plus">{{ $loop->iteration }}</td>
+                                        <td>{{ $item->name }}</td>
                                         <td>{{ $item->owner->name }}</td>
                                         <td>{{ $item->address }}</td>
                                         <td>{{ $item->created_at }}</td>
@@ -67,7 +68,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="4">
-                                            <span class="text-danger">Tidak Ada Akun Admin</span>
+                                            <span class="text-danger">Tidak Ada Venue Disetujui</span>
                                         </td>
                                     </tr>
                                 @endforelse

@@ -86,7 +86,7 @@
     <div class="header">
         <div class="header-left">
             <div class="menu-icon bi bi-list"></div>
-            <div class="search-toggle-icon bi bi-search" data-toggle="header_search"></div>
+            {{-- <div class="search-toggle-icon bi bi-search" data-toggle="header_search"></div>
             <div class="header-search">
                 <form>
                     <div class="form-group mb-0">
@@ -122,7 +122,7 @@
                         </div>
                     </div>
                 </form>
-            </div>
+            </div> --}}
         </div>
         <div class="header-right">
             <div class="dashboard-setting user-notification">
@@ -132,7 +132,7 @@
                     </a>
                 </div>
             </div>
-            <div class="user-notification">
+            {{-- <div class="user-notification">
                 <div class="dropdown">
                     <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
                         <i class="icon-copy dw dw-notification"></i>
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             @livewire('admin-owner-header-profile-info')
             {{-- <div class="github-link">

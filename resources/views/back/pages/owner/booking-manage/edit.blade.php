@@ -45,18 +45,27 @@
                     <input type="hidden" id="edit-selected-venue-id"
                         value="{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue_id }}">
                     <div class="row">
-                        <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>1. Nama Penyewa</label>
                                 <input type="text" class="form-control" name="name_tenant" value="{{ $rent->name }}"
                                     placeholder="Booking jadwal atas nama..." disabled>
+                                <small>Contoh : asep, juki...</small>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
-                                <label for="edit-venue_id">2. Nama Venue</label>
+                                <label>2. No HP / WA</label>
+                                <input type="text" class="form-control" name="no_hp" value="{{ $rent->no_hp }}"
+                                    placeholder="Nomor yang bisa dihubungi..." disabled>
+                                <small>Format no HP: 628xxxxxx</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="edit-venue_id">3. Nama Venue</label>
                                 <input type="text" class="form-control venue-id" id="edit-venue_name" name="venue_name"
-                                    value="{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }} {{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue_id }}"
+                                    value="{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}"
                                     disabled>
                                 <input type="hidden" id="edit-selected-venue-id"
                                     value="{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue_id }}">
@@ -64,61 +73,23 @@
                         </div>
                         <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
-                                <label>3. Tipe Layanan</label>
-                                <input class="form-control service-type" id="service_type" name="service_type"
-                                    type="text"
-                                    value="{{ $rent->servicePackageDetail->servicePackage->serviceEvent->serviceType->service_name }}"
-                                    disabled>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="form-group">
                                 <label>4. Nama Layanan</label>
                                 <input class="form-control service-event" id="service_event" name="service" type="text"
                                     value="{{ $rent->servicePackageDetail->servicePackage->serviceEvent->name }}" disabled>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-lg-4 col-md-6 col-sm-12">
                             <div class="form-group">
-                                <label>5. Nama Paket</label>
-                                @php
-                                    $servicePackageName = $rent->servicePackageDetail->servicePackage->name;
-                                    $addOnDetails = '';
-                                    if (
-                                        $rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty()
-                                    ) {
-                                        $addOnDetailsArray = [];
-                                        foreach (
-                                            $rent->servicePackageDetail->servicePackage->addOnPackageDetails
-                                            as $addOnPackageDetail
-                                        ) {
-                                            $addOnDetailsArray[] =
-                                                '+ (' .
-                                                $addOnPackageDetail->sum .
-                                                ' ' .
-                                                $addOnPackageDetail->addOnPackage->name .
-                                                ')';
-                                        }
-                                        $addOnDetails = implode(' ', $addOnDetailsArray);
-                                    }
-                                    $inputValue = trim($servicePackageName . ' ' . $addOnDetails);
-                                @endphp
-                                <input class="form-control package" id="package" name="package" type="text"
-                                    value="{{ $inputValue }}" disabled>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="form-group">
-                                <label>6. Jumlah Orang & Harga</label>
+                                <label>5. Paket Foto</label>
                                 <input class="form-control package-detail" id="edit-package-detail" name="package_detail"
-                                    data-edit-package-id="{{ $rent->service_package_detail_id }}"
-                                    data-time-status="{{ $rent->servicePackageDetail->time_status }}" type="text"
-                                    value="{{ $rent->servicePackageDetail->sum_person }} Orang - Rp {{ number_format($rent->servicePackageDetail->price, 0, 0) }}"
+                                    type="text" data-edit-package-id="{{ $rent->service_package_detail_id }}"
+                                    data-time-status="{{ $rent->servicePackageDetail->time_status }}"
+                                    value="{{ $rent->servicePackageDetail->servicePackage->name }} - ({{ $rent->servicePackageDetail->sum_person }}) Orang - Rp {{ number_format($rent->servicePackageDetail->price, 0, 0) }}"
                                     disabled>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="d-flex flex-column justify-content-center align-items-center mt-3"
                                 id="badge-container">
@@ -149,15 +120,6 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <label>7. Print Foto & Harga</label>
-                            <input type="hidden" id="hidden_print_photo_detail_id" name="print_photo_detail_id"
-                                value="{{ $rent->print_photo_detail_id }}">
-                            <input class="form-control print-photo-detail" id="print_photo_detail"
-                                name="print_photo_detail"
-                                value="{{ is_null($rent->print_photo_detail_id) ? 'Tidak ada Cetak Foto' : 'Size ' . $rent->printPhotoDetail->printServiceEvent->printPhoto->size . ' - Harga Rp ' . number_format($rent->printPhotoDetail->printServiceEvent->price) }}"
-                                disabled>
-                        </div>
                         <div class="col-lg-2 col-md-6 col-sm-6">
                             <div class="form-group">
                                 <label>8. Tanggal Booking</label>
@@ -170,10 +132,10 @@
                                 <input type="hidden" id="book-dates" value="{{ json_encode($bookDates) }}">
                             </div>
                         </div>
-                        <div class="col-lg-10 col-md-12">
+                        <div class="col-lg-8 col-md-12">
                             <div class="form-group">
                                 <label>9. Jadwal Tersedia</label>
-                                <div class="card">
+                                <div class="card shadow">
                                     <div class="card-header d-flex justify-content-end">
                                         <div class="badge badge-primary">Tersedia</div>
                                         <div class="badge badge-secondary ml-1">Tutup</div>
@@ -189,28 +151,93 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4 col-md-12">
-                            <div class="form-group d-flex align-items-center">
-                                <label for="package-price">Harga Paket Foto</label>
-                                <span id="package-price" class="badge badge-primary ml-2">Rp
-                                    {{ number_format($rent->servicePackageDetail->price) }}</span>
-                            </div>
-                            <div class="form-group d-flex align-items-center">
-                                <label for="print-photo-price">Harga Cetak Foto</label>
-                                <span id="print-photo-price" class="badge badge-info ml-2">Rp
-                                    {{ $rent->printPhotoDetail ? number_format($rent->printPhotoDetail->printServiceEvent->price) : number_format(0) }}
-                                </span>
-                            </div>
-                            <div class="form-group d-flex align-items-center">
-                                <label for="total-price">Harga Total</label>
-                                <span id="total-price" class="badge badge-success ml-2">Rp
-                                    {{ number_format($rent->total_price) }}</span>
+                        <div class="col-lg-12 col-md-12">
+                            <div class="card shadow">
+                                <div class="card-header d-flex justify-content-center">
+                                    <h6 class="text-center">Detail Paket</h6>
+                                </div>
+                                <div class="card body p-3">
+                                    <div id="detail-container">
+                                        <h6 class="mb-2">
+                                            <span style="display: inline-block; width: 160px;">Harga Paket</span>
+                                            : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                            <div class="badge badge-success"><i class="icon-copy dw dw-money"></i>
+                                                {{ number_format($rent->servicePackageDetail->price) }}</div>
+                                            </p>
+                                        </h6>
+                                        <h6 class="mb-2">
+                                            <span style="display: inline-block; width: 160px;">Include AddOn</span>
+                                            : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->count() > 0)
+                                                    @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
+                                                        <div class="badge badge-info"><i
+                                                                class="icon-copy dw dw-photo-camera1"></i>
+                                                            {{ $addOnPackageDetail->sum }}{{ $addOnPackageDetail->addOnPackage->name }}
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="badge badge-warning"><i
+                                                            class="icon-copy dw dw-photo-camera1"></i>
+                                                        Tidak include Add On
+                                                    </div>
+                                                @endif
+                                            </p>
+                                        </h6>
+                                        <h6 class="mb-2">
+                                            <span style="display: inline-block; width: 160px;">Include Cetak
+                                                Foto</span>
+                                            : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                @if ($rent->servicePackageDetail->servicePackage->printPhotoDetails->count() > 0)
+                                                    @foreach ($rent->servicePackageDetail->servicePackage->printPhotoDetails as $printPhotoDetail)
+                                                        <div class="badge badge-info"><i
+                                                                class="icon-copy dw dw-print"></i>
+                                                            Size {{ $printPhotoDetail->printPhoto->size }}
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="badge badge-warning"><i class="icon-copy dw dw-print"></i>
+                                                        Tidak include Cetak Foto
+                                                    </div>
+                                                @endif
+                                        </h6>
+                                        <h6 class="mb-2">
+                                            <span style="display: inline-block; width: 160px;">Include Frame
+                                                Foto</span>
+                                            : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                @if ($rent->servicePackageDetail->servicePackage->framePhotoDetails->count() > 0)
+                                                    @foreach ($rent->servicePackageDetail->servicePackage->framePhotoDetails as $framePhotoDetail)
+                                                        <div class="badge badge-info"><i
+                                                                class="icon-copy dw dw-image1"></i>
+                                                            Size {{ $framePhotoDetail->printPhoto->size }}
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="badge badge-warning"><i
+                                                            class="icon-copy dw dw-image1"></i>
+                                                        Tidak include Frame Foto
+                                                    </div>
+                                                @endif
+                                        </h6>
+                                    </div>
+                                    <div id="detail-schedule-container">
+                                        <h6 class="mb-2">
+                                            <span style="display: inline-block; width: 160px;">Jadwal
+                                                Booking</span>
+                                            : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                            <div class="badge badge-primary"><i class="icon-copy dw dw-wall-clock2"></i>
+                                                {{ $firstOpeningHour->hour }}</div> - <div class="badge badge-primary"><i
+                                                    class="icon-copy dw dw-wall-clock2"></i>
+                                                {{ $formattedLastOpeningHour }}</div>
+                                            </p>
+                                        </h6>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <input type="hidden" name="total_price" id="total-price-input" value="{{ $rent->total_price }}">
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Batal</button>
+                        <a href="{{ route('owner.booking.index') }}" class="btn btn-outline-danger">Batal</a>
                         <button type="submit" class="btn btn-primary">Edit</button>
                     </div>
                 </form>
@@ -410,6 +437,21 @@
                         allLabels[i].classList.remove('btn-primary');
                         allInputs[i].checked = true;
                     }
+                    var startTime = allLabels[startIndex].textContent;
+                    var endTimeParts = allLabels[endIndex - 1].textContent.split('.');
+                    var endHour = parseInt(endTimeParts[0], 10);
+                    var endMinute = parseInt(endTimeParts[1], 10) + 30;
+                    if (endMinute >= 60) {
+                        endHour += 1;
+                        endMinute -= 60;
+                    }
+                    var endTime = endHour.toString().padStart(2, '0') + '.' + endMinute.toString().padStart(2, '0');
+                    var detailScheduleContainer = document.getElementById('detail-schedule-container');
+                    detailScheduleContainer.innerHTML = `
+                    <h6 class="mb-2">
+                        <span style="display: inline-block; width: 160px;">Jadwal Booking</span>:
+                            <p style="display: inline-block; margin: 0; font-weight: normal;"> <div class="badge badge-primary"><i class="icon-copy dw dw-wall-clock2"></i> ${startTime}</div> - <div class="badge badge-primary"><i class="icon-copy dw dw-wall-clock2"></i> ${endTime}</div></p>
+                        </h6>`;
                 } else {
                     Swal.fire({
                         icon: 'error',
