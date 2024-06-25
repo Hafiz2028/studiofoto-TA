@@ -6,7 +6,7 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="title">
-                    <h4>Detail Payment</h4>
+                    <h4>Detail Pelunasan</h4>
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
@@ -16,8 +16,11 @@
                         <li class="breadcrumb-item">
                             <a href="{{ route('owner.booking.index') }}">Booking</a>
                         </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('owner.booking.show', $rent->id) }}">Detail Booking</a>
+                        </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Detail Payment
+                            Detail Pelunasan
                         </li>
                     </ol>
                 </nav>
@@ -63,7 +66,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Add On</th>
+                            <th>Include Add On</th>
                             <td>
                                 @if ($rent->servicePackageDetail->servicePackage->addOnPackageDetails->isNotEmpty())
                                     @foreach ($rent->servicePackageDetail->servicePackage->addOnPackageDetails as $addOnPackageDetail)
@@ -75,7 +78,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Cetak Foto</th>
+                            <th>Include Cetak Foto</th>
                             <td>
                                 @if ($rent->servicePackageDetail->servicePackage->printPhotoDetails->isNotEmpty())
                                     @foreach ($rent->servicePackageDetail->servicePackage->printPhotoDetails as $printPhotoDetail)
@@ -88,7 +91,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Frame Foto</th>
+                            <th>Inlcude Frame Foto</th>
                             <td>
                                 @if ($rent->servicePackageDetail->servicePackage->printPhotoDetails->isNotEmpty())
                                     @foreach ($rent->servicePackageDetail->servicePackage->framePhotoDetails as $framePhotoDetail)
@@ -128,20 +131,30 @@
                                 @endif
                             </td>
                         </tr>
-
-                        @if ($rent->print_photo_detail_id != null)
-                            <tr>
-                                <th>Cetak Foto</th>
-                                <td>Ukuran {{ $rent->printPhotoDetail->printServiceEvent->printPhoto->size }} (Rp
-                                    {{ number_format($rent->printPhotoDetail->printServiceEvent->price, 0, ',', '.') }})
-                                </td>
-                            </tr>
-                        @endif
                         <tr>
                             <th>Harga Paket</th>
                             <td>
                                 <div class="badge badge-success"><i class="icon-copy dw dw-money-1"></i> Rp
                                     {{ number_format($rent->total_price, 0, ',', '.') }}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Pembayaran DP</th>
+                            <td>
+                                @if ($rent->dp_price == 0)
+                                    <div class="badge badge-danger"><i class="icon-copy dw dw-money-1"></i> Belum
+                                        Bayar</div>
+                                @elseif($rent->dp_price < $rent->total_price)
+                                    <div class="badge badge-warning"><i class="icon-copy dw dw-money-1"></i> Rp
+                                        {{ number_format($rent->dp_price, 0, ',', '.') }}</div>
+                                    ({{ \Carbon\Carbon::parse($rent->dp_price_date)->format('H:i:s d M Y') }})
+                                @elseif($rent->dp_price == $rent->total_price)
+                                    <div class="badge badge-success"><i class="icon-copy dw dw-money-1"></i> Lunas
+                                        Rp{{ number_format($rent->dp_price, 0, ',', '.') }}</div>
+                                    ({{ \Carbon\Carbon::parse($rent->dp_price_date)->format('H:i:s d M Y') }})
+                                @else
+                                    <b>Tidak Valid</b>
+                                @endif
                             </td>
                         </tr>
                     </table>
@@ -151,10 +164,10 @@
         <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="card card-primary shadow">
                 <div class="card-header bg-primary">
-                    <h4 class="h4 text-white text-center">Detail Pembayaran</h4>
+                    <h4 class="h4 text-white text-center">Pelunasan Pembayaran</h4>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('owner.booking.payment', $rent->id) }}" method="POST"
+                    <form action="{{ route('owner.booking.payment-lunas', $rent->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <x-alert.form-alert />
@@ -163,72 +176,37 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
-                                        <label for="dp_price"><strong>Jenis Pembayaran</strong></label>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="full_option" name="dp_price"
-                                                class="custom-control-input" value="full_payment" checked>
-                                            <label class="custom-control-label" for="full_option">Lunas</label>
-                                        </div>
-                                        @if ($rent->servicePackageDetail->servicePackage->dp_status == 1)
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="dp_option" name="dp_price"
-                                                    class="custom-control-input" value="dp">
-                                                <label class="custom-control-label" for="dp_option">DP</label>
-                                                <div id="dp_input_group"
-                                                    style="display: none; display: flex; align-items: center; margin-top: 10px;">
-                                                    <div class="input-group" style="align-items: center;">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text" style="height: 38px;">Rp</span>
-                                                        </div>
-                                                        <input type="number" id="dp_input" name="dp_input"
-                                                            class="form-control"
-                                                            placeholder="Minimal Rp {{ number_format($rent->servicePackageDetail->servicePackage->dp_percentage * $rent->total_price, 0, ',', '.') }}"
-                                                            style="height: 38px; margin-right: 10px;">
-                                                        <div class="badge badge-success"
-                                                            style="height: 38px; display: flex; align-items: center;">
-                                                            <i class="fas fa-money mr-1"></i> DP Minimal Rp
-                                                            {{ number_format($rent->servicePackageDetail->servicePackage->dp_percentage * $rent->total_price, 0, ',', '.') }}
-                                                        </div>
-                                                    </div>
-                                                    @error('dp_input')
-                                                        <span class="text-danger">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        @elseif ($rent->servicePackageDetail->servicePackage->dp_status == 2)
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="min_payment_option" name="dp_price"
-                                                    class="custom-control-input" value="min_payment">
-                                                <label class="custom-control-label" for="min_payment_option">Minimal
-                                                    Pembayaran</label>
-                                                <div id="min_payment_input_group"
-                                                    style="display: none; display: flex; align-items: center; margin-top: 10px;">
-                                                    <div class="input-group" style="align-items: center;">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text" style="height: 38px;">Rp</span>
-                                                        </div>
-                                                        <input type="number" id="min_payment_input"
-                                                            name="min_payment_input" class="form-control"
-                                                            placeholder="Minimal Rp {{ number_format($rent->servicePackageDetail->servicePackage->dp_min, 0, ',', '.') }}"
-                                                            style="height: 38px; margin-right: 10px;">
-                                                        <div class="badge badge-success"
-                                                            style="height: 38px; display: flex; align-items: center;">
-                                                            <i class="fas fa-money mr-1"></i> Min. Bayar Rp
-                                                            {{ number_format($rent->servicePackageDetail->servicePackage->dp_min, 0, ',', '.') }}
-                                                        </div>
-                                                    </div>
-                                                    @error('min_payment_input')
-                                                        <span class="text-danger">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        @endif
+                                        <label class="ml-1" for="total_price"><strong>Harga Paket</strong></label>
+                                        <input type="text" class="form-control"
+                                            value="Rp{{ number_format($rent->total_price) }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="ml-1" for="dp_price"><strong>Dp Awal</strong></label>
+                                        <input type="text" class="form-control"
+                                            value="Rp{{ number_format($rent->dp_price) }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label><strong>Waktu Dp</strong></label>
+                                        <input type="text" class="form-control"
+                                            value="{{ \Carbon\Carbon::parse($rent->dp_price_date)->format('H:i:s, d M Y') }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label class="ml-1"><strong>Sisa Pembayaran</strong></label>
+                                        <h1 class="ml-3" style="color:darkorange;">
+                                            Rp{{ number_format($rent->total_price - $rent->dp_price) }}</h1>
                                     </div>
                                 </div>
                                 <div class="col-lg-12 mt-2">
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary float-right">Submit
-                                            Pembayaran</button>
+                                        <a class="btn btn-outline-info" href="{{ route('owner.booking.show', $rent->id) }}">Kembali</a>
+                                        <button type="submit" class="btn btn-primary float-right">Pelunasan</button>
                                     </div>
                                 </div>
                             </div>

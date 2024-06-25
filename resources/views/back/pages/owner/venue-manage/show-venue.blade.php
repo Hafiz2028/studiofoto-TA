@@ -129,8 +129,6 @@
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     @endif
                 </div>
@@ -148,12 +146,10 @@
                                 <p class="pb-0 mb-0">Venue telah di Approve oleh Admin.</p>
                             </div>
                             <div class="actions-buttons d-flex justify-content-sm-end mt-3 mt-sm-0">
-
                                 <a href="javascript:;" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0"
                                     id="deleteVenueBtn">
                                     <i class="fas fa-trash"></i> Hapus Venue
                                 </a>
-
                                 <a href="{{ route('owner.venue.edit', $venue->id) }}"
                                     class="btn btn-outline-info mr-2 mr-sm-1 mb-2 mb-sm-0">
                                     <i class="fas fa-edit"></i> Update Venue
@@ -365,7 +361,7 @@
                                     <img src="{{ $venue->owner->ktp }}" alt="Foto KTP"
                                         style="width: 100%; max-width: 300px; height: auto;">
                                 @else
-                                    <img src="/images/users/owners/KTP_owner/ktp.png" alt="Foto KTP"
+                                    <img src="/images/users/owners/KTP_owner/ktp.png" alt="Tidak Ada KTP"
                                         style="width: 100%; max-width: 300px; height: auto;">
                                 @endif
                             </div>

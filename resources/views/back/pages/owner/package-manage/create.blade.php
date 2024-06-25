@@ -154,8 +154,7 @@
                             <div class="col-lg-6 col-md-12">
                                 <div class="form-group">
                                     <label><strong>5. Cetak Foto (Optional)</strong></label>
-                                    <select class="custom-select2 form-control" multiple="multiple"
-                                        style="width: 100%;background-color:#e27201" id="print_photo_details"
+                                    <select class="custom-select2 form-control" multiple="multiple" id="print_photo_details"
                                         name="print_photo_details[]">
                                         @foreach ($printPhotos as $printPhoto)
                                             <option value="{{ $printPhoto->id }}">Size {{ $printPhoto->size }}</option>
@@ -166,8 +165,7 @@
                             <div class="col-lg-6 col-md-12">
                                 <div class="form-group">
                                     <label><strong>6. Frame (Optional)</strong></label>
-                                    <select class="custom-select2 form-control" multiple="multiple"
-                                        style="width: 100%;background-color:#e27201" id="frame_photo_details"
+                                    <select class="custom-select2 form-control" multiple="multiple" id="frame_photo_details"
                                         name="frame_photo_details[]">
                                         @foreach ($printPhotos as $printPhoto)
                                             <option value="{{ $printPhoto->id }}">Size {{ $printPhoto->size }}</option>

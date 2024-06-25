@@ -40,15 +40,22 @@
                                                     title="Lihat Lokasi di Maps"></i>
                                             </a>
                                         @else
-                                            <a href="#" onclick="alert('Link tidak valid'); return false;">
-                                                <i class="far fa-map-marker" data-toggle="tooltip"
+                                            <a href="#" onclick="swalAlert(); return false;">
+                                                <i class="fa fa-map-marker" data-toggle="tooltip"
                                                     title="Lihat Lokasi di Maps"></i>
                                             </a>
                                         @endif
                                     </li>
-                                    <li><a href="{{ route('customer.detail-venue', $venue->id) }}">
-                                            <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
-                                                data-placement="auto"></i></a>
+                                    <li>
+                                        @if (auth()->guard('customer')->check())
+                                            <a href="{{ route('customer.detail-venue', $venue->id) }}">
+                                                <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
+                                                    data-placement="auto"></i></a>
+                                        @else
+                                            <a href="{{ route('customer.detail-venue-not-login', $venue->id) }}">
+                                                <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
+                                                    data-placement="auto"></i></a>
+                                        @endif
                                     </li>
                                     <li>
                                         @php
@@ -96,4 +103,13 @@
     </div>
 </section>
 
-
+<script>
+    function swalAlert() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Link tidak valid',
+            text: 'Link Lokasi dari Venue ini tidak bisa digunakan, silahkan hubungi pihak Studio Foto',
+            showConfirmButton: true
+        });
+    }
+</script>

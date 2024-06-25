@@ -161,7 +161,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                         <input type="hidden" name="total_price" id="total-price-input" value="">
                         <div class="modal-footer">
@@ -175,8 +175,7 @@
                         @csrf
                         <x-alert.form-alert />
                         <div class="row">
-
-                            <div class="col-lg-4 col-md-6 col-sm-6">
+                            <div class="col-lg-2 col-md-6 col-sm-6">
                                 <div class="form-group">
                                     <label for="venue_id">1. Nama Venue</label>
                                     <input class="form-control" type="text" name="venue"
@@ -185,7 +184,7 @@
                                         value="{{ $venue->id }}" hidden>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="col-lg-2 col-md-6 col-sm-6">
                                 <div class="form-group">
                                     <label>2. Nama Penyewa</label>
                                     <input type="text" class="form-control" name="name_tenant"
@@ -194,13 +193,25 @@
                             </div>
                             <div class="col-lg-2 col-md-6 col-sm-6">
                                 <div class="form-group">
-                                    <label>3. Tipe Layanan</label>
-                                    <select class="form-control" id="service_type" name="service_type"
-                                        onchange="populateServiceEvents()" required>
-                                        <option value="" disabled selected>Pilih Tipe Layanan...</option>
-                                        @foreach ($serviceTypes as $serviceType)
-                                            <option value="{{ $serviceType->id }}">{{ $serviceType->service_name }}
-                                            </option>
+                                    <label>3. No HP / WA</label>
+                                    <input type="number" class="form-control" name="no_hp"
+                                        value="{{ old('no_hp') }}" placeholder="Nomor yang bisa dihubungi..."
+                                        required>
+                                    <small class="ml-1">Format no HP: 628xxxxxxxx</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-6 col-sm-6">
+                                <div class="form-group">
+                                    <label>4. Nama Layanan</label>
+                                    <select class="custom-select2 form-control" id="service" name="service"
+                                        style="width: 100%; height: 38px" onchange="populatePackageAndDetails()"
+                                        required>
+                                        <option value="" disabled selected>Pilih Layanan...</option>
+                                        @foreach ($venue->serviceEvents as $serviceEvent)
+                                            <optgroup label="{{ $serviceEvent->serviceType->service_name }}">
+                                                <option value="{{ $serviceEvent->id }}">{{ $serviceEvent->name }}
+                                                </option>
+                                            </optgroup>
                                         @endforeach
                                     </select>
                                 </div>

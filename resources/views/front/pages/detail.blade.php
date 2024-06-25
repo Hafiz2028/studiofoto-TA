@@ -73,8 +73,8 @@
                                     data-target="#bookingModal">BOOKING</a>
                                 @include('back.pages.owner.booking-manage.create')
                             @else
-                            <a href="javascript:;" id="openDetailVenue" class="primary-btn" data-toggle="modal"
-                            data-target="#openDetailVenue">BOOKING</a>
+                                <a href="javascript:;" id="openDetailVenue" class="primary-btn" data-toggle="modal"
+                                    data-target="#openDetailVenue">BOOKING</a>
                             @endif
                         </div>
                         <ul>
@@ -290,17 +290,12 @@
     </script>
     {{-- create booking --}}
     <script>
-        var selectedPackageDetailId;
-        var packages = @json($packages);
-        var packageDetails = @json($packageDetails);
-        var packages = @json($packages->load('addOnPackageDetails.addOnPackage'));
+        var packages = [];
+        var packageDetails = [];
 
         function populateServiceEvents() {
-            resetSelectAndDisable('service_event', 'Pilih Layanan...');
             resetSelectAndDisable('package', 'Pilih Paket Foto...');
             resetSelectAndDisable('package_detail', 'Pilih Jumlah Orang...');
-            resetSelectAndDisable('print_photo_detail', 'Pilih Cetak Foto...');
-
             resetSelectAndDisable('date', '');
             document.getElementById('schedule-container').innerHTML =
                 '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';

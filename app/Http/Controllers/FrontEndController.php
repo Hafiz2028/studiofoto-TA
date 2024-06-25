@@ -66,10 +66,6 @@ class FrontEndController extends Controller
                     $maxPrice = max($maxPrice, $packageDetail->price);
                 }
             }
-
-            foreach ($serviceEvent->printServiceEvents as $printEvent) {
-                $maxPrice += $printEvent->price;
-            }
         }
         if (!$hasPackage) {
             $minPrice = 0;
@@ -84,7 +80,7 @@ class FrontEndController extends Controller
             $today = now()->format('Y-m-d');
             $services = ServiceEvent::with('serviceType')->where('venue_id', $id)->get();
             $serviceEventIds = $services->pluck('id')->toArray();
-            $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto', 'addOnPackageDetails.addOnPackage')->whereIn('service_event_id', $serviceEventIds)->get();
+            $packages = ServicePackage::with('printPhotoDetails.printPhoto', 'addOnPackageDetails.addOnPackage', 'framePhotoDetails.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
             $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
             $rents = Rent::with(['rentDetails.openingHour.hour'])->whereIn('service_package_detail_id', $packageDetails->pluck('id'))->get();
             foreach ($rents as $rent) {
@@ -157,10 +153,6 @@ class FrontEndController extends Controller
                     $maxPrice = max($maxPrice, $packageDetail->price);
                 }
             }
-
-            foreach ($serviceEvent->printServiceEvents as $printEvent) {
-                $maxPrice += $printEvent->price;
-            }
         }
         if (!$hasPackage) {
             $minPrice = 0;
@@ -174,7 +166,7 @@ class FrontEndController extends Controller
         $today = now()->format('Y-m-d');
         $services = ServiceEvent::with('serviceType')->where('venue_id', $id)->get();
         $serviceEventIds = $services->pluck('id')->toArray();
-        $packages = ServicePackage::with('printPhotoDetails.printServiceEvent.printPhoto', 'addOnPackageDetails.addOnPackage')->whereIn('service_event_id', $serviceEventIds)->get();
+        $packages = ServicePackage::with('printPhotoDetails.printPhoto', 'addOnPackageDetails.addOnPackage', 'framePhotoDetails.printPhoto')->whereIn('service_event_id', $serviceEventIds)->get();
         $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
         $rents = Rent::with(['rentDetails.openingHour.hour'])->whereIn('service_package_detail_id', $packageDetails->pluck('id'))->get();
         foreach ($rents as $rent) {

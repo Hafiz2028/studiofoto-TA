@@ -19,6 +19,8 @@ class Rent extends Model
         'rent_status',
         'book_type',
         'dp_price',
+        'dp_price_date',
+        'dp_payment',
         'total_price',
         'reject_note',
     ];

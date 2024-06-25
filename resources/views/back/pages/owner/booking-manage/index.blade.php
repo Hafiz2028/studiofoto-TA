@@ -131,23 +131,32 @@
                                             @endif
                                         </td>
                                         <td style="text-align: center;">
-                                            @if ($rent->rent_status == 4)
-                                                <span class="badge badge-secondary ">Expired</span>
-                                            @else
-                                                @if ($rent->dp_price == $rent->total_price)
+                                            @if ($rent->rent_status != 4)
+                                                @if ($rent->dp_payment != null)
                                                     <span class="badge badge-success"><i
-                                                            class="icon-copy dw dw-money-2"></i> Lunas</span>
-                                                @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
-                                                    <span class="badge badge-info "><i class="icon-copy dw dw-money-2"></i>
-                                                        Dp (Rp
-                                                        {{ number_format($rent->dp_price) }})</span>
-                                                @elseif ($rent->dp_price == null)
-                                                    <span class="badge badge-warning "><i
-                                                            class="icon-copy dw dw-question"></i> Belum Bayar</span>
+                                                            class="icon-copy dw dw-money-2"></i>
+                                                        Lunas</span>
                                                 @else
-                                                    <span class="badge badge-danger "><i class="icon-copy dw dw-cancel"></i>
-                                                        Tidak Valid</span>
+                                                    @if ($rent->dp_price == $rent->total_price)
+                                                        <span class="badge badge-success"><i
+                                                                class="icon-copy dw dw-money-2"></i> Lunas</span>
+                                                    @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
+                                                        <span class="badge badge-warning "><i
+                                                                class="icon-copy dw dw-money-2"></i>
+                                                            Dp (Rp
+                                                            {{ number_format($rent->dp_price) }})</span>
+                                                    @elseif ($rent->dp_price == null)
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy dw dw-question"></i> Dp (0)</span>
+                                                    @else
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy dw dw-cancel"></i>
+                                                            Tidak Valid</span>
+                                                    @endif
                                                 @endif
+                                            @else
+                                                <span class="badge badge-secondary "><i
+                                                    class="icon-copy dw dw-calendar-8"></i> Expired</span>
                                             @endif
                                         </td>
                                         <td>
@@ -162,9 +171,9 @@
                                                         data-placement="auto" title="Detail Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="dw dw-eye"></i> Detail</a>
-                                                    <script>
+                                                    {{-- <script>
                                                         const editUrlBase = "{{ route('owner.booking.edit', ':id') }}";
-                                                    </script>
+                                                    </script> --}}
                                                     @if ($rent->rent_status >= 0 && $rent->rent_status <= 7)
                                                         @if ($rent->rent_status == 0)
                                                             <a href="" class="dropdown-item text-success"
@@ -186,10 +195,10 @@
                                                         @endif
                                                         @if ($rent->rent_status == 5)
                                                             <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
-                                                                class="dropdown-item text-secondary" data-toggle="tooltip"
-                                                                data-placement="auto" title="Selesaikan Pembayaran"
+                                                                class="dropdown-item text-warning" data-toggle="tooltip"
+                                                                data-placement="auto" title="Pembayaran Awal"
                                                                 data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                                    class="icon-copy dw dw-money-1"></i> Finish Payment</a>
+                                                                    class="icon-copy dw dw-money-1"></i> Down Payment</a>
                                                         @endif
                                                         @if ($rent->rent_status == 3 || $rent->rent_status == 4 || $rent->rent_status == 5 || $rent->rent_status == 7)
                                                             <a href="javascript:;"

@@ -27,6 +27,7 @@ class BookingController extends Controller
     {
         $selectedRentId = $request->input('selectedRentId', null);
         $ownerId = Auth::guard('owner')->id();
+
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
         if ($venues->isEmpty()) {
             return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');
@@ -40,6 +41,9 @@ class BookingController extends Controller
             return back()->with('error', 'Belum ada layanan pada venue yang telah disetujui, tambahkan sekarang!!');
         }
         $packages = ServicePackage::with('printPhotoDetails.printPhoto', 'servicePackageDetails', 'framePhotoDetails.printPhoto', 'addOnPackageDetails.addOnPackage')
+            ->whereHas('serviceEvent', function ($query) use ($venueIds) {
+                $query->whereIn('venue_id', $venueIds);
+            })
             ->get();
         if ($packages->isEmpty()) {
             return back()->with('error', 'Belum Membuat Paket Foto pada Layanan, tambahkan sekarang!!');
@@ -152,6 +156,68 @@ class BookingController extends Controller
                 'status' => 'info',
                 'message' => 'Tidak ada Jadwal Expired',
                 'openingHour' => $openingHour->toArray(),
+                'cutoffTime' => $cutoffTime->toArray()
+            ]);
+        }
+    }
+
+    public function updateStatusMulaiFoto(Request $request, String $id)
+    {
+        $cutoffTime = Carbon::now()->setSeconds(0);
+        $rent = Rent::findOrFail($id);
+        $expiredRent = null;
+        $openingHour = null;
+        $scheduleTime = null;
+        if ($rent->rent_status == 6) {
+            $rent->rent_status = 2;
+            $rent->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'Pemotretan Telah Selesai dilakukan'
+            ]);
+        }
+        if ($rent->rent_status == 1 || $rent->rent_status == 5 || $rent->rent_status == 0) {
+            $rentExpired = false;
+            $rentDetails = RentDetail::where('rent_id', $rent->id)->get();
+
+            if ($rentDetails->isNotEmpty()) {
+                $openingHours = [];
+                foreach ($rentDetails as $rentDetail) {
+                    $openingHour = OpeningHour::find($rentDetail->opening_hour_id);
+                    if ($openingHour) {
+                        $openingHours[] = $openingHour;
+                    }
+                }
+                $lastOpeningHour = end($openingHours);
+                if ($lastOpeningHour) {
+                    $hourParts = explode('.', $lastOpeningHour->hour->hour);
+                    $hour = intval($hourParts[0]);
+                    $minute = intval($hourParts[1]);
+                    $scheduleTime = Carbon::createFromFormat('Y-m-d H:i', $rent->date . ' ' . sprintf('%02d:%02d', $hour, $minute));
+                    $scheduleTime->addMinutes(30);
+                    if ($scheduleTime < $cutoffTime) {
+                        $rentExpired = true;
+                    }
+                }
+            }
+            if ($rentExpired) {
+                $rent->rent_status = 4;
+                $rent->save();
+                $expiredRent = ['faktur' => $rent->faktur, 'name' => $rent->name];
+            }
+        }
+        if ($expiredRent) {
+            return response()->json([
+                'status' => 'expired',
+                'message' => ['Jadwal ini sudah expired.', "Faktur: {$expiredRent['faktur']}, Nama Cust: {$expiredRent['name']}"]
+            ]);
+        } else {
+            $rent->rent_status = 6;
+            $rent->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => ['Jadwal tidak expired, status berhasil diupdate.'],
+                'openingHour' => $openingHour ? $openingHour->toArray() : null,
                 'cutoffTime' => $cutoffTime->toArray()
             ]);
         }
@@ -438,9 +504,12 @@ class BookingController extends Controller
 
                 $paymentStatus = 0;
                 $dpPrice = 0;
+                $dpPaymentDate = null;
+
                 if ($request->dp_price === 'full_payment') {
                     $paymentStatus = 0;
                     $dpPrice = $rent->total_price;
+                    $dpPaymentDate = Carbon::now();
                 } elseif ($request->dp_price === 'dp') {
                     $paymentStatus = 1;
                     $dpPrice = $request->dp_input;
@@ -448,10 +517,13 @@ class BookingController extends Controller
                     $paymentStatus = 2;
                     $dpPrice = $request->min_payment_input;
                 }
+                $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
                 $rent->update([
                     'payment_status' => $paymentStatus,
                     'dp_price' => $dpPrice,
                     'rent_status' => 1,
+                    'dp_price_date' => $currentDateTime,
+                    'dp_payment' => $dpPaymentDate ? $dpPaymentDate->format('Y-m-d H:i:s') : null,
                 ]);
                 return redirect()->route('owner.booking.index')->with('success', 'Sudah Melakukan Pembayaran');
             } else {
@@ -460,6 +532,54 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error('Gagal melakukan pembayaran', ['error' => $e->getMessage()]);
             return redirect()->back()->with('fail', 'Gagal Melakukan Pembayaran : ' . $e->getMessage());
+        }
+    }
+
+    public function showPaymentLunas(Request $request, $booking)
+    {
+        $rent = Rent::findOrFail($booking);
+        $venueId = $rent->servicePackageDetail->servicePackage->serviceEvent->venue->id;
+        $paymentMethodDetails = PaymentMethodDetail::where('venue_id', $venueId)->with('paymentMethod')->get();
+        $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
+        if ($openingHourIds->isNotEmpty()) {
+            $firstOpeningHourId = $openingHourIds->first();
+            $lastOpeningHourId = $openingHourIds->last();
+            $firstOpeningHour = OpeningHour::find($firstOpeningHourId)->hour;
+            $lastOpeningHour = OpeningHour::find($lastOpeningHourId)->hour;
+            $nextHour = Hour::where('id', $lastOpeningHour->id + 1)->first();
+            if ($nextHour) {
+                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $nextHour->hour;
+            } else {
+                $rent->formatted_schedule = $firstOpeningHour->hour . ' - ' . $lastOpeningHour->hour;
+            }
+        } else {
+            $rent->formatted_schedule = 'Invalid time format';
+        }
+        return view('back.pages.owner.booking-manage.payment-lunas', compact('rent', 'paymentMethodDetails'));
+    }
+
+    public function rentPaymentLunas(Request $request, string $id)
+    {
+        Log::info('Masuk ke fungsi store');
+        try {
+            if (Auth::guard('owner')->check()) {
+                $rent = Rent::findOrFail($id);
+                $rent->update([
+                    'dp_payment' => Carbon::now()->format('Y-m-d H:i:s'),
+                ]);
+                if ($rent->rent_status == 6) {
+                    $rent->update([
+                        'rent_status' => 2,
+                    ]);
+                }
+
+                return redirect()->route('owner.booking.show', $id)->with('success', 'Sudah Melakukan Pelunasan');
+            } else {
+                return redirect()->back()->with('fail', 'Akses tidak diizinkan.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Gagal melakukan Pelunasan', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('fail', 'Gagal Melakukan Pelunasan : ' . $e->getMessage());
         }
     }
     private function generateFaktur($venueName)

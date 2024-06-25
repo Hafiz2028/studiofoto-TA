@@ -214,7 +214,7 @@ class PackageController extends Controller
         try {
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
-            $package = ServicePackage::with('printPhotoDetails.printPhoto', 'servicePackageDetails', 'framePhotoDetails.printServiceEvent', 'addOnPackageDetails.addOnPackage')
+            $package = ServicePackage::with('printPhotoDetails.printPhoto', 'servicePackageDetails', 'framePhotoDetails.printPhoto', 'addOnPackageDetails.addOnPackage')
                 ->findOrFail($packageId);
 
             $addOnDetails = $package->addOnPackageDetails->map(function ($addOnPackageDetail) {
@@ -222,7 +222,7 @@ class PackageController extends Controller
             })->implode(', ');
 
             $framePhotoDetails = $package->framePhotoDetails->map(function ($framePhotoDetail) {
-                return 'Size ' . $framePhotoDetail->printServiceEvent->size;
+                return 'Size ' . $framePhotoDetail->printPhoto->size;
             })->implode(', ');
 
             $printPhotoDetails = $package->printPhotoDetails->map(function ($printPhotoDetail) {
@@ -262,7 +262,7 @@ class PackageController extends Controller
             if ($package->framePhotoDetails->isNotEmpty()) {
                 $formattedFramePhotoDetails = $package->framePhotoDetails->map(function ($framePhotoDetail) {
                     return [
-                        'size' => $framePhotoDetail->printServiceEvent->size,
+                        'size' => $framePhotoDetail->printPhoto->size,
                     ];
                 });
                 $responseData['framePhotoDetails'] = $formattedFramePhotoDetails;

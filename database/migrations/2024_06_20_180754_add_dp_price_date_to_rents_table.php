@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rents', function (Blueprint $table) {
-            $table->date('dp_price_date')->nullable()->after('dp_price');
-            $table->date('dp_payment')->nullable()->after('dp_price_date');
-            $table->string('link_foto')->nullable()->after('total_price');
+            $table->dateTime('dp_price_date')->nullable()->after('dp_price');
+            $table->dateTime('dp_payment')->nullable()->after('dp_price_date');
         });
     }
 
@@ -26,7 +25,6 @@ return new class extends Migration
         Schema::table('rents', function (Blueprint $table) {
             $table->dropColumn('dp_price_date');
             $table->dropColumn('dp_payment');
-            $table->dropColumn('link_foto');
         });
     }
 };

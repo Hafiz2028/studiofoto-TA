@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use constGuards;
+use constDefaults;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -27,10 +29,10 @@ class VenueController extends Controller
 {
     public function index()
     {
-        $ownerId = Auth::guard('owner')->id();
-        $venues = Venue::with('venueImages')->where('owner_id', $ownerId)->get();
+        $owner = Auth::guard('owner')->user();
+        $venues = Venue::with('venueImages')->where('owner_id', $owner->id)->get();
 
-        return view('back.pages.owner.venue-manage.index-venue', compact('venues'));
+        return view('back.pages.owner.venue-manage.index-venue', compact('venues', 'owner'));
     }
     public function create()
     {

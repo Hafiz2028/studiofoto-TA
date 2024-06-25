@@ -408,7 +408,7 @@
                         $('#printPhotoList').append(printPhotoTableHtml);
                     } else {
                         $('#printPhotoList').html(
-                            '<p class="alert alert-info">Paket ini tidak bisa cetak foto.</p>');
+                            '<p class="alert alert-info">Paket ini tidak Include cetak foto.</p>');
                     }
 
                     if (response.servicePackageDetails) {
@@ -482,7 +482,7 @@
                         $('#framePhotoList').append(framePhotoTableHtml);
                     } else {
                         $('#framePhotoList').html(
-                            '<p class="alert alert-info">Paket ini tidak memiliki detail foto frame.</p>');
+                            '<p class="alert alert-info">Paket ini tidak Include Frame Foto.</p>');
                     }
                     if (response.addOnPackageDetails && response.addOnPackageDetails.length > 0) {
                         var addOnPackageTableHtml = '<table class="table">';
@@ -504,7 +504,7 @@
                         $('#addOnPackageList').append(addOnPackageTableHtml);
                     } else {
                         $('#addOnPackageList').html(
-                            '<p class="alert alert-info">Paket ini tidak memiliki detail paket tambahan.</p>'
+                            '<p class="alert alert-info">Paket ini tidak Include Add On.</p>'
                         );
                     }
                 },

@@ -14,9 +14,14 @@
     <!-- Mobile Specific Metas -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <!-- Pengaturan tanggal untuk booking -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <!-- Daterangepicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/daterangepicker/3.1/daterangepicker.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/daterangepicker/3.1/daterangepicker.min.js"></script>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -35,18 +40,26 @@
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
     <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
-    {{-- <link rel="stylesheet" href="/extra-assets/summernote/summernote-bs4.min.css"> --}}
-
-
-
+    <!-- SweetAlert -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.js"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    {{-- untuk modal cek jadwal sblm mulai foto --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <!-- OwlCarousel -->
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+
+
+
+    {{-- <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.js"></script> --}}
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> --}}
     <script>
         (function(w, d, s, l, i) {
             w[l] = w[l] || [];
@@ -62,18 +75,28 @@
             f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script> --}}
+
+
+    {{-- transaksi start --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.18/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/daterangepicker/3.1/daterangepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/daterangepicker/3.1/daterangepicker.min.css" /> --}}
+    {{-- transaksi end --}}
     {{-- @kropifyStyles --}}
+
     @livewireStyles
     @stack('stylesheets')
 </head>
 
 <body>
-    {{-- <div class="pre-loader">
+    <div class="pre-loader">
 			<div class="pre-loader-box">
 				<div class="loader-logo">
-					<img src="/back/vendors/images/deskapp-logo.svg" alt="" />
+					<img src="/back/vendors/images/logo_name.png" alt="" />
 				</div>
 				<div class="loader-progress" id="progress_div">
 					<div class="bar" id="bar1"></div>
@@ -81,48 +104,12 @@
 				<div class="percent" id="percent1">0%</div>
 				<div class="loading-text">Loading...</div>
 			</div>
-		</div> --}}
+		</div>
 
     <div class="header">
         <div class="header-left">
             <div class="menu-icon bi bi-list"></div>
-            {{-- <div class="search-toggle-icon bi bi-search" data-toggle="header_search"></div>
-            <div class="header-search">
-                <form>
-                    <div class="form-group mb-0">
-                        <i class="dw dw-search2 search-icon"></i>
-                        <input type="text" class="form-control search-input" placeholder="Search Here" />
-                        <div class="dropdown">
-                            <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
-                                <i class="ion-arrow-down-c"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-md-2 col-form-label">From</label>
-                                    <div class="col-sm-12 col-md-10">
-                                        <input class="form-control form-control-sm form-control-line" type="text" />
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-md-2 col-form-label">To</label>
-                                    <div class="col-sm-12 col-md-10">
-                                        <input class="form-control form-control-sm form-control-line" type="text" />
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-md-2 col-form-label">Subject</label>
-                                    <div class="col-sm-12 col-md-10">
-                                        <input class="form-control form-control-sm form-control-line" type="text" />
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <button class="btn btn-primary">Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div> --}}
+
         </div>
         <div class="header-right">
             <div class="dashboard-setting user-notification">
@@ -132,37 +119,10 @@
                     </a>
                 </div>
             </div>
-            {{-- <div class="user-notification">
-                <div class="dropdown">
-                    <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
-                        <i class="icon-copy dw dw-notification"></i>
-                        <span class="badge notification-active"></span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <div class="notification-list mx-h-350 customscroll">
-                            <ul>
-                                <li>
-                                    <a href="#">
-                                        <img src="/back/vendors/images/img.jpg" alt="" />
-                                        <h3>John Doe</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
+
 
             @livewire('admin-owner-header-profile-info')
-            {{-- <div class="github-link">
-					<a href="https://github.com/dropways/deskapp" target="_blank"
-						><img src="/back/vendors/images/github.svg" alt=""
-					/></a>
-				</div> --}}
+
         </div>
     </div>
 
@@ -193,8 +153,8 @@
                 <h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
                 <div class="sidebar-radio-group pb-10 mb-10">
                     <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" id="sidebaricon-1" name="menu-dropdown-icon"
-                            class="custom-control-input" value="icon-style-1" checked="" />
+                        <input type="radio" id="sidebaricon-1" name="menu-dropdown-icon" class="custom-control-input"
+                            value="icon-style-1" checked="" />
                         <label class="custom-control-label" for="sidebaricon-1"><i
                                 class="fa fa-angle-down"></i></label>
                     </div>
@@ -334,12 +294,14 @@
                             </a>
                         </li>
                         <li class="dropdown">
-                            <a href="javascript:;" class="dropdown-toggle no-arrow">
+                            <a href="{{ route('owner.history.index') }}"
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.history.*') ? 'active' : '' }}">
                                 <span class="micon bi bi-clock-history"></span><span class="mtext">History</span>
                             </a>
                         </li>
                         <li class="dropdown">
-                            <a href="javascript:;" class="dropdown-toggle no-arrow">
+                            <a href="{{ route('owner.transaction.index') }}"
+                                class="dropdown-toggle no-arrow {{ Route::is('owner.transaction.*') ? 'active' : '' }}">
                                 <span class="micon bi bi-wallet2"></span><span class="mtext">Transaction</span>
                             </a>
                         </li>
@@ -401,13 +363,14 @@
         }
     </script>
 
+    <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.all.min.js"></script>
 
 
 
+    <!-- IjaboCropTool -->
     <script src="/extra-assets/ijaboCropTool/ijaboCropTool.min.js"></script>
     <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
-    {{-- <script src="/extra-assets/summernote/summernote-bs4.min.js"></script> --}}
     <script>
         window.addEventListener('showToastr', function(event) {
             toastr.remove();
@@ -424,12 +387,6 @@
             }
         });
     </script>
-    {{-- <script>
-        $(document).ready(function() {
-            $('.summernote').summernote();
-            height:200
-        });
-    </script> --}}
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>

@@ -30,29 +30,39 @@
                     <div class="clearfix">
                         <div class="pull-left">
                             <h5 class="h4 text">List Venue Owner <strong
-                                    style="color: #0011c9;">{{ ucwords(Auth::User()->name) }}</strong></h5>
+                                    style="color: #0011c9;">{{ ucwords($owner->name) }}</strong></h5>
                         </div>
                         <div class="pull-right">
-                            {{-- @if (Auth::user()->owner->ktp) --}}
-                            <a style="float:right; margin-right:5px;" href="{{ route('owner.venue.create') }}">
-                                <button class="btn btn-primary" type="button">Add Venue</button>
-                            </a>
+                            @if ($owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
+                                <a style="float:right; margin-right:5px;" href="{{ route('owner.venue.create') }}"
+                                    class="btn btn-primary" type="button">Add Venue
+                                </a>
+                            @else
+                                <a style="float:right; margin-right:5px;" href="javascript:void(0);"
+                                    class="btn btn-primary cekKtpBtn" type="button">Add Venue
+                                </a>
+                            @endif
                         </div>
                     </div>
                     <hr>
                     @if ($venues->count() == 0)
-                        <div class="row justify-content-around">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h3>
-                                        <center>Data Venue Masih Kosong !</center>
-                                    </h3>
-                                    <p>
-                                        <center>Venue kamu telah terkonfirmasi oleh admin, mari isi data venue anda dengan
-                                            lengkap dan benar</center>
-                                    </p>
-                                </div>
-                            </div>
+                        <div class="alert alert-danger">
+                            <h3>
+                                <center>Tidak Ada Venue!!</center>
+                            </h3>
+                            <p>
+                                <center>Silahkan tambahkan terlebih dahulu venue yang ingin anda buat</center>
+                            </p>
+                            <center>
+                                @if ($owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
+                                    <a href="{{ route('owner.venue.create') }}" class="btn btn-primary">Add Venue
+                                    </a>
+                                @else
+                                    <a href="javascript:void(0);" class="btn btn-primary cekKtpBtn">Add Venue
+                                    </a>
+                                @endif
+
+                            </center>
                         </div>
                     @endif
                     <div class="row justify-content-around">
@@ -158,66 +168,63 @@
         }
     </style>
 @endpush
-
-@stack('scripts')
-
-<script>
-    function confirmVenue() {
-        Swal.fire({
-            title: "Venue kamu belum dikonfirmasi!",
-            text: "Harap menunggu admin untuk Approve venue kamu",
-            icon: "info",
-            confirmButtonColor: "info",
-            confirmButtonText: "OK",
-            customClass: {
-                confirmButton: 'btn-width-200px'
-            }
-        });
-    }
-
-    function editVenue(id) {
-        Swal.fire({
-            title: "Venue ditolak, Apakah kamu ingin melengkapi data venue?",
-            text: "Data venue yang telah dilengkapi akan diajukan lagi untuk dikonfirmasi oleh admin!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#5cc744",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Ya, Lengkapi!",
-            cancelButtonText: "Tidak, Batalkan!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/owner/venue/${id}/edit`;
-            } else {
-                Swal.fire("Dibatalkan", "Kamu batal melengkapi data venue", "error");
-            }
-        });
-    }
-</script>
-
-
-{{-- belum dipake --}}
-{{-- <script type="text/javascript">
-    function warning() {
-        swal({
-                title: "Apakah kamu ingin melengkapi data ktp anda?",
-                text: "Sebelum menambahkan venue, anda harus menginputkan ktp anda !",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#5cc744",
-                confirmButtonText: "Ya, lengkapi!",
-                cancelButtonText: "Tidak, batalkan!",
-                closeOnConfirm: false,
-                closeOnCancel: false
-            },
-            function(isConfirm) {
-                if (isConfirm) {
-                    swal("Lengkapi data!", "Kamu akan dipindahkan ke halaman untuk melengkapi data ktp.",
-                        "success");
-                    location.href = "{{ route('owner.profile') }}";
-                } else {
-                    swal("Dibatalkan", "Kamu batal melengkapi data ktp", "error");
+@push('scripts')
+    <script>
+        function confirmVenue() {
+            Swal.fire({
+                title: "Venue kamu belum dikonfirmasi!",
+                text: "Harap menunggu admin untuk Approve venue kamu",
+                icon: "info",
+                confirmButtonColor: "info",
+                confirmButtonText: "OK",
+                customClass: {
+                    confirmButton: 'btn-width-200px'
                 }
             });
-    }
-</script> --}}
+        }
+
+        function editVenue(id) {
+            Swal.fire({
+                title: "Venue ditolak, Apakah kamu ingin melengkapi data venue?",
+                text: "Data venue yang telah dilengkapi akan diajukan lagi untuk dikonfirmasi oleh admin!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#5cc744",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, Lengkapi!",
+                cancelButtonText: "Tidak, Batalkan!",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/owner/venue/${id}/edit`;
+                } else {
+                    Swal.fire("Dibatalkan", "Kamu batal melengkapi data venue", "error");
+                }
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cekKtpBtns = document.querySelectorAll('.cekKtpBtn');
+            cekKtpBtns.forEach(function(btn) {
+                btn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Tidak Ada KTP',
+                        text: 'Venue Tidak bisa ditambahkan karena tidak ada KTP, Apakah anda ingin menambahkan KTP di profile?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        cancelButtonText: 'Nanti',
+                        cancelButtonColor: '#d33',
+                        confirmButtonColor: '#28a745',
+                        confirmButtonText: 'Ya, Tambahkan Sekarang'
+                    }).then((result) => {
+                        if (result.value) {
+                            window.location.href = '{{ route('owner.profile') }}';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+@endpush

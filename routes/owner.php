@@ -1,13 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\VenueController;
-use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\TransactionController;
 
 
 
@@ -48,7 +50,12 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::resource('booking', BookingController::class);
         Route::get('/booking/{booking}/show-payment', [BookingController::class, 'showPayment'])->name('booking.show-payment');
         Route::post('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
+        Route::get('/booking/{booking}/show-payment-lunas', [BookingController::class, 'showPaymentLunas'])->name('booking.show-payment-lunas');
+        Route::post('/booking/{booking}/payment-lunas', [BookingController::class, 'rentPaymentLunas'])->name('booking.payment-lunas');
+
         Route::post('/booking/update-status', [BookingController::class, 'updateStatus'])->name('booking.update-status');
-        // Route::get('/booking/update-status', [BookingController::class, 'getUpdateStatus'])->name('booking.get-update-status');
+        Route::post('/booking/{booking}/update-status-mulai-foto', [BookingController::class, 'updateStatusMulaiFoto'])->name('booking.update-status-mulai-foto');
+        Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+        Route::get('/transaction', [TransactionController::class, 'index'])->name('transaction.index');
     });
 });
