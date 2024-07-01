@@ -265,8 +265,8 @@
                             <div class="col-lg-12">
                                 <div class="alert alert-warning text-center">
                                     <i class="icon-copy fa fa-info-circle" aria-hidden="true"></i> Pastikan melakukan konfirmasi ulang
-                                    booking kepada pihak owner 30 menit sebelum jadwal dimulai. <br>Booking akan dibatalkan jika tidak
-                                    melakukan konfirmasi.
+                                    booking kepada pihak owner maksimal 30 menit sebelum jadwal dimulai. <br>Booking akan dibatalkan secara sepihak jika tidak
+                                    melakukan konfirmasi dan tidak ada kabar sebelum jadwal booking dimulai.
                                 </div>
                             </div>
                             <div class="col-lg-12 col-md-12">

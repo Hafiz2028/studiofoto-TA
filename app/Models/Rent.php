@@ -34,6 +34,10 @@ class Rent extends Model
     {
         return $this->hasMany(RentDetail::class, 'rent_id', 'id');
     }
+    public function rentPayments()
+    {
+        return $this->hasMany(RentPayment::class, 'rent_id', 'id');
+    }
     public function rentCustomer()
     {
         return $this->hasOne(RentCustomer::class, 'rent_id', 'id');

@@ -9,7 +9,7 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\DistrictController;
-use App\Http\Controllers\TransactionController; 
+use App\Http\Controllers\TransactionController;
 
 
 
@@ -55,6 +55,9 @@ Route::prefix('owner')->name('owner.')->group(function () {
 
         Route::post('/booking/update-status', [BookingController::class, 'updateStatus'])->name('booking.update-status');
         Route::post('/booking/{booking}/update-status-mulai-foto', [BookingController::class, 'updateStatusMulaiFoto'])->name('booking.update-status-mulai-foto');
+        Route::patch('/booking/approve/{id}', [BookingController::class, 'approveRent'])->name('booking.approve-rent');
+        Route::patch('/booking/reject/{id}', [BookingController::class, 'rejectRent'])->name('booking.reject-rent');
+        Route::patch('/booking/batal/{id}', [BookingController::class, 'batalRent'])->name('booking.batal-rent');
         Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
         Route::get('/transaction', [TransactionController::class, 'index'])->name('transaction.index');
     });

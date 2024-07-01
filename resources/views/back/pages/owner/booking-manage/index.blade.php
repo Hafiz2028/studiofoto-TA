@@ -156,7 +156,7 @@
                                                 @endif
                                             @else
                                                 <span class="badge badge-secondary "><i
-                                                    class="icon-copy dw dw-calendar-8"></i> Expired</span>
+                                                        class="icon-copy dw dw-calendar-8"></i> Expired</span>
                                             @endif
                                         </td>
                                         <td>
@@ -177,23 +177,36 @@
                                                     @if ($rent->rent_status >= 0 && $rent->rent_status <= 7)
                                                         @if ($rent->rent_status == 0)
                                                             <a href="" class="dropdown-item text-success"
-                                                                data-toggle="modal" data-target=""
+                                                                data-toggle="modal"
+                                                                data-target="#acceptModal{{ $rent->id }}"
                                                                 data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                                     class="icon-copy dw dw-checked"></i> Accept</a>
                                                             <a href="" class="dropdown-item text-danger"
-                                                                data-toggle="modal" data-target=""
+                                                                data-toggle="modal"
+                                                                data-target="#rejectModal{{ $rent->id }}"
                                                                 data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                                     class="icon-copy dw dw-cancel"></i> Reject</a>
                                                         @endif
-                                                        @if ($rent->rent_status == 1 || $rent->rent_status == 5)
+                                                        @if ($rent->rent_status == 1)
                                                             <a href="javascript:void(0);"
                                                                 class="dropdown-item text-primary edit-schedule"
                                                                 data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
                                                                 data-placement="auto" title="Edit Jadwal">
                                                                 <i class="dw dw-edit2"></i> Edit
                                                             </a>
+                                                            <a href="" class="dropdown-item text-danger"
+                                                                data-toggle="modal"
+                                                                data-target="#batalModal{{ $rent->id }}"
+                                                                data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                    class="icon-copy dw dw-cancel"></i> Cancel</a>
                                                         @endif
                                                         @if ($rent->rent_status == 5)
+                                                            <a href="javascript:void(0);"
+                                                                class="dropdown-item text-primary edit-schedule"
+                                                                data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
+                                                                data-placement="auto" title="Edit Jadwal">
+                                                                <i class="dw dw-edit2"></i> Edit
+                                                            </a>
                                                             <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
                                                                 class="dropdown-item text-warning" data-toggle="tooltip"
                                                                 data-placement="auto" title="Pembayaran Awal"
@@ -216,7 +229,129 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    {{-- @include('back.pages.owner.booking-manage.edit') --}}
+                                    {{-- Acc Modal --}}
+                                    <div class="modal fade" id="acceptModal{{ $rent->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="acceptModalLabel{{ $rent->id }}"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-success text-white">
+                                                    <h5 class="modal-title text-white"
+                                                        id="acceptModalLabel{{ $rent->id }}">
+                                                        Approve Booking</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Apakah anda yakin untuk Approve Jadwal dari
+                                                    <b>{{ $rent->name }}</b> Pada Pukul
+                                                    <b>{{ $rent->formatted_schedule }}</b> Tanggal
+                                                    <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b> ini?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-danger"
+                                                        data-dismiss="modal">Cancel</button>
+                                                    <form id="approve-form"
+                                                        action="{{ route('owner.booking.approve-rent', ['id' => $rent->id]) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="btn btn-outline-success">
+                                                            Approve
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{-- Reject Modal --}}
+                                    <div class="modal fade" id="rejectModal{{ $rent->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="rejectModalLabel{{ $rent->id }}"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title text-white"
+                                                        id="rejectModalLabel{{ $rent->id }}">
+                                                        Reject Jadwal Booking</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form
+                                                    action="{{ route('owner.booking.reject-rent', ['id' => $rent->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <div class="modal-body">
+                                                        <p>Apakah anda yakin untuk Menolak Jadwal dari
+                                                            <b>{{ $rent->name }}</b> Pada Pukul
+                                                            <b>{{ $rent->formatted_schedule }}</b> Tanggal
+                                                            <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
+                                                            ini?
+                                                        </p>
+                                                        <div class="form-group">
+                                                            <label for="rejectReason{{ $rent->id }}">Berikan
+                                                                alasan Jadwal Booking Ditolak:</label>
+                                                            <textarea id="rejectReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                            data-dismiss="modal">Cancel</button>
+                                                        <button type="submit"
+                                                            class="btn btn-outline-danger">Reject</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{-- Batal Modal --}}
+                                    <div class="modal fade" id="batalModal{{ $rent->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="batalModalLabel{{ $rent->id }}"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title text-white"
+                                                        id="batalModalLabel{{ $rent->id }}">
+                                                        Batalkan Jadwal Booking</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form
+                                                    action="{{ route('owner.booking.batal-rent', ['id' => $rent->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <div class="modal-body">
+                                                        <p>Apakah anda yakin untuk Membatalkan Jadwal dari
+                                                            <b>{{ $rent->name }}</b> Pada Pukul
+                                                            <b>{{ $rent->formatted_schedule }}</b> Tanggal
+                                                            <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
+                                                            ini?
+                                                        </p>
+                                                        <div class="form-group">
+                                                            <label for="batalReason{{ $rent->id }}">Berikan
+                                                                alasan Jadwal Booking Ditolak:</label>
+                                                            <textarea id="batalReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                            data-dismiss="modal">Cancel</button>
+                                                        <button type="submit"
+                                                            class="btn btn-outline-danger">Confirm</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endforeach
                             @endif
                         </tbody>

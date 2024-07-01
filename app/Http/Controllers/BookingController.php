@@ -80,7 +80,7 @@ class BookingController extends Controller
                 return back()->with('error', 'Belum Membuat Paket Foto pada Layanan, tambahkan sekarang!!');
             }
             $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
-            $rents = Rent::with(['rentDetails.openingHour.hour'])->whereIn('service_package_detail_id', $packageDetails->pluck('id'))->get();
+            $rents = Rent::with(['rentDetails.openingHour.hour'])->whereIn('service_package_detail_id', $packageDetails->pluck('id'))->whereIn('rent_status', [0, 1, 5, 6])->get();
             foreach ($rents as $rent) {
                 $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
                 if ($openingHourIds->isNotEmpty()) {
@@ -128,6 +128,42 @@ class BookingController extends Controller
                 'bookDates' => $bookDates,
             ];
             return view('back.pages.owner.booking-manage.index', $data);
+        }
+    }
+
+    public function approveRent(Request $request, String $id)
+    {
+        $rent = Rent::findOrFail($id);
+        $rent->rent_status = 1;
+        $saved = $rent->save();
+        if ($saved) {
+            return redirect()->route('owner.booking.index')->with('success', 'Jadwal Booking <b>' . ucfirst($rent->name) . '</b> dengan no Faktur <b>' . ucfirst($rent->faktur) . '</b> telah di Approve');
+        } else {
+            return redirect()->route('owner.booking.index')->with('fail', 'Jadwal Booking gagal di Approve, coba lagi');
+        }
+    }
+    public function rejectRent(Request $request, String $id)
+    {
+        $rent = Rent::findOrFail($id);
+        $rent->rent_status = 3;
+        $rent->reject_note = $request->input('reject_note');
+        $saved = $rent->save();
+        if ($saved) {
+            return redirect()->route('owner.booking.index')->with('success', 'Jadwal Booking <b>' . ucfirst($rent->name) . '</b> dengan no Faktur <b>' . ucfirst($rent->faktur) . '</b> telah di Reject');
+        } else {
+            return redirect()->route('owner.booking.index')->with('fail', 'Jadwal Booking gagal di Reject, coba lagi');
+        }
+    }
+    public function batalRent(Request $request, String $id)
+    {
+        $rent = Rent::findOrFail($id);
+        $rent->rent_status = 7;
+        $rent->reject_note = $request->input('reject_note');
+        $saved = $rent->save();
+        if ($saved) {
+            return redirect()->route('owner.booking.index')->with('success', 'Jadwal Booking <b>' . ucfirst($rent->name) . '</b> dengan no Faktur <b>' . ucfirst($rent->faktur) . '</b> telah di Batalkan');
+        } else {
+            return redirect()->route('owner.booking.index')->with('fail', 'Jadwal Booking gagal di Batalkan, coba lagi');
         }
     }
     public function updateStatus(Request $request)
@@ -287,8 +323,11 @@ class BookingController extends Controller
             'formattedLastOpeningHour' => $formattedLastOpeningHour,
 
         ];
-
-        return view('back.pages.owner.booking-manage.show', $data);
+        if (Auth::guard('customer')->check()) {
+            return view('front.pages.booking-manage.show', $data);
+        } elseif (Auth::guard('owner')->check()) {
+            return view('back.pages.owner.booking-manage.show', $data);
+        }
     }
     public function edit(string $id)
     {
@@ -418,7 +457,6 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         Log::info('Masuk ke fungsi store');
-        // dd($request->all());
         try {
             $validatedData = $request->validate([
                 'name_tenant' => 'required|string|max:255',
@@ -436,36 +474,39 @@ class BookingController extends Controller
                 'no_hp.min' => 'Minimal nomor hp adalah 11 angka',
                 'no_hp.max' => 'Maksimal nomor hp adalah 13 angka',
                 'venue.required' => 'Mohon diisi venue yang akan booking',
-                'service_type.required' => 'Mohon diisi tipe layanan dari foto',
                 'service.required' => 'Mohon diisi nama layanan yang akan dibooking',
-                'package.required' => 'Mohon diisi nama paket yang akan dibooking',
                 'package_detail.required' => 'Mohon diisi jumlah orang yang akan melakukan foto',
                 'date.required' => 'Mohon diisi tanggal booking',
-                'opening_hours.required' => 'Mohon diisi Jadwal Booking dengan benar.',
+                'opening_hours.required' => 'Jangan Kosongkan Jadwal yang akan dibooking.',
                 'total_price.required' => 'Mohon pilih paket foto dan cetak foto.',
             ]);
-
             Log::info('Validasi berhasil', ['validatedData' => $validatedData]);
             $date = Carbon::createFromFormat('d/m/Y', $validatedData['date'])->format('Y-m-d');
+            Log::info('Tanggal berhasil diformat', ['date' => $date]);
             $openingHours = $validatedData['opening_hours'];
-            if ($this->checkDuplicateOpeningHours($openingHours)) {
-                return back()->withErrors(['opening_hours' => 'Jadwal ini sudah dibooking'])->withInput();
-            }
+            Log::info('Opening hours diterima', ['openingHours' => $openingHours]);
+            // if ($this->checkDuplicateOpeningHours($openingHours)) {
+            //     Log::info('Jadwal sudah dibooking', ['openingHours' => $openingHours]);
+            //     return back()->withErrors(['opening_hours' => 'Jadwal ini sudah dibooking'])->withInput();
+            // }
+            $venueName = Venue::find($validatedData['venue'])->name;
+            Log::info('Venue ditemukan', ['venueName' => $venueName]);
+            $faktur = $this->generateFaktur($venueName);
+            Log::info('Faktur berhasil dibuat', ['faktur' => $faktur]);
+
+            $rent = new Rent();
+            $rent->name = $validatedData['name_tenant'];
+            $rent->no_hp = $validatedData['no_hp'];
+            $rent->faktur = $faktur;
+            $rent->service_package_detail_id = $validatedData['package_detail'];
+            $rent->date = $date;
+            $rent->total_price = $validatedData['total_price'];
+            $rent->rent_status = 5;
             if (Auth::guard('owner')->check()) {
-                $venueName = Venue::find($validatedData['venue'])->name;
-                $faktur = $this->generateFaktur($venueName);
-                $rent = new Rent();
-                $rent->name = $validatedData['name_tenant'];
-                $rent->no_hp = $validatedData['no_hp'];
-                $rent->faktur = $faktur;
                 $rent->book_type = 0;
-                $rent->rent_status = 5;
-                $rent->service_package_detail_id = $validatedData['package_detail'];
-                $rent->date = $date;
-                $rent->total_price = $validatedData['total_price'];
                 $rent->save();
                 Log::info('Data rent berhasil disimpan', ['rent' => $rent]);
-                foreach ($validatedData['opening_hours'] as $index => $opening_hour) {
+                foreach ($openingHours as $index => $opening_hour) {
                     $rentDetail = new RentDetail();
                     $rentDetail->rent_id = $rent->id;
                     $rentDetail->opening_hour_id = $opening_hour;
@@ -474,20 +515,10 @@ class BookingController extends Controller
                 }
                 return redirect()->route('owner.booking.show-payment', ['booking' => $rent->id])->with('success', 'Lanjutkan Ke Bagian Pembayaran Booking.');
             } else if (Auth::guard('customer')->check()) {
-                $venueName = Venue::find($validatedData['venue'])->name;
-                $faktur = $this->generateFaktur($venueName);
-                $rent = new Rent();
-                $rent->name = $validatedData['name_tenant'];
-                $rent->no_hp = $validatedData['no_hp'];
-                $rent->faktur = $faktur;
                 $rent->book_type = 1;
-                $rent->rent_status = 5;
-                $rent->service_package_detail_id = $validatedData['package_detail'];
-                $rent->date = $date;
-                $rent->total_price = $validatedData['total_price'];
                 $rent->save();
-                Log::info('Data rent berhasil disimpan', ['rent' => $rent]);
-                foreach ($validatedData['opening_hours'] as $index => $opening_hour) {
+                Log::info('Data rent berhasil disimpan oleh customer', ['rent' => $rent]);
+                foreach ($openingHours as $index => $opening_hour) {
                     $rentDetail = new RentDetail();
                     $rentDetail->rent_id = $rent->id;
                     $rentDetail->opening_hour_id = $opening_hour;
@@ -500,12 +531,12 @@ class BookingController extends Controller
                 $rentCustomer->customer_id = $customer_id;
                 $rentCustomer->save();
                 Log::info('Data rent customer berhasil disimpan', ['rentCustomer' => $rentCustomer]);
-                return redirect()->route('customer.booking.show-payment', ['booking' => $rent->id])->with('success', 'Lanjutkan Ke Bagian Pembayaran Booking.');
+                return redirect()->route('customer.booking.show-payment', ['booking' => $rent->id])->with('success', 'Jadwal Berhasil dibooking, lanjutkan ke pembayaran.');
             }
         } catch (\Exception $e) {
             Log::error('Gagal menambahkan paket foto', ['error' => $e->getMessage()]);
             if (Auth::guard('customer')->check()) {
-                return redirect()->route('customer.booking.index')->with('fail', 'Gagal menambahkan paket foto. Terjadi kesalahan: ' . $e->getMessage());
+                return redirect()->back()->with('fail', 'Gagal menambahkan paket foto. Terjadi kesalahan: ' . $e->getMessage());
             } elseif (Auth::guard('owner')->check()) {
                 return redirect()->route('owner.booking.index')->with('fail', 'Gagal menambahkan paket foto. Terjadi kesalahan: ' . $e->getMessage());
             }
@@ -663,7 +694,9 @@ class BookingController extends Controller
                 'dp_price_date' => $currentDateTime,
                 'dp_payment' => $dpPaymentDate ? $dpPaymentDate->format('Y-m-d H:i:s') : null,
             ]);
-            $buktiName = 'BuktiPembayaran_' . $rent->faktur . '_' . uniqid();
+            $file = $request->file('bukti_pembayaran');
+            $extension = $file->getClientOriginalExtension();
+            $buktiName = 'BuktiPembayaran_' . $rent->faktur . '_' . uniqid() . '.' . $extension;
             $buktiPath = $request->file('bukti_pembayaran')->storeAs('/Bukti_Pembayaran', $buktiName, 'public');
             RentPayment::create([
                 'image' => $buktiName,

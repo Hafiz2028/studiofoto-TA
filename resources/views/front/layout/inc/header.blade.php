@@ -13,10 +13,11 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="header__top__right">
                         <div class="header__top__right__social">
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-twitter"></i></a>
-                            <a href="#"><i class="fa fa-linkedin"></i></a>
-                            <a href="#"><i class="fa fa-pinterest-p"></i></a>
+                            <a href="https://www.instagram.com/apis_a_r" target="_blank"><i
+                                    class="fab fa-instagram"></i></a>
+                            <a href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                            <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
+                            <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
                         </div>
                         @if (auth()->guard('customer')->check())
                             @livewire('customer-header-profile-info')
@@ -49,7 +50,8 @@
                         <li class="{{ Route::is('search-page') ? 'active' : '' }}"><a
                                 href="{{ route('search-page') }}">Search</a></li>
                         @if (auth()->guard('customer')->check())
-                            <li class="{{ Route::is('customer.booking.index') ? 'active' : '' }}"><a href="{{route('customer.booking.index')}}">Booking</a>
+                            <li class="{{ Route::is('customer.booking.index') ? 'active' : '' }}"><a
+                                    href="{{ route('customer.booking.index') }}">Booking</a>
                                 {{-- <ul class="header__menu__dropdown">
                                     <li><a href="./shop-details.html">Shop Details</a></li>
                                     <li><a href="./shoping-cart.html">Shoping Cart</a></li>
@@ -57,8 +59,10 @@
                                     <li><a href="./blog-details.html">Blog Details</a></li>
                                 </ul> --}}
                             </li>
-                            <li class="{{ Route::is('customer.history.index') ? 'active' : '' }}"><a href="{{route('customer.history.index')}}">History</a></li>
-                            <li class="{{ Route::is('customer.profile') ? 'active' : '' }}"><a href="{{ route('customer.profile') }}">Profile</a></li>
+                            <li class="{{ Route::is('customer.history.index') ? 'active' : '' }}"><a
+                                    href="{{ route('customer.history.index') }}">History</a></li>
+                            <li class="{{ Route::is('customer.profile') ? 'active' : '' }}"><a
+                                    href="{{ route('customer.profile') }}">Profile</a></li>
                         @endif
                     </ul>
                 </nav>

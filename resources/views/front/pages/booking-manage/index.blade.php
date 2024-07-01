@@ -160,13 +160,13 @@
                                         </td>
                                         <td>
                                             @if ($rent->rent_status >= 0 && $rent->rent_status <= 7)
-                                                @if ($rent->rent_status == 1 || $rent->rent_status == 5)
-                                                    <a href="javascript:void(0);"
+                                                @if ($rent->rent_status == 1)
+                                                    {{-- <a href="javascript:void(0);"
                                                         class="btn btn-outline-primary edit-schedule"
                                                         data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
                                                         data-placement="auto" title="Edit Jadwal">
                                                         <i class="dw dw-edit2"></i> Edit
-                                                    </a>
+                                                    </a> --}}
                                                 @endif
                                                 @if ($rent->rent_status == 5)
                                                     <a href="{{ route('customer.booking.show-payment', ['booking' => $rent->id]) }}"
@@ -176,7 +176,7 @@
                                                             class="icon-copy dw dw-money-1"></i> Bayar DP</a>
                                                     <p id="remaining-{{ $rent->id }}"
                                                         style="color:red;text-align:center">
-                                                        Waktu Pembayaran :
+                                                        Waktu Bayar :
                                                     </p>
                                                 @endif
                                                 @if ($rent->rent_status != 5)
@@ -236,8 +236,7 @@
                     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
                     document.getElementById("remaining-{{ $rent->id }}").innerHTML =
-                        "Waktu Pembayaran :  " +
-                        hours + "h " +
+                        "Waktu Bayar :  " +
                         minutes + "m " + seconds + "s ";
 
                     if (distance < 0) {

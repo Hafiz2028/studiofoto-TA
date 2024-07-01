@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/front/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="/front/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="/front/css/elegant-icons.css" type="text/css">
-    <link rel="stylesheet" href="/front/css/nice-select.css" type="text/css">
+    {{-- <link rel="stylesheet" href="/front/css/nice-select.css" type="text/css"> --}}
     <link rel="stylesheet" href="/front/css/jquery-ui.min.css" type="text/css">
     <link rel="stylesheet" href="/front/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="/front/css/slicknav.min.css" type="text/css">

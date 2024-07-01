@@ -1,5 +1,5 @@
 @if(Request::is('/'))
-<div class="hero__item set-bg" data-setbg="/front/img/hero/banner.jpg">
+<div class="hero__item set-bg" data-setbg="/front/img/hero/image.png">
     <div class="hero__text">
         <span>KEEP MEMORIES</span>
         <h2>WITH BELOVED<br /> PERSON</h2>
