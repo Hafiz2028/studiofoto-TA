@@ -49,7 +49,7 @@ class Customer extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'=> 'hashed',
+        'password' => 'hashed',
     ];
     public function getPictureAttribute($value)
     {
@@ -58,5 +58,9 @@ class Customer extends Authenticatable
         } else {
             return asset('/images/users/default-avatar.png');
         }
+    }
+    public function rents()
+    {
+        return $this->hasManyThrough(Rent::class, RentCustomer::class, 'customer_id', 'id', 'id', 'rent_id');
     }
 }

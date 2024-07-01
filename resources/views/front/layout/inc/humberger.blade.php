@@ -1,14 +1,15 @@
+<div class="humberger__menu__overlay"></div>
 <div class="humberger__menu__wrapper">
     <div class="humberger__menu__logo">
         <a href="#"><img src="/front/img/logo.png" alt=""></a>
     </div>
-    <div class="humberger__menu__cart">
+    {{-- <div class="humberger__menu__cart">
         <ul>
             <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
             <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
         </ul>
         <div class="header__cart__price">item: <span>$150.00</span></div>
-    </div>
+    </div> --}}
     <div class="humberger__menu__widget">
         <div class="header__top__right__language">
             @if (auth()->guard('customer')->check())
@@ -40,16 +41,19 @@
             <li class="{{ Route::is('search-page') ? 'active' : '' }}"><a href="{{ route('search-page') }}">Search</a>
             </li>
             @if (auth()->guard('customer')->check())
-                <li><a href="#">Booking</a>
-                    <ul class="header__menu__dropdown">
+                <li class="{{ Route::is('customer.booking.index') ? 'active' : '' }}"><a
+                        href="{{ route('customer.booking.index') }}">Booking</a>
+                    {{-- <ul class="header__menu__dropdown">
                         <li><a href="./shop-details.html">Shop Details</a></li>
                         <li><a href="./shoping-cart.html">Shoping Cart</a></li>
                         <li><a href="./checkout.html">Check Out</a></li>
                         <li><a href="./blog-details.html">Blog Details</a></li>
-                    </ul>
+                    </ul> --}}
                 </li>
-                <li><a href="./blog.html">History</a></li>
-                <li class="{{ Route::is('customer.profile') ? 'active' : '' }}"><a href="{{route('customer.profile')}}">Profile</a></li>
+                <li class="{{ Route::is('customer.history.index') ? 'active' : '' }}"><a
+                        href="{{ route('customer.history.index') }}">History</a></li>
+                <li class="{{ Route::is('customer.profile') ? 'active' : '' }}"><a
+                        href="{{ route('customer.profile') }}">Profile</a></li>
             @endif
         </ul>
     </nav>

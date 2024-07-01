@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\Hour;
 use App\Models\Rent;
 use App\Models\Venue;
+use App\Models\Village;
+use App\Models\District;
 use App\Models\RentDetail;
 use App\Models\OpeningHour;
 use App\Models\ServiceType;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class FrontEndController extends Controller
 {
@@ -39,8 +42,42 @@ class FrontEndController extends Controller
     }
     public function searchPage(Request $request)
     {
+        $sort = $request->query('sort', 'name_asc');
+        $villageId = $request->query('village_id');
+        $districtId = $request->query('district_id');
+        list($sortBy, $sortDirection) = explode('_', $sort);
+
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        $villages = Village::with('district')->orderBy('name', 'ASC')->get();
+        $districts = $villages->groupBy('district.name');
+        $venues = collect(get_venues_with_service_slug());
+        if ($villageId) {
+            $venues = $venues->where('village_id', $villageId);
+        } elseif ($districtId) {
+            $villageIds = Village::where('district_id', $districtId)->pluck('id');
+            $venues = $venues->whereIn('village_id', $villageIds);
+        }
+        if ($sortBy === 'price') {
+            $venues = $venues->sortBy('min_price', SORT_REGULAR, $sortDirection === 'desc');
+        } else {
+            $venues = $venues->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc');
+        }
+
+        // Pagination
+        $perPage = 12;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = $venues->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedItems = new LengthAwarePaginator($currentItems, $venues->count(), $perPage);
+        $paginatedItems->setPath($request->url());
+
         $data = [
-            'pageTitle' => 'FotoYuk | Search Venue Page'
+            'pageTitle' => 'FotoYuk | Search Venue Page',
+            'venues' => $paginatedItems,
+            'sort' => $sort,
+            'villages' => $villages,
+            'districts' => $districts,
         ];
 
         if ($request->user('customer')) {
@@ -106,6 +143,9 @@ class FrontEndController extends Controller
                 })
                 ->whereHas('rent.rentDetails.openingHour', function ($query) use ($id) {
                     $query->where('venue_id', $id);
+                })
+                ->whereHas('rent', function ($query) {
+                    $query->whereIn('rent_status', [0, 1, 5, 6]);
                 })
                 ->get()
                 ->map(function ($rentDetail) {

@@ -19,6 +19,7 @@ use App\Http\Controllers\ServiceController;
 Route::controller(FrontEndController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/search', 'searchPage')->name('search-page');
+    Route::get('/detail/{id}', 'detailVenue')->name('detail-venue');
 });
 
 

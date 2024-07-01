@@ -1,4 +1,4 @@
-<section class="featured spad">
+<section id="featured-section" class="featured spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -36,13 +36,13 @@
                                         @if (filter_var($venue->map_link, FILTER_VALIDATE_URL))
                                             <a href="{{ $venue->map_link }}" target="_blank"
                                                 onclick="return openLink(event, '{{ $venue->map_link }}')">
-                                                <i class="fa fa-map-marker" data-toggle="tooltip"
-                                                    title="Lihat Lokasi di Maps"></i>
+                                                <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                    title="Lihat Lokasi di Maps" aria-hidden="true"></i>
                                             </a>
                                         @else
                                             <a href="#" onclick="swalAlert(); return false;">
-                                                <i class="fa fa-map-marker" data-toggle="tooltip"
-                                                    title="Lihat Lokasi di Maps"></i>
+                                                <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                    title="Lihat Lokasi di Maps" aria-hidden="true"></i>
                                             </a>
                                         @endif
                                     </li>
@@ -98,7 +98,6 @@
                     </div>
                 @endforeach
             @endif
-
         </div>
     </div>
 </section>
@@ -108,7 +107,7 @@
         Swal.fire({
             icon: 'warning',
             title: 'Link tidak valid',
-            text: 'Link Lokasi dari Venue ini tidak bisa digunakan, silahkan hubungi pihak Studio Foto',
+            text: 'Link Lokasi dari Studio Foto tidak Valid',
             showConfirmButton: true
         });
     }

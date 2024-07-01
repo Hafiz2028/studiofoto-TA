@@ -1,6 +1,47 @@
 @extends('front.layout.pages-layout')
 @section('pageTitle', isset($pageTitle) ? $pageTitle : 'Page Title')
 @section('content')
+    <section class="hero hero-normal">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    {{-- <div class="hero__categories">
+                        <div class="hero__categories__all">
+                            <i class="fa fa-bars"></i>
+                            <span>Service Event Type</span>
+                        </div>
+                        <ul>
+                            @if (count(get_service_types()) > 0)
+                                @foreach (get_service_types() as $service_type)
+                                    <li data-filter=".{{ $service_type->service_slug }}"><a
+                                            href="#featured-section">{{ $service_type->service_name }}</a></li>
+                                @endforeach
+                            @else
+                                <li><a class="text-danger" href="#">No Service Event</a></li>
+                            @endif
+                        </ul>
+                    </div> --}}
+                </div>
+                <div class="col-lg-9">
+                    <div class="hero__search">
+                        <div class="hero__search__form" style="width: 100%">
+                            <form action="#">
+                                {{-- <div class="hero__search__categories">
+                                All Categories
+                                <span class="arrow_carrot-down"></span>
+                            </div> --}}
+                                <input type="text" placeholder="Find Photo Studio...">
+                                <button type="submit" class="site-btn">SEARCH</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!--first-banner begin-->
+                    @includeWhen(Request::is('/'), 'front.layout.inc.first-banner')
+                    <!--first-banner end-->
+                </div>
+            </div>
+        </div>
+    </section>
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="/front/img/breadcrumb.jpg">
         <div class="container">
@@ -9,7 +50,7 @@
                     <div class="breadcrumb__text">
                         <h2>Search Venue</h2>
                         <div class="breadcrumb__option">
-                            <a href="{{route('home')}}">Home</a>
+                            <a href="{{ route('home') }}">Home</a>
                             <span>Search</span>
                         </div>
                     </div>
@@ -24,504 +65,171 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-5">
-                    <div class="sidebar">
-                        <div class="sidebar__item">
-                            <h4>Lokasi Venue</h4>
-                            <ul>
-                                <li><a href="#">Bungus Teluk Kabung (total/distrik)</a></li>
-                                <li><a href="#">Vegetables</a></li>
-                                <li><a href="#">Fruit & Nut Gifts</a></li>
-                                <li><a href="#">Fresh Berries</a></li>
-                                <li><a href="#">Ocean Foods</a></li>
-                                <li><a href="#">Butter & Eggs</a></li>
-                                <li><a href="#">Fastfood</a></li>
-                                <li><a href="#">Fresh Onion</a></li>
-                                <li><a href="#">Papayaya & Crisps</a></li>
-                                <li><a href="#">Oatmeal</a></li>
-                            </ul>
-                        </div>
-                        {{-- <div class="sidebar__item">
-                        <h4>Price</h4>
-                        <div class="price-range-wrap">
-                            <div class="price-range ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"
-                                data-min="10" data-max="540">
-                                <div class="ui-slider-range ui-corner-all ui-widget-header"></div>
-                                <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
-                                <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
-                            </div>
-                            <div class="range-slider">
-                                <div class="price-input">
-                                    <input type="text" id="minamount">
-                                    <input type="text" id="maxamount">
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-                        {{-- <div class="sidebar__item sidebar__item__color--option">
-                        <h4>Colors</h4>
-                        <div class="sidebar__item__color sidebar__item__color--white">
-                            <label for="white">
-                                White
-                                <input type="radio" id="white">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__color sidebar__item__color--gray">
-                            <label for="gray">
-                                Gray
-                                <input type="radio" id="gray">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__color sidebar__item__color--red">
-                            <label for="red">
-                                Red
-                                <input type="radio" id="red">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__color sidebar__item__color--black">
-                            <label for="black">
-                                Black
-                                <input type="radio" id="black">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__color sidebar__item__color--blue">
-                            <label for="blue">
-                                Blue
-                                <input type="radio" id="blue">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__color sidebar__item__color--green">
-                            <label for="green">
-                                Green
-                                <input type="radio" id="green">
-                            </label>
-                        </div>
-                    </div> --}}
-                        {{-- <div class="sidebar__item">
-                        <h4>Popular Size</h4>
-                        <div class="sidebar__item__size">
-                            <label for="large">
-                                Large
-                                <input type="radio" id="large">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__size">
-                            <label for="medium">
-                                Medium
-                                <input type="radio" id="medium">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__size">
-                            <label for="small">
-                                Small
-                                <input type="radio" id="small">
-                            </label>
-                        </div>
-                        <div class="sidebar__item__size">
-                            <label for="tiny">
-                                Tiny
-                                <input type="radio" id="tiny">
-                            </label>
-                        </div>
-                    </div> --}}
-                        {{-- <div class="sidebar__item">
-                        <div class="latest-product__text">
-                            <h4>Latest Products</h4>
-                            <div class="latest-product__slider owl-carousel">
-                                <div class="latest-prdouct__slider__item">
-                                    <a href="#" class="latest-product__item">
-                                        <div class="latest-product__item__pic">
-                                            <img src="/front/img/latest-product/lp-1.jpg" alt="">
-                                        </div>
-                                        <div class="latest-product__item__text">
-                                            <h6>Crab Pool Security</h6>
-                                            <span>$30.00</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="latest-product__item">
-                                        <div class="latest-product__item__pic">
-                                            <img src="/front/img/latest-product/lp-2.jpg" alt="">
-                                        </div>
-                                        <div class="latest-product__item__text">
-                                            <h6>Crab Pool Security</h6>
-                                            <span>$30.00</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="latest-product__item">
-                                        <div class="latest-product__item__pic">
-                                            <img src="/front/img/latest-product/lp-3.jpg" alt="">
-                                        </div>
-                                        <div class="latest-product__item__text">
-                                            <h6>Crab Pool Security</h6>
-                                            <span>$30.00</span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="latest-prdouct__slider__item">
-                                    <a href="#" class="latest-product__item">
-                                        <div class="latest-product__item__pic">
-                                            <img src="/front/img/latest-product/lp-1.jpg" alt="">
-                                        </div>
-                                        <div class="latest-product__item__text">
-                                            <h6>Crab Pool Security</h6>
-                                            <span>$30.00</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="latest-product__item">
-                                        <div class="latest-product__item__pic">
-                                            <img src="/front/img/latest-product/lp-2.jpg" alt="">
-                                        </div>
-                                        <div class="latest-product__item__text">
-                                            <h6>Crab Pool Security</h6>
-                                            <span>$30.00</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="latest-product__item">
-                                        <div class="latest-product__item__pic">
-                                            <img src="/front/img/latest-product/lp-3.jpg" alt="">
-                                        </div>
-                                        <div class="latest-product__item__text">
-                                            <h6>Crab Pool Security</h6>
-                                            <span>$30.00</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
+                    <div class="sidebar__item">
+                        <h4>Lokasi Studio Terdaftar</h4>
+                        <ul>
+                            <li class="{{ empty(request('district_id')) && empty(request('village_id')) ? 'active' : '' }}">
+                                <a href="{{ url()->current() }}#venueSection">Semua Studio Foto</a>
+                            </li>
+                            @foreach ($districts as $districtName => $villages)
+                                @php
+                                    $activeDistrict = false;
+                                    $activeVillage = false;
+
+                                    if (request('district_id') == $villages->first()->district_id) {
+                                        $activeDistrict = true;
+                                    }
+
+                                    foreach ($villages as $village) {
+                                        if (request('village_id') == $village->id) {
+                                            $activeDistrict = true;
+                                            $activeVillage = true;
+                                            break;
+                                        }
+                                    }
+                                @endphp
+                                <li class="has-submenu {{ $activeDistrict ? 'active' : '' }}">
+                                    <a
+                                        href="{{ url()->current() }}?district_id={{ $villages->first()->district_id }}#venueSection">{{ ucwords(strtolower($districtName)) }}</a>
+                                    <ul class="submenu">
+                                        @foreach ($villages as $village)
+                                            <li
+                                                class="{{ $activeVillage && request('village_id') == $village->id ? 'active' : '' }}">
+                                                <a
+                                                    href="{{ url()->current() }}?village_id={{ $village->id }}#venueSection">{{ ucwords(strtolower($village->name)) }}</a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
                 <div class="col-lg-9 col-md-7">
-
-                    {{-- <div class="product__discount">
-                        <div class="section-title product__discount__title">
-                            <h2>Sale Off</h2>
-                        </div>
-                        <div class="row">
-                            <div class="product__discount__slider owl-carousel">
-                                <div class="col-lg-4">
-                                    <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="/front/img/product/discount/pd-1.jpg">
-                                            <div class="product__discount__percent">-20%</div>
-                                            <ul class="product__item__pic__hover">
-                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__discount__item__text">
-                                            <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
-                                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="/front/img/product/discount/pd-2.jpg">
-                                            <div class="product__discount__percent">-20%</div>
-                                            <ul class="product__item__pic__hover">
-                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__discount__item__text">
-                                            <span>Vegetables</span>
-                                            <h5><a href="#">Vegetables’package</a></h5>
-                                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="/front/img/product/discount/pd-3.jpg">
-                                            <div class="product__discount__percent">-20%</div>
-                                            <ul class="product__item__pic__hover">
-                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__discount__item__text">
-                                            <span>Dried Fruit</span>
-                                            <h5><a href="#">Mixed Fruitss</a></h5>
-                                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="/front/img/product/discount/pd-4.jpg">
-                                            <div class="product__discount__percent">-20%</div>
-                                            <ul class="product__item__pic__hover">
-                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__discount__item__text">
-                                            <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
-                                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="/front/img/product/discount/pd-5.jpg">
-                                            <div class="product__discount__percent">-20%</div>
-                                            <ul class="product__item__pic__hover">
-                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__discount__item__text">
-                                            <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
-                                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="product__discount__item">
-                                        <div class="product__discount__item__pic set-bg"
-                                            data-setbg="/front/img/product/discount/pd-6.jpg">
-                                            <div class="product__discount__percent">-20%</div>
-                                            <ul class="product__item__pic__hover">
-                                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__discount__item__text">
-                                            <span>Dried Fruit</span>
-                                            <h5><a href="#">Raisin’n’nuts</a></h5>
-                                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-
-
                     <div class="filter__item">
                         <div class="row">
                             <div class="col-lg-4 col-md-5">
                                 <div class="filter__sort">
-                                    <span>Sort By</span>
-                                    <select>
-                                        <option value="0">Default</option>
-                                        <option value="0">Default</option>
-                                    </select>
+                                    <div id="sortBy">
+                                        <span>Sort By</span>
+                                        <i class="icon-copy bi bi-sort-alpha-down ml-2 {{ $sort === 'name_asc' ? 'active' : '' }}"
+                                            id="sortNameAsc" data-sort="name_asc" data-toggle="tooltip"
+                                            title="Nama Venue A-Z"></i>
+                                        <i class="icon-copy bi bi-sort-alpha-down-alt ml-2 {{ $sort === 'name_desc' ? 'active' : '' }}"
+                                            id="sortNameDesc" data-sort="name_desc" data-toggle="tooltip"
+                                            title="Nama Venue Z-A"></i>
+                                        <i class="icon-copy bi bi-sort-numeric-down ml-2 {{ $sort === 'price_asc' ? 'active' : '' }}"
+                                            id="sortPriceAsc" data-sort="price_asc" data-toggle="tooltip"
+                                            title="Start Harga Termurah"></i>
+                                        <i class="icon-copy bi bi-sort-numeric-down-alt ml-2 {{ $sort === 'price_desc' ? 'active' : '' }}"
+                                            id="sortPriceDesc" data-sort="price_desc" data-toggle="tooltip"
+                                            title="Start Harga Termahal"></i>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-4">
-                                <div class="filter__found">
-                                    <h6><span>16</span> Products found</h6>
+                                <div id="venueSection" class="filter__found">
+                                    <h6><span>{{ $venues->total() }}</span> Venues found</h6>
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-3">
-                                <div class="filter__option">
+                                {{-- <div class="filter__option">
                                     <span class="icon_grid-2x2"></span>
                                     <span class="icon_ul"></span>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-1.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
+                        @if ($venues->isEmpty())
+                            <div class="col-lg-12">
+                                <div class="alert alert-warning text-center" role="alert">
+                                    Tidak ada studio foto yang tersedia di lokasi ini.
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-2.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
+                        @else
+                            @foreach ($venues as $venue)
+                                <div class="col-lg-4 col-md-6 col-sm-6">
+                                    <div class="product__item">
+                                        <div class="product__item__pic set-bg"
+                                            @if ($venue->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
+                                alt="{{ $venue->venueImages->first()->image }}"
+                                style="background-image: url('/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}');"
+                                @else
+                                    data-setbg="/images/venues/Venue_Image/default-venue.png"
+                                    alt="Tidak Ada Gambar Venue" @endif>
+                                            <ul class="product__item__pic__hover">
+                                                <li>
+                                                    @if (filter_var($venue->map_link, FILTER_VALIDATE_URL))
+                                                        <a href="{{ $venue->map_link }}" target="_blank"
+                                                            onclick="return openLink(event, '{{ $venue->map_link }}')">
+                                                            <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                                title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                        </a>
+                                                    @else
+                                                        <a href="#" onclick="swalAlert(); return false;">
+                                                            <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                                title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                        </a>
+                                                    @endif
+                                                </li>
+                                                <li>
+                                                    @if (auth()->guard('customer')->check())
+                                                        <a href="{{ route('customer.detail-venue', $venue->id) }}">
+                                                            <i class="fas fa-info" data-toogle="tooltip"
+                                                                title="Detail Studio Foto" data-placement="auto"></i></a>
+                                                    @else
+                                                        <a
+                                                            href="{{ route('customer.detail-venue-not-login', $venue->id) }}">
+                                                            <i class="fas fa-info" data-toogle="tooltip"
+                                                                title="Detail Studio Foto" data-placement="auto"></i></a>
+                                                    @endif
+                                                </li>
+                                                <li>
+                                                    @php
+                                                        $phone_number = $venue->phone_number;
+                                                        if (substr($phone_number, 0, 2) == '08') {
+                                                            $phone_number = '628' . substr($phone_number, 2);
+                                                        }
+                                                    @endphp
+                                                    <a href="https://wa.me/{{ $phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
+                                                        target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto"
+                                                        data-placement="auto">
+                                                        <i class="fab fa-whatsapp" style="font-size:6mm;"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="product__item__text">
+                                            @if (auth()->guard('customer')->check())
+                                                <h6><a
+                                                        href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
+                                                </h6>
+                                            @else
+                                                <h6><a
+                                                        href="{{ route('customer.detail-venue-not-login', $venue->id) }}">{{ $venue->name }}</a>
+                                                </h6>
+                                            @endif
+                                            <h5 style="font-size: 16px; color: #333; margin-top: 10px; text-align:left;">
+                                                <span
+                                                    style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
+                                                    from</span> Rp.
+                                                {{ number_format($venue->min_price ?? 0, 2, ',', '.') }}
+                                            </h5>
+                                            {{-- <h6 style="text-align: left;"> {{$phone_number}}</h6> --}}
+                                            <p class="mt-2" style="text-align: left;">
+                                                {{ ucwords(strtolower($venue->address)) }},
+                                                {{ ucwords(strtolower($venue->village->district->name)) }},
+                                                {{ ucwords(strtolower($venue->village->name)) }},
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-3.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-4.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-5.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-6.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-7.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-8.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-9.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-10.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-11.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-12.jpg">
-                                    <ul class="product__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">Crab Pool Security</a></h6>
-                                    <h5>$30.00</h5>
-                                </div>
-                            </div>
-                        </div>
+                            @endforeach
+                        @endif
                     </div>
                     <div class="product__pagination">
-                        <a href="#">1</a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#"><i class="fa fa-long-arrow-right"></i></a>
+                        {{ $venues->links() }}
                     </div>
                 </div>
             </div>
@@ -531,6 +239,189 @@
 
 @endsection
 @push('stylesheets')
+    <style>
+        .icon-copy {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .icon-copy:hover {
+            color: #e27201;
+        }
+    </style>
+    {{-- sidebar --}}
+    <style>
+        /* Menyembunyikan submenu secara default */
+        .sidebar__item .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+            margin-left: 20px;
+            list-style-type: disc;
+        }
+
+        /* Menampilkan submenu saat item induk di-hover dengan animasi smooth */
+        .sidebar__item .has-submenu:hover .submenu {
+            max-height: 200px;
+            /* Set max-height to a value large enough to show the submenu */
+            opacity: 1;
+        }
+
+        /* Styling untuk link submenu */
+        .sidebar__item .submenu li a {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .sidebar__item .submenu li a:hover {
+            color: #e27201;
+            /* Warna saat dihover */
+        }
+    </style>
+    {{-- sidebar --}}
+    <style>
+        .sidebar__item ul {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sidebar__item ul li {
+            border-radius: 10px;
+        }
+
+        .sidebar__item ul li.active>a {
+            background-color: #e27201;
+            color: #fff;
+        }
+
+        .sidebar__item ul li.has-submenu:hover>a {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        .sidebar__item ul li.has-submenu ul.submenu {
+            display: none;
+            padding-left: 15px;
+            background-color: #fff;
+        }
+
+        .sidebar__item ul li.has-submenu:hover ul.submenu {
+            display: block;
+        }
+
+        .sidebar__item ul li.has-submenu.active>a {
+            color: #fff;
+            /* Teks tetap putih saat village aktif */
+        }
+
+        .sidebar__item ul li.has-submenu.active:hover>a {
+            background-color: #e27201;
+            /* Latar belakang kembali ke warna utama saat dihover */
+            color: #fff;
+            /* Teks tetap putih saat dihover */
+        }
+
+        .sidebar__item ul li.has-submenu.active ul.submenu li.active>a {
+            background-color: #e27201;
+            /* Latar belakang village aktif saat dihover */
+            color: #fff;
+            /* Teks tetap putih saat village aktif dihover */
+        }
+    </style>
+    <style>
+        #sortBy {
+            display: flex;
+            align-items: center;
+        }
+
+        #sortBy .icon-copy {
+            font-size: 1.2rem;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #sortBy .icon-copy.active {
+            background-color: #e27201;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        #sortBy .icon-copy.active:hover {
+            background-color: #e27201;
+            /* Biarkan warna sama dengan saat aktif */
+        }
+    </style>
 @endpush
 @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var categoryLinks = document.querySelectorAll('.hero__categories ul li a');
+
+            categoryLinks.forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    var filter = this.parentElement.getAttribute('data-filter');
+
+                    var section = document.querySelector('#featured-section');
+                    window.scrollTo({
+                        top: section.offsetTop,
+                        behavior: 'smooth'
+                    });
+
+                    var featuredControls = document.querySelectorAll('.featured__controls ul li');
+                    featuredControls.forEach(function(control) {
+                        control.classList.remove('active');
+                        if (control.getAttribute('data-filter') === filter) {
+                            control.classList.add('active');
+                        }
+                    });
+                    var event = new CustomEvent('filterItems', {
+                        detail: filter
+                    });
+                    document.dispatchEvent(event);
+                });
+            });
+        });
+        document.addEventListener('filterItems', function(event) {
+            var filterValue = event.detail;
+            $('.featured__controls').isotope({
+                filter: filterValue
+            });
+        });
+    </script>
+    <script>
+        function swalAlert() {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Link tidak valid',
+                text: 'Link Lokasi dari Studio Foto tidak Valid',
+                showConfirmButton: true
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sortIcons = document.querySelectorAll('#sortBy i');
+
+            sortIcons.forEach(function(icon) {
+                icon.addEventListener('click', function() {
+                    var sortValue = this.getAttribute('data-sort');
+                    sort(sortValue);
+                });
+            });
+
+            function sort(sortValue) {
+                var url = new URL(window.location.href);
+                url.searchParams.set('sort', sortValue);
+                url.hash = '#venueSection';
+                window.location.href = url.href;
+            }
+            if (window.location.hash === '#venueSection') {
+                document.querySelector(window.location.hash).scrollIntoView();
+            }
+        });
+    </script>
 @endpush

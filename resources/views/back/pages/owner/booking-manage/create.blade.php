@@ -175,7 +175,7 @@
                         @csrf
                         <x-alert.form-alert />
                         <div class="row">
-                            <div class="col-lg-2 col-md-6 col-sm-6">
+                            <div class="col-lg-3 col-md-6 col-sm-6">
                                 <div class="form-group">
                                     <label for="venue_id">1. Nama Venue</label>
                                     <input class="form-control" type="text" name="venue"
@@ -218,34 +218,16 @@
                             </div>
                             <div class="col-lg-3 col-md-6 col-sm-6">
                                 <div class="form-group">
-                                    <label>4. Nama Layanan</label>
-                                    <select class="form-control" id="service_event" name="service"
-                                        onchange="populateServicePackages()" required>
-                                        <option value="" disabled selected>Pilih Layanan...</option>
+                                    <label>5. Paket Foto</label>
+                                    <select class="custom-select2 form-control" style="width: 100%; height: 38px"
+                                        id="package_detail" name="package_detail"
+                                        onchange="updatePaymentMethodBadge(); toggleDateInput();" required>
+                                        <option value="" disabled selected>Pilih Paket Foto...</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-4 col-md-6 col-sm-12">
-                                <div class="form-group">
-                                    <label>5. Nama Paket</label>
-                                    <select class="form-control" id="package" name="package"
-                                        onchange="populatePackageDetails()" required>
-                                        <option value="" disabled selected>Pilih Paket Foto...</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-sm-6">
-                                <input type="hidden" id="hidden_print_photo_detail_id" name="print_photo_detail_id">
-                                <div class="form-group">
-                                    <label>6. Jumlah Orang & Harga</label>
-                                    <select class="form-control" id="package_detail" name="package_detail"
-                                        onchange="enablePrintPhotoDetails()" required>
-                                        <option value="" disabled selected>Pilih Jumlah Orang...</option>
-                                    </select>
-                                </div>
-                            </div>
                             <div class="col-lg-2 col-md-6 col-sm-6">
                                 <div class="d-flex flex-column justify-content-center align-items-center mt-3"
                                     id="badge-container">
@@ -253,16 +235,9 @@
                                     <div class="badge badge-secondary">DP / Hanya Lunas</div>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 col-sm-6">
-                                <label>7. Print Foto & Harga</label>
-                                <select class="form-control" id="print_photo_detail" name="print_photo_detail"
-                                    required disabled>
-                                    <option value="" disabled selected>Pilih Cetak Foto...</option>
-                                </select>
-                            </div>
                             <div class="col-lg-2 col-md-6 col-sm-6">
                                 <div class="form-group">
-                                    <label>8. Tanggal Booking</label>
+                                    <label>6. Tanggal Booking</label>
                                     <input type="text" class="form-control" id="date" name="date"
                                         required disabled>
                                     <small class="text-muted">Format: DD/MM/YYYY</small> <input type="hidden"
@@ -271,10 +246,10 @@
                                     <input type="hidden" id="book-dates" value="{{ json_encode($bookDates) }}">
                                 </div>
                             </div>
-                            <div class="col-lg-7 col-md-12">
+                            <div class="col-lg-8 col-md-12">
                                 <div class="form-group">
-                                    <label>9. Jadwal Tersedia</label>
-                                    <div class="card">
+                                    <label>7. Jadwal Tersedia</label>
+                                    <div class="card shadow">
                                         <div class="card-header d-flex justify-content-end">
                                             <div class="badge badge-primary">Tersedia</div>
                                             <div class="badge badge-secondary ml-1">Tutup</div>
@@ -287,18 +262,64 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-12 mt-4">
-                                <div class="form-group d-flex align-items-center">
-                                    <label>Paket Foto : </label>
-                                    <span id="package-price" class="badge badge-primary ml-2">Rp 0</span>
+                            <div class="col-lg-12">
+                                <div class="alert alert-warning text-center">
+                                    <i class="icon-copy fa fa-info-circle" aria-hidden="true"></i> Pastikan melakukan konfirmasi ulang
+                                    booking kepada pihak owner 30 menit sebelum jadwal dimulai. <br>Booking akan dibatalkan jika tidak
+                                    melakukan konfirmasi.
                                 </div>
-                                <div class="form-group d-flex align-items-center">
-                                    <label>Cetak Foto : </label>
-                                    <span id="print-photo-price" class="badge badge-info ml-2">Rp 0</span>
-                                </div>
-                                <div class="form-group d-flex align-items-center">
-                                    <label>Total Harga : </label>
-                                    <span id="total-price" class="badge badge-success ml-2">Rp 0</span>
+                            </div>
+                            <div class="col-lg-12 col-md-12">
+                                <div class="card shadow">
+                                    <div class="card-header d-flex justify-content-center">
+                                        <h6 class="text-center">Detail Paket</h6>
+                                    </div>
+                                    <div class="card body p-3">
+                                        <div id="detail-container">
+                                            <h6 class="mb-2">
+                                                <span style="display: inline-block; width: 160px;">Harga Paket</span>
+                                                : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                <div class="badge badge-info"><i class="icon-copy dw dw-money"></i>
+                                                    Belum pilih paket foto</div>
+                                                </p>
+                                            </h6>
+                                            <h6 class="mb-2">
+                                                <span style="display: inline-block; width: 160px;">Include AddOn</span>
+                                                : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                <div class="badge badge-info"><i
+                                                        class="icon-copy dw dw-photo-camera1"></i>
+                                                    Belum pilih paket foto</div>
+                                                </p>
+                                            </h6>
+                                            <h6 class="mb-2">
+                                                <span style="display: inline-block; width: 160px;">Include Cetak
+                                                    Foto</span>
+                                                : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                <div class="badge badge-info"><i class="icon-copy dw dw-print"></i>
+                                                    Belum pilih paket foto</div>
+                                                </p>
+                                            </h6>
+                                            <h6 class="mb-2">
+                                                <span style="display: inline-block; width: 160px;">Include Frame
+                                                    Foto</span>
+                                                : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                <div class="badge badge-info"><i class="icon-copy dw dw-image1"></i>
+                                                    Belum pilih paket foto</div>
+                                                </p>
+                                            </h6>
+                                        </div>
+                                        <div id="detail-schedule-container">
+                                            <h6 class="mb-2">
+                                                <span style="display: inline-block; width: 160px;">Jadwal
+                                                    Booking</span>
+                                                : <p style="display: inline-block; margin: 0; font-weight: normal;">
+                                                <div class="badge badge-info"><i
+                                                        class="icon-copy dw dw-wall-clock2"></i>
+                                                    Belum Pilih Jadwal</div>
+                                                </p>
+                                            </h6>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

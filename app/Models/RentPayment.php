@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class RentPayment extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'image',
+        'payment_type',
         'rent_id',
         'payment_method_detail_id',
     ];

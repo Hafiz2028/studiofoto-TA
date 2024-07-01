@@ -158,7 +158,6 @@
                         enctype="multipart/form-data">
                         @csrf
                         <x-alert.form-alert />
-
                         <div class="container">
                             <div class="row">
                                 <div class="col-lg-12">
@@ -283,8 +282,6 @@
             togglePaymentInputs();
         });
     </script>
-@endpush
-@push('scripts')
     {{-- fungsi salin norek --}}
     <script>
         function copyToClipboard(text, paymentMethodName) {

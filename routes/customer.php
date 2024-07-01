@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FrontEndController;
 
@@ -35,6 +36,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
         });
         Route::resource('booking', BookingController::class);
         Route::get('/booking/{booking}/show-payment', [BookingController::class, 'showPayment'])->name('booking.show-payment');
-        Route::post('/booking/{booking}/payment', [BookingController::class, 'rentPayment'])->name('booking.payment');
+        Route::post('/booking/{booking}/payment-cust', [BookingController::class, 'rentPaymentCust'])->name('booking.payment-cust');
+        Route::post('/booking/{booking}/update-status-rent-cust', [BookingController::class, 'updateStatusRentCust'])->name('booking.update-status-rent-cust');
+        Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
     });
 });

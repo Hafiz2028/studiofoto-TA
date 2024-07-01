@@ -817,7 +817,6 @@
                     console.error('Invalid date:', this.value);
                     return;
                 }
-
                 updateOpeningHours(openingHoursData);
             });
 
