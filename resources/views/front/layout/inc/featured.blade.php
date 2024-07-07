@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-title">
-                    <h2>Service Event Type</h2>
+                    <h2>Tipe Layanan</h2>
                 </div>
                 <div class="featured__controls">
                     <ul>
@@ -101,7 +101,11 @@
         </div>
     </div>
 </section>
-
+<script>
+    $(document).ready(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 <script>
     function swalAlert() {
         Swal.fire({

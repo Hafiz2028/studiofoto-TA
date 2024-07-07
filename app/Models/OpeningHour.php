@@ -29,4 +29,8 @@ class OpeningHour extends Model
     {
         return $this->belongsTo(Hour::class, 'hour_id', 'id');
     }
+    public function scopeActive($query)
+    {
+        return $query->where('status', 2);
+    }
 }

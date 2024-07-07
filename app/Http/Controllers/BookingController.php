@@ -707,7 +707,7 @@ class BookingController extends Controller
             return redirect()->route('customer.booking.index')->with('success', 'Sudah Melakukan Pembayaran');
         } catch (\Exception $e) {
             Log::error('Gagal melakukan pembayaran', ['error' => $e->getMessage()]);
-            dd($request->all);
+            // dd($request->all);
             return redirect()->back()->with('fail', 'Gagal Melakukan Pembayaran : ' . $e->getMessage());
         }
     }

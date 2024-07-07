@@ -19,6 +19,7 @@ use App\Models\ServicePackage;
 use App\Models\PrintPhotoDetail;
 use App\Models\AddOnPackageDetail;
 use Illuminate\Support\Facades\DB;
+use App\Models\PaymentMethodDetail;
 use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;
 use Illuminate\Support\Facades\Auth;
@@ -50,9 +51,11 @@ class FrontEndController extends Controller
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
-        $villages = Village::with('district')->orderBy('name', 'ASC')->get();
+        $villages = Village::with('district', 'venues')->orderBy('name', 'ASC')->get();
         $districts = $villages->groupBy('district.name');
-        $venues = collect(get_venues_with_service_slug());
+        $allVenues = collect(get_venues_with_service_slug());
+        $totalVenuesCount = $allVenues->count();
+        $venues = $allVenues;
         if ($villageId) {
             $venues = $venues->where('village_id', $villageId);
         } elseif ($districtId) {
@@ -72,14 +75,32 @@ class FrontEndController extends Controller
         $paginatedItems = new LengthAwarePaginator($currentItems, $venues->count(), $perPage);
         $paginatedItems->setPath($request->url());
 
+
+        $districtVenuesCount = $districts->mapWithKeys(function ($villages, $districtName) {
+            $count = $villages->sum(function ($village) {
+                return $village->venues->filter(function ($venue) {
+                    return $venue->status == 1;
+                })->count();
+            });
+            return [$districtName => $count];
+        });
+
+        $villageVenuesCount = $villages->mapWithKeys(function ($village) {
+            return [$village->id => $village->venues->filter(function ($venue) {
+                return $venue->status == 1;
+            })->count()];
+        });
+
         $data = [
             'pageTitle' => 'FotoYuk | Search Venue Page',
             'venues' => $paginatedItems,
             'sort' => $sort,
             'villages' => $villages,
             'districts' => $districts,
+            'districtVenuesCount' => $districtVenuesCount,
+            'villageVenuesCount' => $villageVenuesCount,
+            'totalVenuesCount' => $totalVenuesCount,
         ];
-
         if ($request->user('customer')) {
             $data['customer'] = $request->user('customer');
         }
@@ -90,7 +111,29 @@ class FrontEndController extends Controller
     {
         $customer = Auth::guard('customer')->user();
         $this->venueId = $id;
-        $venue = Venue::findOrFail($id);
+        $venue = Venue::with('serviceEvents.servicePackages.servicePackageDetails', 'venueImages', 'village.district')->findOrFail($id);
+        $payment_method_detail = PaymentMethodDetail::where('venue_id', $venue->id)->get();
+        $allVenues = Venue::with('venueImages', 'village.district')
+            ->where('id', '!=', $id)
+            ->where('status', 1)
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+        foreach ($allVenues as $otherVenue) {
+            $minPrice = null;
+            foreach ($otherVenue->serviceEvents as $serviceEvent) {
+                foreach ($serviceEvent->servicePackages as $package) {
+                    foreach ($package->servicePackageDetails as $packageDetail) {
+                        if (is_null($minPrice)) {
+                            $minPrice = $packageDetail->price;
+                        } else {
+                            $minPrice = min($minPrice, $packageDetail->price);
+                        }
+                    }
+                }
+            }
+            $otherVenue->min_price = $minPrice ?? 0;
+        }
         $minPrice = null;
         $maxPrice = 0;
         $hasPackage = false;
@@ -159,6 +202,7 @@ class FrontEndController extends Controller
 
             $data = [
                 'pageTitle' => 'FotoYuk | Detail Venue Page',
+                'venues' => $allVenues,
                 'customer' => $customer,
                 'venue' => $venue,
                 'minPrice' => $minPrice,
@@ -172,6 +216,7 @@ class FrontEndController extends Controller
                 'rents' => $rents,
                 'bookDates' => $bookDates,
                 'serviceTypes' => $serviceTypes,
+                'payment_method_detail' => $payment_method_detail,
             ];
         }
         return view('front.pages.detail', $data);
@@ -180,14 +225,35 @@ class FrontEndController extends Controller
     public function detailVenueNotLogin(Request $request, $id)
     {
         $this->venueId = $id;
-        $venue = Venue::findOrFail($id);
+        $venue = Venue::with('serviceEvents.servicePackages.servicePackageDetails', 'venueImages', 'village.district')->findOrFail($id);
+        $payment_method_detail = PaymentMethodDetail::where('venue_id', $venue->id)->get();
+        $allVenues = Venue::with('venueImages', 'village.district')
+            ->where('id', '!=', $id)
+            ->where('status', 1)
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+        foreach ($allVenues as $otherVenue) {
+            $minPrice = null;
+            foreach ($otherVenue->serviceEvents as $serviceEvent) {
+                foreach ($serviceEvent->servicePackages as $package) {
+                    foreach ($package->servicePackageDetails as $packageDetail) {
+                        if (is_null($minPrice)) {
+                            $minPrice = $packageDetail->price;
+                        } else {
+                            $minPrice = min($minPrice, $packageDetail->price);
+                        }
+                    }
+                }
+            }
+            $otherVenue->min_price = $minPrice ?? 0;
+        }
         $minPrice = null;
         $maxPrice = 0;
         $hasPackage = false;
         foreach ($venue->serviceEvents as $serviceEvent) {
             foreach ($serviceEvent->servicePackages as $package) {
                 $hasPackage = true;
-
                 foreach ($package->servicePackageDetails as $packageDetail) {
                     $minPrice = ($minPrice == 0) ? $packageDetail->price : min($minPrice, $packageDetail->price);
                     $maxPrice = max($maxPrice, $packageDetail->price);
@@ -245,6 +311,7 @@ class FrontEndController extends Controller
 
         $data = [
             'pageTitle' => 'FotoYuk | Detail Venue Page',
+            'venues' => $allVenues,
             'venue' => $venue,
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
@@ -257,8 +324,62 @@ class FrontEndController extends Controller
             'rents' => $rents,
             'bookDates' => $bookDates,
             'serviceTypes' => $serviceTypes,
+            'payment_method_detail' => $payment_method_detail,
         ];
         return view('front.pages.detail', $data);
+    }
+
+    public function getPriceCatalog($venueId)
+    {
+        $venue = Venue::with([
+            'owner',
+            'serviceEvents.servicePackages.servicePackageDetails',
+            'serviceEvents.servicePackages.printPhotoDetails.printPhoto',
+            'serviceEvents.servicePackages.framePhotoDetails.printPhoto',
+            'serviceEvents.servicePackages.addOnPackageDetails.addOnPackage'
+        ])->find($venueId);
+        if (!$venue) {
+            return response()->json(['message' => 'Venue not found'], 404);
+        }
+
+        $data = [
+            'venue' => $venue->name,
+            'logo' => $venue->owner->logo,
+            'service_events' => $venue->serviceEvents->map(function ($event) {
+                return [
+                    'name' => $event->name,
+                    'service_packages' => $event->servicePackages->map(function ($package) {
+                        return [
+                            'name' => $package->name,
+                            'details' => $package->servicePackageDetails->map(function ($detail) {
+                                return [
+                                    'description' => $detail->sum_person . ' orang',
+                                    'price' => $detail->price,
+                                    'time' => $detail->time_status
+                                ];
+                            }),
+                            'printPhotoDetails' => $package->printPhotoDetails->map(function ($printPhotoDetail) {
+                                return [
+                                    'size' => $printPhotoDetail->printPhoto->size
+                                ];
+                            }),
+                            'framePhotoDetails' => $package->framePhotoDetails->map(function ($framePhotoDetail) {
+                                return [
+                                    'size' => $framePhotoDetail->printPhoto->size
+                                ];
+                            }),
+                            'addOnPackageDetails' => $package->addOnPackageDetails->map(function ($addOnPackageDetail) {
+                                return [
+                                    'name' => $addOnPackageDetail->addOnPackage->name,
+                                    'sum' => $addOnPackageDetail->sum
+                                ];
+                            })
+                        ];
+                    })
+                ];
+            })
+        ];
+        return response()->json($data);
     }
 
     public function getServicesByTypeAndVenue(Request $request, $serviceTypeId)

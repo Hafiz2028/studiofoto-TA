@@ -46,6 +46,22 @@ class Venue extends Model
     {
         return $this->hasMany(OpeningHour::class, 'venue_id', 'id');
     }
+    public function activeOpeningHours()
+    {
+        return $this->hasMany(OpeningHour::class, 'venue_id', 'id')->active();
+    }
+    public function uniqueActiveDays()
+    {
+        return $this->activeOpeningHours()
+            ->with('day')
+            ->get()
+            ->pluck('day')
+            ->unique('id')
+            ->sortBy(function ($day) {
+                $order = [1, 2, 3, 4, 5, 6, 7];
+                return array_search($day->id, $order);
+            });
+    }
 
     public function paymentMethodDetails()
     {

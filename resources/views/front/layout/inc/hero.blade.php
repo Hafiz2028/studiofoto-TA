@@ -5,7 +5,7 @@
                 <div class="hero__categories">
                     <div class="hero__categories__all">
                         <i class="fa fa-bars"></i>
-                        <span>Service Event Type</span>
+                        <span>Tipe Layanan</span>
                     </div>
                     <ul>
                         @if (count(get_service_types()) > 0)

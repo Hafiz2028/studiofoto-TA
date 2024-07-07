@@ -2,7 +2,7 @@
 @section('pageTitle', isset($pageTitle) ? $pageTitle : 'Foto Yuk | Detail Venue')
 @section('content')
     <!-- Breadcrumb Section Begin -->
-    <section class="breadcrumb-section set-bg" data-setbg="/front/img/breadcrumb.jpg">
+    <section class="breadcrumb-section set-bg" data-setbg="/front/img/tomat.png">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -23,7 +23,6 @@
     <section class="product-details spad">
         <div class="container">
             <div class="row">
-
                 <div class="col-lg-6 col-md-6">
                     <div class="product__details__pic">
                         <div class="product__details__pic__item">
@@ -52,8 +51,8 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="product__details__text">
-                        <h3>{{ $venue->name }}</h3>
-                        <div class="product__details__price">
+                        <h3>{{ ucwords(strtolower($venue->name)) }}</h3>
+                        <div class="product__details__price" style="color:#e27201;">
                             @if ($minPrice == 0 && $maxPrice == 0)
                                 Tidak ada paket foto
                             @else
@@ -61,15 +60,43 @@
                                 {{ number_format($maxPrice, 0, ',', '.') }}
                             @endif
                         </div>
-                        <p>{{ $venue->information }}</p>
+                        <ul>
+                            <li><b>Alamat</b> <span>{{ ucwords(strtolower($venue->address)) }},
+                                    {{ ucwords(strtolower($venue->village->name)) }},
+                                    {{ ucwords(strtolower($venue->village->district->name)) }}.</span></li>
+                            <li><b>Jadwal Buka</b> <span>
+                                    @foreach ($venue->uniqueActiveDays() as $day)
+                                        <div class="badge badge-info">{{ $day->name }}</div>
+                                    @endforeach
+                                </span></li>
+                            <li><b>Pemilik</b> <span>{{ ucwords(strtolower($venue->owner->name)) }}</span></li>
+                            <li><b>Deskripsi</b>
+                                <p>{{ $venue->information }}</p>
+                            </li>
+                        </ul>
                         <div>
-                            <a href="" class="primary-btn">PAKET
-                                HARGA</a>
-                        </div>
-                        <div>
+                            <a href="javascript:;" class="btn btn-outline-info btn-outline-info-custom"
+                                data-toggle="tooltip" title="Cek Paket Harga Venue" id="katalogBtn"
+                                style="padding: 16px 28px 14px; margin-right: 6px; margin-bottom: 5px; display: inline-block; font-size: 14px; text-transform: uppercase; font-weight: 700; letter-spacing: 2px;">
+                                KATALOG
+                            </a>
+                            @include('front.pages.catalog.catalog', ['venue' => $venue])
                             <a href="https://wa.me/{{ $venue->phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
-                                target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto" data-placement="auto"
-                                class="primary-btn"><i class="fab fa-whatsapp" style="font-size:10mm;"></i></a>
+                                target="_blank" data-toggle="tooltip" title="Chat Contact Person Studio Foto"
+                                data-placement="auto" class="whatsapp-link">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            @if (filter_var($venue->map_link, FILTER_VALIDATE_URL))
+                                <a href="{{ $venue->map_link }}" target="_blank" data-toggle="tooltip"
+                                    title="Lihat Lokasi di Maps" class="maps-link">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </a>
+                            @else
+                                <a href="#" onclick="swalAlert(); return false;" target="_blank" data-toggle="tooltip"
+                                    title="Lihat Lokasi di Maps" class="maps-link">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </a>
+                            @endif
                             @if (auth()->guard('customer')->check())
                                 <a href="{{ route('customer.booking.create') }}" class="primary-btn" data-toggle="modal"
                                     data-target="#bookingModal">BOOKING</a>
@@ -79,19 +106,6 @@
                                     data-target="#openDetailVenue">BOOKING</a>
                             @endif
                         </div>
-                        <ul>
-                            <li><b>Availability</b> <span>In Stock</span></li>
-                            <li><b>Shipping</b> <span>01 day shipping. <samp>Free pickup today</samp></span></li>
-                            <li><b>Weight</b> <span>0.5 kg</span></li>
-                            <li><b>Share on</b>
-                                <div class="share">
-                                    <a href="#"><i class="fa fa-facebook"></i></a>
-                                    <a href="#"><i class="fa fa-twitter"></i></a>
-                                    <a href="#"><i class="fa fa-instagram"></i></a>
-                                    <a href="#"><i class="fa fa-pinterest"></i></a>
-                                </div>
-                            </li>
-                        </ul>
                     </div>
                 </div>
                 <div class="col-lg-12">
@@ -99,76 +113,152 @@
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab"
-                                    aria-selected="true">Description</a>
+                                    aria-selected="true">Jadwal Buka</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab"
-                                    aria-selected="false">Information</a>
+                                    aria-selected="false">Jenis Layanan
+                                    <span>({{ $venue->serviceEvents->count() }})</span></a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab"
-                                    aria-selected="false">Reviews <span>(1)</span></a>
+                                    aria-selected="false">Tentang</a>
                             </li>
                         </ul>
+
                         <div class="tab-content">
                             <div class="tab-pane active" id="tabs-1" role="tabpanel">
                                 <div class="product__details__tab__desc">
-                                    <h6>Products Infomation</h6>
-                                    <p>Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui.
-                                        Pellentesque in ipsum id orci porta dapibus. Proin eget tortor risus. Vivamus
-                                        suscipit tortor eget felis porttitor volutpat. Vestibulum ac diam sit amet quam
-                                        vehicula elementum sed sit amet dui. Donec rutrum congue leo eget malesuada.
-                                        Vivamus suscipit tortor eget felis porttitor volutpat. Curabitur arcu erat,
-                                        accumsan id imperdiet et, porttitor at sem. Praesent sapien massa, convallis a
-                                        pellentesque nec, egestas non nisi. Vestibulum ac diam sit amet quam vehicula
-                                        elementum sed sit amet dui. Vestibulum ante ipsum primis in faucibus orci luctus
-                                        et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam
-                                        vel, ullamcorper sit amet ligula. Proin eget tortor risus.</p>
-                                    <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Lorem
-                                        ipsum dolor sit amet, consectetur adipiscing elit. Mauris blandit aliquet
-                                        elit, eget tincidunt nibh pulvinar a. Cras ultricies ligula sed magna dictum
-                                        porta. Cras ultricies ligula sed magna dictum porta. Sed porttitor lectus
-                                        nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.
-                                        Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Sed
-                                        porttitor lectus nibh. Vestibulum ac diam sit amet quam vehicula elementum
-                                        sed sit amet dui. Proin eget tortor risus.</p>
+                                    <h6 class="text-center">List Jadwal Buka Studio</h6>
+                                    @php
+                                        $sortedUniqueDayIds = collect($uniqueDayIds)->sort()->values()->all();
+                                    @endphp
+                                    <div class="row">
+                                        @if (empty($sortedUniqueDayIds))
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info">Tidak Ada jadwal buka Venue</div>
+                                            </div>
+                                        @else
+                                            @foreach ($sortedUniqueDayIds as $dayId)
+                                                <div class="col-lg-4 col-md-12">
+                                                    <div class="card shadow mb-3">
+                                                        <div class="card-header bg-info">
+                                                            <h6 class="mb-0 text-white text-center">
+                                                                {{ $openingHours->firstWhere('day_id', $dayId)->day->name }}
+                                                            </h6>
+                                                        </div>
+                                                        <div
+                                                            class="card-body d-flex flex-wrap justify-content-center align-items-start">
+                                                            @php
+                                                                $hoursForDay = $openingHours->where('day_id', $dayId);
+                                                            @endphp
+                                                            @if ($hoursForDay->isEmpty())
+                                                                <span class="badge badge-secondary">No hours
+                                                                    available</span>
+                                                            @else
+                                                                @foreach ($hoursForDay as $openingHour)
+                                                                    <span
+                                                                        class="badge {{ $openingHour->status == 2 ? 'badge-success' : 'badge-secondary' }} mr-2 mb-2"
+                                                                        title="{{ $openingHour->status == 2 ? 'Jadwal Buka' : 'Jadwal Tutup' }}"
+                                                                        data-toggle="tooltip">
+                                                                        {{ $openingHour->hour->hour }}
+                                                                    </span>
+                                                                @endforeach
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="tabs-2" role="tabpanel">
                                 <div class="product__details__tab__desc">
-                                    <h6>Products Infomation</h6>
-                                    <p>Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui.
-                                        Pellentesque in ipsum id orci porta dapibus. Proin eget tortor risus.
-                                        Vivamus suscipit tortor eget felis porttitor volutpat. Vestibulum ac diam
-                                        sit amet quam vehicula elementum sed sit amet dui. Donec rutrum congue leo
-                                        eget malesuada. Vivamus suscipit tortor eget felis porttitor volutpat.
-                                        Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Praesent
-                                        sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ac
-                                        diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante
-                                        ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
-                                        Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
-                                        Proin eget tortor risus.</p>
-                                    <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Lorem
-                                        ipsum dolor sit amet, consectetur adipiscing elit. Mauris blandit aliquet
-                                        elit, eget tincidunt nibh pulvinar a. Cras ultricies ligula sed magna dictum
-                                        porta. Cras ultricies ligula sed magna dictum porta. Sed porttitor lectus
-                                        nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.</p>
+                                    <h6 class="text-center">Katalog Jenis Layanan </h6>
+                                    <div class="row">
+                                        @foreach ($venue->serviceEvents as $serviceEvent)
+                                            <div class="col-lg-4 col-md-12">
+                                                <div class="card shadow mb-3">
+                                                    <div class="card-header bg-info">
+                                                        <h6 class="mb-0 text-white text-center">
+                                                            {{ $serviceEvent->name }}
+                                                        </h6>
+                                                        <p class="mb-0 text-white text-center">
+                                                            {{ $serviceEvent->serviceType->service_name }}</p>
+                                                    </div>
+                                                    <div
+                                                        class="card-body d-flex flex-wrap justify-content-center align-items-start">
+                                                        <div class="photo-display">
+                                                            @if (!empty($serviceEvent->catalog))
+                                                                <a href="http://studiofoto.test/images/venues/Katalog/{{ $serviceEvent->catalog }}"
+                                                                    data-lightbox="catalog">
+                                                                    <img src="http://studiofoto.test/images/venues/Katalog/{{ $serviceEvent->catalog }}"
+                                                                        alt="Katalog Image"
+                                                                        style="width: 100%; max-width: 200px; height: 281px;"
+                                                                        class="document-display mb-2">
+                                                                </a>
+                                                            @else
+                                                                <a href="http://studiofoto.test/images/venues/IMB/default-surat.png"
+                                                                    data-lightbox="catalog">
+                                                                    <img src="http://studiofoto.test/images/venues/IMB/default-surat.png"
+                                                                        alt="Placeholder Image"
+                                                                        style="width: 100%; max-width: 200px; height: 281px;">
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                        <ul class="text-center my-3">
+                                                            <b>Deskripsi</b>
+                                                            <p class="text-center mt-3">{{ $serviceEvent->description }}
+                                                            </p>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="tabs-3" role="tabpanel">
                                 <div class="product__details__tab__desc">
-                                    <h6>Products Infomation</h6>
-                                    <p>Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui.
-                                        Pellentesque in ipsum id orci porta dapibus. Proin eget tortor risus.
-                                        Vivamus suscipit tortor eget felis porttitor volutpat. Vestibulum ac diam
-                                        sit amet quam vehicula elementum sed sit amet dui. Donec rutrum congue leo
-                                        eget malesuada. Vivamus suscipit tortor eget felis porttitor volutpat.
-                                        Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Praesent
-                                        sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ac
-                                        diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ante
-                                        ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
-                                        Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.
-                                        Proin eget tortor risus.</p>
+                                    <h6 class="text-center">Informasi Tambahan Venue</h6>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <ul class="ml-5"><b>Nama Pemilik</b>
+                                                <p>{{ ucwords(strtolower($venue->owner->name)) }}</p>
+                                            </ul>
+                                            <ul class="ml-5"> <b>Nomor Hp Pemilik</b>
+                                                <p>{{ ucwords(strtolower($venue->owner->handphone)) }}</p>
+                                            </ul>
+                                            <ul class="ml-5"> <b>Alamat Pemilik</b>
+                                                <p>{{ ucwords(strtolower($venue->owner->address)) }}</p>
+                                            </ul>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <b>Metode Pembayaran</b>
+                                            @if ($payment_method_detail->count() > 0)
+                                                @foreach ($payment_method_detail as $paymentMethodDetail)
+                                                    <ul class="ml-3">
+                                                        <p>
+                                                            <img src="{{ asset('images/icon_bank/' . $paymentMethodDetail->paymentMethod->icon) }}"
+                                                                alt="{{ $paymentMethodDetail->paymentMethod->name }}"
+                                                                width="32" height="32">
+                                                            <strong
+                                                                style="display: inline-block; width: 110px;">{{ $paymentMethodDetail->paymentMethod->name }}</strong>
+                                                            <span style="color: #007bff;">(<span
+                                                                    onclick="copyToClipboard('{{ $paymentMethodDetail->no_rek }}', '{{ $paymentMethodDetail->paymentMethod->name }}')"
+                                                                    data-toggle="tooltip"
+                                                                    title="Klik untuk menyalin nomor {{ $paymentMethodDetail->paymentMethod->name }}"
+                                                                    style="cursor: pointer; text-decoration: underline; color: #007bff;">{{ $paymentMethodDetail->no_rek }}</span>)</span>
+                                                        </p>
+                                                    </ul>
+                                                @endforeach
+                                            @else
+                                                <div class="alert alert-info text-center mr-4 ml-1">Tidak ada Metode
+                                                    Pembayaran</div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -185,71 +275,96 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="section-title related__product__title">
-                        <h2>Related Product (tipe layanan sama)</h2>
+                        <h2>Studio Foto Lainnya</h2>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-1.jpg">
-                            <ul class="product__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
+                @if ($venues->isEmpty())
+                    <div class="col-lg-12">
+                        <div class="alert alert-warning text-center" role="alert">
+                            Tidak Ada Venue Lainnya
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-2.jpg">
-                            <ul class="product__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
+                @else
+                    @foreach ($venues as $item)
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="product__item">
+                                <div class="product__item__pic set-bg"
+                                    @if ($item->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $item->venueImages->first()->image }}"
+                        alt="{{ $item->venueImages->first()->image }}"
+                        style="background-image: url('/images/venues/Venue_Image/{{ $item->venueImages->first()->image }}');"
+                        @else
+                            data-setbg="/images/venues/Venue_Image/default-venue.png"
+                            alt="Tidak Ada Gambar Venue" @endif>
+                                    <ul class="product__item__pic__hover">
+                                        <li>
+                                            @if (filter_var($item->map_link, FILTER_VALIDATE_URL))
+                                                <a href="{{ $item->map_link }}" target="_blank"
+                                                    onclick="return openLink(event, '{{ $item->map_link }}')">
+                                                    <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                        title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                </a>
+                                            @else
+                                                <a href="#" onclick="swalAlert(); return false;">
+                                                    <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                        title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                </a>
+                                            @endif
+                                        </li>
+                                        <li>
+                                            @if (auth()->guard('customer')->check())
+                                                <a href="{{ route('customer.detail-venue', $item->id) }}">
+                                                    <i class="fas fa-info" data-toogle="tooltip"
+                                                        title="Detail Studio Foto" data-placement="auto"></i></a>
+                                            @else
+                                                <a href="{{ route('customer.detail-venue-not-login', $item->id) }}">
+                                                    <i class="fas fa-info" data-toogle="tooltip"
+                                                        title="Detail Studio Foto" data-placement="auto"></i></a>
+                                            @endif
+                                        </li>
+                                        <li>
+                                            @php
+                                                $phone_number = $item->phone_number;
+                                                if (substr($phone_number, 0, 2) == '08') {
+                                                    $phone_number = '628' . substr($phone_number, 2);
+                                                }
+                                            @endphp
+                                            <a href="https://wa.me/{{ $phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
+                                                target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto"
+                                                data-placement="auto">
+                                                <i class="fab fa-whatsapp" style="font-size:6mm;"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="product__item__text">
+                                    @if (auth()->guard('customer')->check())
+                                        <h6><a
+                                                href="{{ route('customer.detail-venue', $item->id) }}">{{ $item->name }}</a>
+                                        </h6>
+                                    @else
+                                        <h6><a
+                                                href="{{ route('customer.detail-venue-not-login', $item->id) }}">{{ $item->name }}</a>
+                                        </h6>
+                                    @endif
+                                    <h5 style="font-size: 16px; color: #333; margin-top: 10px; text-align:left;">
+                                        <span
+                                            style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
+                                            from</span> Rp.
+                                        {{ number_format($item->min_price ?? 0, 2, ',', '.') }}
+                                    </h5>
+                                    {{-- <h6 style="text-align: left;"> {{$phone_number}}</h6> --}}
+                                    <p class="mt-2" style="text-align: left;">
+                                        {{ ucwords(strtolower($item->address)) }},
+                                        {{ ucwords(strtolower($item->village->district->name)) }},
+                                        {{ ucwords(strtolower($item->village->name)) }},
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="product__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-3.jpg">
-                            <ul class="product__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="/front/img/product/product-7.jpg">
-                            <ul class="product__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
-                        </div>
-                    </div>
-                </div>
+                    @endforeach
+                @endif
             </div>
         </div>
     </section>
@@ -783,7 +898,6 @@
                 packageDetailSelect.innerHTML =
                     '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
 
-                serviceEventSelect.setAttribute('disabled', true);
                 packageDetailSelect.setAttribute('disabled', true);
                 dateSelect.setAttribute('disabled', true);
 
@@ -793,7 +907,141 @@
         });
     </script>
 @endsection
+@push('stylesheets')
+    {{-- tombol katalog --}}
+    <style>
+        .btn-outline-info-custom:hover {
+            background-color: #01bce2 !important;
+            color: #fff !important;
+            border-color: #01bce2 !important;
+        }
+    </style>
+    {{-- tombol wa maps --}}
+    <style>
+        .whatsapp-link,
+        .maps-link {
+            position: fixed;
+            z-index: 1000;
+            color: white;
+            border-radius: 50%;
+            padding: 15px;
+            width: 65px;
+            /* Set a fixed width */
+            height: 65px;
+            /* Set a fixed height */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .whatsapp-link {
+            bottom: 20px;
+            right: 20px;
+            background-color: #25D366;
+        }
+
+        .maps-link {
+            bottom: 100px;
+            right: 20px;
+            background-color: #007bff;
+            /* Bootstrap info color */
+        }
+
+        .whatsapp-link:hover {
+            transform: scale(1.1);
+            background-color: #128C7E;
+        }
+
+        .maps-link:hover {
+            transform: scale(1.1);
+            background-color: #0056b3;
+            /* Darker info color */
+        }
+
+        .whatsapp-link i,
+        .maps-link i {
+            font-size: 35px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .whatsapp-link,
+        .maps-link {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+    {{-- tombol katalog --}}
+    <style>
+        .nav-tabs .nav-link {
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background-color: #e27201;
+            /* Warna garis */
+        }
+    </style>
+@endpush
 @push('scripts')
+    {{-- fungsi salin norek --}}
+    <script>
+        function copyToClipboard(text, paymentMethodName) {
+            var dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Disalin',
+                text: 'Nomor Rekening dari ' + paymentMethodName + ' telah Berhasil tersalin (No Rek : ' + text +
+                    ').'
+            });
+        }
+
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    {{-- map salah --}}
+    <script>
+        function swalAlert() {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Link tidak valid',
+                text: 'Link Lokasi dari Studio Foto tidak Valid',
+                showConfirmButton: true
+            });
+        }
+    </script>
+    {{-- tooltip --}}
+    <script>
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
     {{-- modal back login --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {

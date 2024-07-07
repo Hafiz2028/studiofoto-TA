@@ -1,30 +1,12 @@
 <div class="humberger__menu__overlay"></div>
 <div class="humberger__menu__wrapper">
     <div class="humberger__menu__logo">
-        <a href="#"><img src="/front/img/logo.png" alt=""></a>
+        <a href="{{ route('home') }}"><img src="/front/img/logo_name.png" alt=""></a>
     </div>
-    {{-- <div class="humberger__menu__cart">
-        <ul>
-            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
-        </ul>
-        <div class="header__cart__price">item: <span>$150.00</span></div>
-    </div> --}}
     <div class="humberger__menu__widget">
         <div class="header__top__right__language">
             @if (auth()->guard('customer')->check())
-                <a href="#"><i class="fa fa-user"></i> Details</a>
-                <span class="arrow_carrot-down"></span>
-                <ul>
-                    <li><a href="{{ route('customer.profile') }}">Profile</a></li>
-                    <li>
-                        <form method="post" action="{{ route('customer.logout') }}">
-                            @csrf
-                            <button type="submit"
-                                style="background: none; border: none; padding: 5px 10px; font: inherit; cursor: pointer; color: white; text-decoration: none; font-size: smaller;">Logout</button>
-                        </form>
-                    </li>
-                </ul>
+                @livewire('customer-header-profile-info')
             @else
                 <a href="#"><i class="fa fa-user"></i> Login as</a>
                 <span class="arrow_carrot-down"></span>
@@ -43,12 +25,6 @@
             @if (auth()->guard('customer')->check())
                 <li class="{{ Route::is('customer.booking.index') ? 'active' : '' }}"><a
                         href="{{ route('customer.booking.index') }}">Booking</a>
-                    {{-- <ul class="header__menu__dropdown">
-                        <li><a href="./shop-details.html">Shop Details</a></li>
-                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                        <li><a href="./checkout.html">Check Out</a></li>
-                        <li><a href="./blog-details.html">Blog Details</a></li>
-                    </ul> --}}
                 </li>
                 <li class="{{ Route::is('customer.history.index') ? 'active' : '' }}"><a
                         href="{{ route('customer.history.index') }}">History</a></li>
@@ -59,10 +35,10 @@
     </nav>
     <div id="mobile-menu-wrap"></div>
     <div class="header__top__right__social">
-        <a href="#"><i class="fa fa-facebook"></i></a>
-        <a href="#"><i class="fa fa-twitter"></i></a>
-        <a href="#"><i class="fa fa-linkedin"></i></a>
-        <a href="#"><i class="fa fa-pinterest-p"></i></a>
+        <a href="https://www.instagram.com/apis_a_r" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
+        <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
     </div>
     <div class="humberger__menu__contact">
         <ul>
@@ -71,3 +47,65 @@
         </ul>
     </div>
 </div>
+
+<style>
+    .header__top__right__language {
+        position: relative;
+        z-index: 9999 !important;
+        /* Ensure it's on top */
+    }
+
+    #dropdown-menu {
+        z-index: 10000 !important;
+        display: block !important;
+        /* Force display for debugging */
+    }
+
+    .humberger__menu__overlay {
+        z-index: 1;
+        /* Ensure it's below the dropdown */
+    }
+
+    .humberger__menu__wrapper {
+        z-index: 2;
+        /* Ensure it's below the dropdown */
+    }
+</style>
+
+<script>
+    function toggleDropdown(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log("Dropdown toggle clicked");
+
+        var dropdownMenu = document.getElementById("dropdown-menu");
+        if (dropdownMenu) {
+            var isVisible = dropdownMenu.style.display === "block";
+            console.log("Dropdown current visibility:", dropdownMenu.style.display);
+            closeAllDropdowns();
+            if (!isVisible) {
+                dropdownMenu.style.display = "block";
+                console.log("Dropdown set to block");
+            }
+        } else {
+            console.error("Dropdown menu not found!");
+        }
+    }
+
+    function closeAllDropdowns() {
+        var dropdowns = document.querySelectorAll("#dropdown-menu");
+        dropdowns.forEach(function(dropdown) {
+            dropdown.style.display = "none";
+        });
+    }
+
+    document.addEventListener("click", function(event) {
+        if (!event.target.closest('.header__top__right__language')) {
+            closeAllDropdowns();
+        }
+    });
+
+    document.getElementById("dropdown-menu").addEventListener("click", function(event) {
+        event.stopPropagation();
+    });
+</script>

@@ -596,8 +596,9 @@
             document.body.removeChild(dummy);
             Swal.fire({
                 icon: 'success',
-                title: 'Nomor ' + paymentMethodName + ' telah disalin:',
-                text: text
+                title: 'Berhasil Disalin',
+                text: 'Nomor Rekening dari ' + paymentMethodName + ' telah Berhasil tersalin (No Rek : ' + text +
+                    ').'
             });
         }
 

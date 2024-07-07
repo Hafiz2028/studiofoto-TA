@@ -40,3 +40,7 @@ Route::get('/cust/packages/{serviceEventId}', [FrontEndController::class, 'getPa
 Route::get('/cust/package-details/{packageId}', [FrontEndController::class, 'getPackageDetails']);
 Route::get('/cust/print-photo-details/{packageId}', [FrontEndController::class, 'getPrintPhotoDetails']);
 Route::get('/cust/get-book-dates', [FrontEndController::class, 'getBookDates']);
+// katalog
+Route::get('/price-catalog/{venue}', [FrontEndController::class, 'getPriceCatalog']);
+
+

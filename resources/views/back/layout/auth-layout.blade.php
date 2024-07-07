@@ -5,6 +5,100 @@
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
     <title>@yield('pageTitle')</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            overflow-x: hidden;
+        }
+
+        .login-header {
+            background-image: url('/back/vendors/images/login-page-img-2.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            height: 9vh;
+            /* Adjust as needed */
+        }
+
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            /* Adjust the blur amount as needed */
+            background-color: rgba(255, 255, 255, 0.5);
+            /* Adjust the opacity and color */
+            z-index: 1;
+        }
+
+        .container-fluid {
+            position: relative;
+            /* Ensure z-index works correctly */
+            z-index: 2;
+            /* Place above the blur overlay */
+        }
+
+        .login-wrap {
+            background-image: url('/back/vendors/images/login-page-img-2.png');
+            background-size: cover;
+            background-position: center;
+            height: 70vh;
+            /* Adjust as needed */
+            max-width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-content {
+            background-color: rgba(255, 255, 255, 0.9);
+            /* Adjust the opacity and color */
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .login-content p {
+            margin-bottom: 20px;
+        }
+
+        .brand-logo img {
+            max-width: 150px;
+            /* Adjust logo size */
+        }
+
+        .login-menu ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .login-menu ul li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .login-menu ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .login-menu ul li a:hover {
+            color: #666;
+        }
+    </style>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/back/vendors/images/favicon-180x180.png" />
@@ -29,6 +123,7 @@
 
 <body class="login-page">
     <div class="login-header box-shadow">
+        <div class="blur-overlay"></div>
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
                 <a href="{{ route('home') }}"> <img src="/back/vendors/images/logo_name.png" alt="">
@@ -52,19 +147,17 @@
                             @endif
                         @endif
                     @endif
-
                 </ul>
             </div>
-
         </div>
     </div>
     <div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-6 col-lg-7">
+                {{-- <div class="col-md-6 col-lg-7">
                     <img src="/back/vendors/images/login-page-img.png" alt="" />
-                </div>
-                <div class="col-md-6 col-lg-5">
+                    </div> --}}
+                <div class="col-md-12 col-lg-12">
                     @yield('content')
                 </div>
             </div>

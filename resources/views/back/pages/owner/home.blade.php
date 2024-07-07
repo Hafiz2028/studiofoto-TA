@@ -156,7 +156,7 @@
                     <div class="widget-data">
                         <div class="weight-700 font-24 text-white">{{ $venues->where('status', 0)->count() }}</div>
                         <div class="font-14 text-white weight-500">
-                            Menunggu Dikonfirmasi
+                            Belum Dikonfirmasi
                         </div>
                     </div>
                     <div class="widget-icon bg-white">

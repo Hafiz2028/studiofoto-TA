@@ -43,7 +43,7 @@
         </div>
     </section>
     <!-- Breadcrumb Section Begin -->
-    <section class="breadcrumb-section set-bg" data-setbg="/front/img/breadcrumb.jpg">
+    <section class="breadcrumb-section set-bg" data-setbg="/front/img/tomat.png">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -69,7 +69,7 @@
                         <h4>Lokasi Studio Terdaftar</h4>
                         <ul>
                             <li class="{{ empty(request('district_id')) && empty(request('village_id')) ? 'active' : '' }}">
-                                <a href="{{ url()->current() }}#venueSection">Semua Studio Foto</a>
+                                <a href="{{ url()->current() }}#venueSection">Semua Studio Foto ({{ $totalVenuesCount }})</a>
                             </li>
                             @foreach ($districts as $districtName => $villages)
                                 @php
@@ -88,18 +88,27 @@
                                         }
                                     }
                                 @endphp
-                                <li class="has-submenu {{ $activeDistrict ? 'active' : '' }}">
+                                <li
+                                    class="has-submenu {{ $activeDistrict && $activeDistrict == $villages->first()->district_id ? 'active' : '' }}">
                                     <a
-                                        href="{{ url()->current() }}?district_id={{ $villages->first()->district_id }}#venueSection">{{ ucwords(strtolower($districtName)) }}</a>
-                                    <ul class="submenu">
-                                        @foreach ($villages as $village)
-                                            <li
-                                                class="{{ $activeVillage && request('village_id') == $village->id ? 'active' : '' }}">
-                                                <a
-                                                    href="{{ url()->current() }}?village_id={{ $village->id }}#venueSection">{{ ucwords(strtolower($village->name)) }}</a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
+                                        href="{{ url()->current() }}?district_id={{ $villages->first()->district_id }}#venueSection">
+                                        {{ ucwords(strtolower($districtName)) }}
+                                        ({{ $districtVenuesCount[$districtName] ?? 0 }})
+                                    </a>
+                                    @if ($villages->isNotEmpty())
+                                        <ul class="submenu">
+                                            @foreach ($villages as $village)
+                                                <li
+                                                    class="{{ $activeVillage && request('village_id') == $village->id ? 'active' : '' }}">
+                                                    <a
+                                                        href="{{ url()->current() }}?village_id={{ $village->id }}#venueSection">
+                                                        {{ ucwords(strtolower($village->name)) }}
+                                                        ({{ $villageVenuesCount[$village->id] ?? 0 }})
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
@@ -129,7 +138,7 @@
                             </div>
                             <div class="col-lg-4 col-md-4">
                                 <div id="venueSection" class="filter__found">
-                                    <h6><span>{{ $venues->total() }}</span> Venues found</h6>
+                                    <h6><span>{{ $venues->total() }}</span> Venue ditemukan</h6>
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-3">
@@ -356,6 +365,11 @@
     </style>
 @endpush
 @push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var categoryLinks = document.querySelectorAll('.hero__categories ul li a');

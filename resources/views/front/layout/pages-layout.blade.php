@@ -50,6 +50,9 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    {{-- tambahan --}}
+    <!-- Lightbox2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
     @livewireStyles
     @stack('stylesheets')
 </head>
@@ -139,6 +142,11 @@
     <script src="/back/src/plugins/datatables/js/pdfmake.min.js"></script>
     <script src="/back/src/plugins/datatables/js/vfs_fonts.js"></script>
     <script src="/back/vendors/scripts/datatable-setting.js"></script>
+
+    {{-- tambahan --}}
+    <!-- Lightbox2 JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
     @livewireScripts
     @stack('scripts')
 

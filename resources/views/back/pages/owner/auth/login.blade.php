@@ -3,7 +3,7 @@
 @section('content')
     <div class="login-box bg-white box-shadow border-radius-10">
         <div class="login-title">
-            <h2 class="text-center text-primary">Owner Login</h2>
+            <h2 class="text-center" style="color:#e27201;">Owner Login</h2>
         </div>
         <form action="{{ route('owner.login-handler') }}" method="POST">
             @csrf
@@ -46,8 +46,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="input-group mb-0">
-                        <input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign In">
-
+                        <input class="btn btn-primary btn-lg btn-block" style="background-color:#e27201; border-color:#e27201" type="submit" value="Sign In">
                         {{-- <a class="btn btn-primary btn-lg btn-block" href="index.html">Sign In</a> --}}
                     </div>
 
