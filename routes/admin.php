@@ -22,7 +22,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
     Route::middleware(['auth:admin', 'PreventBackHistory'])->group(function () {
         //route saat admin autentikasi
-        Route::view('/home', 'back.pages.admin.home')->name('home');
+        Route::get('/home', [AdminController::class, 'index'])->name('home');
         Route::post('/logout_handler', [AdminController::class, 'logoutHandler'])->name('logout_handler');
         Route::get('/profile', [AdminController::class, 'profileView'])->name('profile');
         Route::post('/change-profile-picture', [AdminController::class, 'changeProfilePicture'])->name('change-profile-picture');

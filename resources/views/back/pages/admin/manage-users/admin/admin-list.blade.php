@@ -80,8 +80,8 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4">
-                                            <span class="text-danger">Tidak Ada Akun Admin</span>
+                                        <td colspan="5" class="text-center">
+                                            <div class="alert alert-danger">Tidak Ada Akun Admin</div>
                                         </td>
                                     </tr>
                                 @endforelse

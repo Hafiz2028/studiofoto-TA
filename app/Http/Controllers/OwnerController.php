@@ -57,6 +57,7 @@ class OwnerController extends Controller
             'pageTitle' => 'Owner Home Page',
             'venues' => $venues,
             'rents' => $rents,
+            'owner' => $owner,
         ];
         return view('back.pages.owner.home', $data);
     }
@@ -443,11 +444,11 @@ class OwnerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $owner = Owner::all();
-        return view('back.pages.admin.manage-users.owner.owner-list', compact('owner'));
-    }
+    // public function index()
+    // {
+    //     $owner = Owner::all();
+    //     return view('back.pages.admin.manage-users.owner.owner-list', compact('owner'));
+    // }
 
     /**
      * Show the form for creating a new resource.

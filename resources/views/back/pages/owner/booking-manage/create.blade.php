@@ -3,11 +3,12 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content shadow">
             <div class="modal-header bg-info text-white">
-                @if (auth()->guard('owner')->check())
+                @if (auth()->guard('owner')->check() && request()->routeIs('owner.booking.index'))
                     <h5 class="modal-title text-white" id="bookingModalLabel">
                         <i class="fas fa-calendar-plus mr-2"></i> Tambah Booking Offline
                     </h5>
-                @elseif (auth()->guard('customer')->check())
+                @elseif (auth()->guard('customer')->check() &&
+                        (request()->routeIs('customer.detail-venue') || request()->routeIs('customer.detail-venue-not-login')))
                     <h5 class="modal-title text-white" id="bookingModalLabel">
                         <i class="fas fa-calendar-plus mr-2"></i> Tambah Booking <b>{{ $venue->name }}</b>
                     </h5>
@@ -17,7 +18,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @if (auth()->guard('owner')->check())
+                @if (auth()->guard('owner')->check() && request()->routeIs('owner.booking.index'))
                     <form action="{{ route('owner.booking.store') }}" method="POST" enctype="multipart/form-data"
                         class="mt-3" id="bookingForm">
                         @csrf
@@ -169,7 +170,8 @@
                             <button type="submit" class="btn btn-success">Pembayaran</button>
                         </div>
                     </form>
-                @elseif (auth()->guard('customer')->check())
+                @elseif (auth()->guard('customer')->check() &&
+                        (request()->routeIs('customer.detail-venue') || request()->routeIs('customer.detail-venue-not-login')))
                     <form action="{{ route('customer.booking.store') }}" method="POST" enctype="multipart/form-data"
                         class="mt-3" id="bookingForm">
                         @csrf
@@ -264,8 +266,10 @@
                             </div>
                             <div class="col-lg-12">
                                 <div class="alert alert-warning text-center">
-                                    <i class="icon-copy fa fa-info-circle" aria-hidden="true"></i> Pastikan melakukan konfirmasi ulang
-                                    booking kepada pihak owner maksimal 30 menit sebelum jadwal dimulai. <br>Booking akan dibatalkan secara sepihak jika tidak
+                                    <i class="icon-copy fa fa-info-circle" aria-hidden="true"></i> Pastikan melakukan
+                                    konfirmasi ulang
+                                    booking kepada pihak owner maksimal 30 menit sebelum jadwal dimulai. <br>Booking
+                                    akan dibatalkan secara sepihak jika tidak
                                     melakukan konfirmasi dan tidak ada kabar sebelum jadwal booking dimulai.
                                 </div>
                             </div>

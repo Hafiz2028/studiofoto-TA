@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use constGuards;
 use constDefaults;
 use App\Models\Admin;
+use App\Models\Customer;
+use App\Models\Venue;
+use App\Models\Owner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,6 +20,30 @@ use Illuminate\Support\Facades\File;
 
 class AdminController extends Controller
 {
+    public function index()
+    {
+        $admin = Auth::guard('admin')->user();
+        $totalVenues = Venue::count();
+        $activeVenues = Venue::where('status', 1)->count();
+        $pendingVenues = Venue::where('status', 0)->count();
+        $rejectedVenues = Venue::where('status', 2)->count();
+        $totalOwner = Owner::count();
+        $totalCust = Customer::count();
+        $activeOwner = Owner::whereHas('venues')->count();
+        $data = [
+            'pageTitle' => "Admin List",
+            'admin' => $admin,
+            'totalVenues' => $totalVenues,
+            'activeVenues' => $activeVenues,
+            'pendingVenues' => $pendingVenues,
+            'rejectedVenues' => $rejectedVenues,
+            'activeOwner' => $activeOwner,
+            'totalOwner' => $totalOwner,
+            'totalCust' => $totalCust,
+        ];
+
+        return view('back.pages.admin.home', $data);
+    }
     //login start
     public function loginHandler(Request $request)
     {
@@ -62,7 +89,7 @@ class AdminController extends Controller
         session()->flash('fail', 'You are logged out');
         return redirect()->route('admin.login');
     }
-    
+
     //logout end
 
     //send email reset password start
@@ -239,14 +266,17 @@ class AdminController extends Controller
     //crud list admin user
     public function adminList(Request $request)
     {
+        $currentAdmin = Auth::guard('admin')->user();
+        if (!$currentAdmin) {
+            return redirect()->route('admin.login');
+        }
+        $admins = Admin::where('id', '!=', $currentAdmin->id)->get();
         $data = [
-            'pageTitle' => "Admin List"
+            'pageTitle' => "Admin List",
+            'admins' => $admins
         ];
 
-        return view('back.pages.admin.manage-users.admin.admin-list', [
-            $data,
-            'admins' => Admin::all()
-        ]);
+        return view('back.pages.admin.manage-users.admin.admin-list', $data);
     }
     public function addAdmin(Request $request)
     {

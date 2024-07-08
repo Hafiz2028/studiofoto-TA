@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Hour;
+use App\Models\Customer;
+use App\Models\Owner;
 use App\Models\Rent;
 use App\Models\Venue;
 use App\Models\Village;

@@ -4,9 +4,9 @@
     <div class="page-header">
         <div class="row">
             <div class="col-md-12 col-sm-12">
-                <div class="pull-left">
+                <div class="pull-left"> 
                     <div class="title">
-                        <h4>Welcome, {{ Auth::user()->name }} </h4>
+                        <h4>Welcome, {{ ucwords(strtolower($owner->name)) }} </h4>
                     </div>
                 </div>
                 <div class="pull-right">

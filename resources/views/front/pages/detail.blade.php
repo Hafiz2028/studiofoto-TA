@@ -133,7 +133,7 @@
                                     @php
                                         $sortedUniqueDayIds = collect($uniqueDayIds)->sort()->values()->all();
                                     @endphp
-                                    <div class="row">
+                                    <div class="row justify-content-center">
                                         @if (empty($sortedUniqueDayIds))
                                             <div class="col-md-12">
                                                 <div class="alert alert-info">Tidak Ada jadwal buka Venue</div>
@@ -176,7 +176,7 @@
                             <div class="tab-pane" id="tabs-2" role="tabpanel">
                                 <div class="product__details__tab__desc">
                                     <h6 class="text-center">Katalog Jenis Layanan </h6>
-                                    <div class="row">
+                                    <div class="row justify-content-center">
                                         @foreach ($venue->serviceEvents as $serviceEvent)
                                             <div class="col-lg-4 col-md-12">
                                                 <div class="card shadow mb-3">
@@ -189,7 +189,7 @@
                                                     </div>
                                                     <div
                                                         class="card-body d-flex flex-wrap justify-content-center align-items-start">
-                                                        <div class="photo-display">
+                                                        <div class="photo-display text-center">
                                                             @if (!empty($serviceEvent->catalog))
                                                                 <a href="http://studiofoto.test/images/venues/Katalog/{{ $serviceEvent->catalog }}"
                                                                     data-lightbox="catalog">
@@ -202,16 +202,18 @@
                                                                 <a href="http://studiofoto.test/images/venues/IMB/default-surat.png"
                                                                     data-lightbox="catalog">
                                                                     <img src="http://studiofoto.test/images/venues/IMB/default-surat.png"
-                                                                        alt="Placeholder Image"
-                                                                        style="width: 100%; max-width: 200px; height: 281px;">
+                                                                        alt="Katalog Image"
+                                                                        style="width: 100%; max-width: 200px; height: 281px;"
+                                                                        class="document-display mb-2">
                                                                 </a>
                                                             @endif
+                                                            <ul class="text-center my-3">
+                                                                <b>Deskripsi</b>
+                                                                <p class="text-center mt-3">
+                                                                    {{ $serviceEvent->description }}
+                                                                </p>
+                                                            </ul>
                                                         </div>
-                                                        <ul class="text-center my-3">
-                                                            <b>Deskripsi</b>
-                                                            <p class="text-center mt-3">{{ $serviceEvent->description }}
-                                                            </p>
-                                                        </ul>
                                                     </div>
                                                 </div>
                                             </div>
@@ -879,7 +881,6 @@
             $('#bookingModal').on('hidden.bs.modal', function() {
                 bookingForm.reset();
                 var requiredFields = [
-                    document.getElementById('venue_id'),
                     document.getElementById('service'),
                     document.getElementById('package_detail'),
                     document.getElementById('date')
@@ -897,10 +898,8 @@
                     '<option value="" disabled selected>Pilih Layanan...</option>';
                 packageDetailSelect.innerHTML =
                     '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
-
                 packageDetailSelect.setAttribute('disabled', true);
                 dateSelect.setAttribute('disabled', true);
-
                 scheduleContainer.innerHTML =
                     '<div class="alert alert-info">Belum memilih tanggal dan venue</div>';
             });
