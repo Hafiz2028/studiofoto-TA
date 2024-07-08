@@ -32,7 +32,7 @@ class AdminController extends Controller
         $activeOwner = Owner::whereHas('venues')->count();
         $data = [
             'pageTitle' => "Admin List",
-            'admin' => $admin,
+            'admin' => $admin, 
             'totalVenues' => $totalVenues,
             'activeVenues' => $activeVenues,
             'pendingVenues' => $pendingVenues,

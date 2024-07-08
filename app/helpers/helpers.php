@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -24,7 +24,7 @@ if (!function_exists('sendEmail')) {
         $mail->Password = env('EMAIL_PASSWORD');
         $mail->SMTPSecure = env('EMAIL_ENCRYPTION');
         $mail->Port = env('EMAIL_PORT');
-        $mail->setFrom($mailConfig['mail_from_email'], $mailConfig['mail_from_name']);
+        $mail->setFrom(env('EMAIL_FROM_ADDRESS'), env('EMAIL_FROM_NAME'));
         $mail->addAddress($mailConfig['mail_recipient_email'], $mailConfig['mail_recipient_name']);
         $mail->isHTML(true);
         $mail->Subject = $mailConfig['mail_subject'];
@@ -35,57 +35,57 @@ if (!function_exists('sendEmail')) {
             return false;
         }
     }
-    //FRONTEND::
-    /** GET FRONTEND SERVICE TYPE */
-    if (!function_exists('get_service_types')) {
-        function get_service_types()
-        {
-            $service_types = ServiceType::orderBy('id', 'ASC')->get();
-            return !empty($service_types) ? $service_types : [];
-        }
+}
+//FRONTEND::
+/** GET FRONTEND SERVICE TYPE */
+if (!function_exists('get_service_types')) {
+    function get_service_types()
+    {
+        $service_types = ServiceType::orderBy('id', 'ASC')->get();
+        return !empty($service_types) ? $service_types : [];
     }
+}
 
 
-    /** GET FRONTEND VENUES By District */
-    if (!function_exists('get_venues_with_service_slug')) {
-        function get_venues_with_service_slug()
-        {
-            $venues = Venue::where('status', 1)->orderBy('id', 'ASC')->get();
+/** GET FRONTEND VENUES By District */
+if (!function_exists('get_venues_with_service_slug')) {
+    function get_venues_with_service_slug()
+    {
+        $venues = Venue::where('status', 1)->orderBy('id', 'ASC')->get();
 
-            $filteredVenues = [];
-            foreach ($venues as $venue) {
-                $serviceSlugs = [];
-                $minPrice = PHP_INT_MAX;
-                $hasPackageDetails = false;
-                foreach ($venue->serviceEvents as $serviceEvent) {
-                    $serviceSlugs[] = $serviceEvent->serviceType->service_slug;
-                    foreach ($serviceEvent->servicePackages as $servicePackage) {
-                        foreach ($servicePackage->servicePackageDetails as $packageDetail) {
-                            $hasPackageDetails = true;
-                            if ($packageDetail->price < $minPrice) {
-                                $minPrice = $packageDetail->price;
-                            }
+        $filteredVenues = [];
+        foreach ($venues as $venue) {
+            $serviceSlugs = [];
+            $minPrice = PHP_INT_MAX;
+            $hasPackageDetails = false;
+            foreach ($venue->serviceEvents as $serviceEvent) {
+                $serviceSlugs[] = $serviceEvent->serviceType->service_slug;
+                foreach ($serviceEvent->servicePackages as $servicePackage) {
+                    foreach ($servicePackage->servicePackageDetails as $packageDetail) {
+                        $hasPackageDetails = true;
+                        if ($packageDetail->price < $minPrice) {
+                            $minPrice = $packageDetail->price;
                         }
                     }
                 }
-                if ($hasPackageDetails) {
-                    $venue->service_slugs = $serviceSlugs;
-                    $venue->min_price = $minPrice != PHP_INT_MAX ? $minPrice : null;
-                    $filteredVenues[] = $venue;
-                }
             }
-            return $filteredVenues;
+            if ($hasPackageDetails) {
+                $venue->service_slugs = $serviceSlugs;
+                $venue->min_price = $minPrice != PHP_INT_MAX ? $minPrice : null;
+                $filteredVenues[] = $venue;
+            }
         }
+        return $filteredVenues;
     }
+}
 
-    /** GET VENUE's DETAIL */
-    if (!function_exists('getVenueData')) {
-        function getVenueData($venueId)
-        {
-            $venue = Venue::with(['serviceEvents.servicePackages', 'venueImages', 'serviceEvents.serviceEventImages'])
-                ->findOrFail($venueId);
+/** GET VENUE's DETAIL */
+if (!function_exists('getVenueData')) {
+    function getVenueData($venueId)
+    {
+        $venue = Venue::with(['serviceEvents.servicePackages', 'venueImages', 'serviceEvents.serviceEventImages'])
+            ->findOrFail($venueId);
 
-            return $venue;
-        }
+        return $venue;
     }
 }
