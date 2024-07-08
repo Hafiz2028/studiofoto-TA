@@ -1,13 +1,13 @@
 <?php
 
-class constGuards
+class ConstGuards
 {
     const ADMIN = 'admin';
     const CUSTOMER = 'customer';
     const OWNER = 'owner';
 }
 
-class constDefaults
+class ConstDefaults
 {
     const tokenExpiredMinutes = 15;
 }

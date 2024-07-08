@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use constGuards;
-use constDefaults;
+use ConstGuards;
+use ConstDefaults;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;

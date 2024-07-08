@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use constGuards;
-use constDefaults;
+use ConstGuards;
+use ConstDefaults;
 use App\Models\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -224,13 +224,13 @@ class CustomerController extends Controller
 
         //check if there is an existing reset password token
         $oldToken = DB::table('password_reset_tokens')
-            ->where(['email' => $customer->email, 'guard' => constGuards::CUSTOMER])
+            ->where(['email' => $customer->email, 'guard' => ConstGuards::CUSTOMER])
             ->first();
 
         if ($oldToken) {
             //update token
             DB::table('password_reset_tokens')
-                ->where(['email' => $customer->email, 'guard' => constGuards::CUSTOMER])
+                ->where(['email' => $customer->email, 'guard' => ConstGuards::CUSTOMER])
                 ->update([
                     'token' => $token,
                     'created_at' => Carbon::now()
@@ -238,7 +238,7 @@ class CustomerController extends Controller
         } else {
             DB::table('password_reset_tokens')->insert([
                 'email' => $customer->email,
-                'guard' => constGuards::CUSTOMER,
+                'guard' => ConstGuards::CUSTOMER,
                 'token' => $token,
                 'created_at' => Carbon::now()
             ]);
@@ -270,11 +270,11 @@ class CustomerController extends Controller
     public function showResetForm(Request $request, $token = null)
     {
         $get_token = DB::table('password_reset_tokens')
-            ->where(['token' => $token, 'guard' => constGuards::CUSTOMER])
+            ->where(['token' => $token, 'guard' => ConstGuards::CUSTOMER])
             ->first();
         if ($get_token) {
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $get_token->created_at)->diffInMinutes(Carbon::now());
-            if ($diffMins > constDefaults::tokenExpiredMinutes) {
+            if ($diffMins > ConstDefaults::tokenExpiredMinutes) {
                 return redirect()->route('customer.forgot-password', ['token' => $token])->with('fail', 'Token expired, request another reset password link.');
             } else {
                 return view('back.pages.customer.auth.reset')->with(['token' => $token]);
@@ -292,7 +292,7 @@ class CustomerController extends Controller
         ]);
 
         $token = DB::table('password_reset_tokens')
-            ->where(['token' => $request->token, 'guard' => constGuards::CUSTOMER])
+            ->where(['token' => $request->token, 'guard' => ConstGuards::CUSTOMER])
             ->first();
 
         // GET customer details
@@ -307,7 +307,7 @@ class CustomerController extends Controller
         DB::table('password_reset_tokens')->where([
             'email' => $customer->email,
             'token' => $request->token,
-            'guard' => constGuards::CUSTOMER
+            'guard' => ConstGuards::CUSTOMER
         ])->delete();
 
         //send email to notify customer

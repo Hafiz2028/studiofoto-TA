@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use constGuards;
-use constDefaults;
+use ConstGuards;
+use ConstDefaults;
 use App\Models\Admin;
 use App\Models\Customer;
 use App\Models\Venue;
@@ -32,7 +32,7 @@ class AdminController extends Controller
         $activeOwner = Owner::whereHas('venues')->count();
         $data = [
             'pageTitle' => "Admin List",
-            'admin' => $admin, 
+            'admin' => $admin,
             'totalVenues' => $totalVenues,
             'activeVenues' => $activeVenues,
             'pendingVenues' => $pendingVenues,
@@ -111,13 +111,13 @@ class AdminController extends Controller
 
         //check if there is an existing reset password token
         $oldToken = DB::table('password_reset_tokens')
-            ->where(['email' => $request->email, 'guard' => constGuards::ADMIN])
+            ->where(['email' => $request->email, 'guard' => ConstGuards::ADMIN])
             ->first();
 
         if ($oldToken) {
             //update token
             DB::table('password_reset_tokens')
-                ->where(['email' => $request->email, 'guard' => constGuards::ADMIN])
+                ->where(['email' => $request->email, 'guard' => ConstGuards::ADMIN])
                 ->update([
                     'token' => $token,
                     'created_at' => Carbon::now()
@@ -125,7 +125,7 @@ class AdminController extends Controller
         } else {
             DB::table('password_reset_tokens')->insert([
                 'email' => $request->email,
-                'guard' => constGuards::ADMIN,
+                'guard' => ConstGuards::ADMIN,
                 'token' => $token,
                 'created_at' => Carbon::now()
             ]);
@@ -163,13 +163,13 @@ class AdminController extends Controller
     public function resetPassword(Request $request, $token = null)
     {
         $check_token = DB::table('password_reset_tokens')
-            ->where(['token' => $token, 'guard' => constGuards::ADMIN])
+            ->where(['token' => $token, 'guard' => ConstGuards::ADMIN])
             ->first();
         if ($check_token) {
             //check if token is not expired
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $check_token->created_at)->diffInMinutes(Carbon::now());
 
-            if ($diffMins > constDefaults::tokenExpiredMinutes) {
+            if ($diffMins > ConstDefaults::tokenExpiredMinutes) {
                 //if token is expired
                 session()->flash('fail', 'Token expired, request another reset password link.');
                 return redirect()->route('admin.forgot-password', ['token' => $token]);
@@ -190,7 +190,7 @@ class AdminController extends Controller
         ]);
 
         $token = DB::table('password_reset_tokens')
-            ->where(['token' => $request->token, 'guard' => constGuards::ADMIN])
+            ->where(['token' => $request->token, 'guard' => ConstGuards::ADMIN])
             ->first();
 
         // GET admin details
@@ -205,7 +205,7 @@ class AdminController extends Controller
         DB::table('password_reset_tokens')->where([
             'email' => $admin->email,
             'token' => $request->token,
-            'guard' => constGuards::ADMIN
+            'guard' => ConstGuards::ADMIN
         ])->delete();
 
         //send email to notify admin

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use constGuards;
-use constDefaults;
+use ConstGuards;
+use ConstDefaults;
 use App\Models\Owner;
 use App\Models\Venue;
 use App\Models\Rent;
@@ -255,13 +255,13 @@ class OwnerController extends Controller
 
         //check if there is an existing reset password token
         $oldToken = DB::table('password_reset_tokens')
-            ->where(['email' => $owner->email, 'guard' => constGuards::OWNER])
+            ->where(['email' => $owner->email, 'guard' => ConstGuards::OWNER])
             ->first();
 
         if ($oldToken) {
             //update token
             DB::table('password_reset_tokens')
-                ->where(['email' => $owner->email, 'guard' => constGuards::OWNER])
+                ->where(['email' => $owner->email, 'guard' => ConstGuards::OWNER])
                 ->update([
                     'token' => $token,
                     'created_at' => Carbon::now()
@@ -269,7 +269,7 @@ class OwnerController extends Controller
         } else {
             DB::table('password_reset_tokens')->insert([
                 'email' => $owner->email,
-                'guard' => constGuards::OWNER,
+                'guard' => ConstGuards::OWNER,
                 'token' => $token,
                 'created_at' => Carbon::now()
             ]);
@@ -301,11 +301,11 @@ class OwnerController extends Controller
     public function showResetForm(Request $request, $token = null)
     {
         $get_token = DB::table('password_reset_tokens')
-            ->where(['token' => $token, 'guard' => constGuards::OWNER])
+            ->where(['token' => $token, 'guard' => ConstGuards::OWNER])
             ->first();
         if ($get_token) {
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $get_token->created_at)->diffInMinutes(Carbon::now());
-            if ($diffMins > constDefaults::tokenExpiredMinutes) {
+            if ($diffMins > ConstDefaults::tokenExpiredMinutes) {
                 return redirect()->route('owner.forgot-password', ['token' => $token])->with('fail', 'Token expired, request another reset password link.');
             } else {
                 return view('back.pages.owner.auth.reset')->with(['token' => $token]);
@@ -323,7 +323,7 @@ class OwnerController extends Controller
         ]);
 
         $token = DB::table('password_reset_tokens')
-            ->where(['token' => $request->token, 'guard' => constGuards::OWNER])
+            ->where(['token' => $request->token, 'guard' => ConstGuards::OWNER])
             ->first();
 
         // GET owner details
@@ -338,7 +338,7 @@ class OwnerController extends Controller
         DB::table('password_reset_tokens')->where([
             'email' => $owner->email,
             'token' => $request->token,
-            'guard' => constGuards::OWNER
+            'guard' => ConstGuards::OWNER
         ])->delete();
 
         //send email to notify owner
