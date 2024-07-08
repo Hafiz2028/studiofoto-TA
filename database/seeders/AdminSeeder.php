@@ -32,6 +32,7 @@ class AdminSeeder extends Seeder
             'password' => Hash::make('admin'),
             'handphone' => '02222222',
             'address' => '123 cust street',
+            'verified' => 1,
 
         ]);
         Owner::create(
@@ -44,6 +45,7 @@ class AdminSeeder extends Seeder
                 'handphone' => '01111111',
                 'ktp' => 'https://i.pinimg.com/originals/75/47/96/754796aee83e3a925a80abe18bb478a9.jpg',
                 'address' => '123 owner street',
+                'verified' => 1,
             ]
         );
         Owner::create(
@@ -56,6 +58,7 @@ class AdminSeeder extends Seeder
                 'handphone' => '011111112343',
                 'ktp' => 'https://i.pinimg.com/originals/75/47/96/754796aee83e3a925a80abe18bb478a9.jpg',
                 'address' => '123 owner street',
+                'verified' => 1,
             ]
         );
         Owner::create(
@@ -68,6 +71,7 @@ class AdminSeeder extends Seeder
                 'handphone' => '011111112343',
                 'ktp' => 'https://i.pinimg.com/originals/75/47/96/754796aee83e3a925a80abe18bb478a9.jpg',
                 'address' => '123 owner street',
+                'verified' => 1,
             ]
         );
     }
