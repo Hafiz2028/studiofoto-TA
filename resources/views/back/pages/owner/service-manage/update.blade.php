@@ -69,10 +69,10 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="service_type_id"><strong>2. Jenis Layanan</strong></label>
+                                    <label for="service_type_id"><strong>2. Tipe Layanan</strong></label>
                                     <select class="form-control @error('service_type_id') is-invalid @enderror"
                                         id="service_type_id" name="service_type_id">
-                                        <option value="">Pilih Jenis Layanan</option>
+                                        <option value="">Pilih Tipe Layanan</option>
                                         @foreach ($serviceTypes as $serviceType)
                                             <option value="{{ $serviceType->id }}"
                                                 @if ($serviceType->id == $service->service_type_id) selected @endif>

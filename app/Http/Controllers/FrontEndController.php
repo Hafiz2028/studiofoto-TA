@@ -2,25 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Hour;
-use App\Models\Customer;
-use App\Models\Owner;
 use App\Models\Rent;
 use App\Models\Venue;
 use App\Models\Village;
-use App\Models\District;
 use App\Models\RentDetail;
 use App\Models\OpeningHour;
 use App\Models\ServiceType;
-use App\Models\AddOnPackage;
 use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use App\Models\ServicePackage;
 use App\Models\PrintPhotoDetail;
-use App\Models\AddOnPackageDetail;
-use Illuminate\Support\Facades\DB;
 use App\Models\PaymentMethodDetail;
 use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;

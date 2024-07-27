@@ -15,24 +15,23 @@ use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
 use App\models\ServicePackage;
 use App\Models\PrintPhotoDetail;
-use Illuminate\Support\Facades\DB;
 use App\Models\PaymentMethodDetail;
 use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\File;
 
 class BookingController extends Controller
 {
     public function index(Request $request)
     {
-        if (Auth::guard('customer')->check()) {
+        if (Auth::guard('customer')->check() && route('customer.booking.index')) {
             $customer = Auth::guard('customer')->user();
             $rentIds = RentCustomer::where('customer_id', $customer->id)->pluck('rent_id');
             $rents = Rent::with(['rentDetails.openingHour.hour'])
                 ->whereIn('id', $rentIds)
                 ->whereIn('rent_status', [0, 1, 5, 6])
+                ->orderBy('created_at', 'desc')
                 ->get();
             foreach ($rents as $rent) {
                 $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
@@ -55,7 +54,7 @@ class BookingController extends Controller
                 'rents' => $rents,
             ];
             return view('front.pages.booking-manage.index', $data);
-        } elseif (Auth::guard('owner')->check()) {
+        } elseif (Auth::guard('owner')->check() && route('owner.booking.index')) {
             $selectedRentId = $request->input('selectedRentId', null);
             $ownerId = Auth::guard('owner')->id();
 
@@ -80,7 +79,11 @@ class BookingController extends Controller
                 return back()->with('error', 'Belum Membuat Paket Foto pada Layanan, tambahkan sekarang!!');
             }
             $packageDetails = ServicePackageDetail::whereIn('service_package_id', $packages->pluck('id'))->get();
-            $rents = Rent::with(['rentDetails.openingHour.hour'])->whereIn('service_package_detail_id', $packageDetails->pluck('id'))->whereIn('rent_status', [0, 1, 5, 6])->get();
+            $rents = Rent::with(['rentDetails.openingHour.hour'])
+                ->whereIn('service_package_detail_id', $packageDetails->pluck('id'))
+                ->whereIn('rent_status', [0, 1, 5, 6])
+                ->orderBy('created_at', 'desc')
+                ->get();
             foreach ($rents as $rent) {
                 $openingHourIds = $rent->rentDetails->pluck('opening_hour_id');
                 if ($openingHourIds->isNotEmpty()) {
@@ -323,9 +326,9 @@ class BookingController extends Controller
             'formattedLastOpeningHour' => $formattedLastOpeningHour,
 
         ];
-        if (Auth::guard('customer')->check()) {
+        if (Auth::guard('customer')->check() && route('customer.booking.show', $rent->id)) {
             return view('front.pages.booking-manage.show', $data);
-        } elseif (Auth::guard('owner')->check()) {
+        } elseif (Auth::guard('owner')->check() && route('owner.booking.show', $rent->id)) {
             return view('back.pages.owner.booking-manage.show', $data);
         }
     }
@@ -777,12 +780,6 @@ class BookingController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-    // public function create()
-    // {
-
-    //     return view('back.pages.owner.booking-manage.create');
-    // }
-
     public function getVenues($ownerId)
     {
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
@@ -858,14 +855,5 @@ class BookingController extends Controller
             })
             ->toArray();
         return response()->json($bookDates);
-    }
-    private function checkDuplicateOpeningHours(array $openingHours): bool
-    {
-        $query = DB::table('rent_details')
-            ->select(DB::raw('COUNT(*) as total'))
-            ->whereIn('opening_hour_id', $openingHours)
-            ->groupBy('opening_hour_id')
-            ->havingRaw('total > 1');
-        return $query->exists();
     }
 }

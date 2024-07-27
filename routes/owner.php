@@ -1,14 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\TransactionController;
 
 

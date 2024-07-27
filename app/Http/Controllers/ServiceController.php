@@ -9,33 +9,13 @@ use App\Models\ServiceEventImage;
 use App\Models\ServiceType;
 use App\Models\ServicePackage;
 use App\Models\ServicePackageDetail;
-use App\Models\PrintPhoto;
-use App\Models\PrintServiceEvent;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
 use App\Models\Venue;
-use App\Models\Admin;
-use App\Models\PaymentMethod;
-use App\Models\PaymentMethodDetail;
-use App\Models\OpeningHour;
-use App\Models\VenueImage;
-use App\Models\Owner;
-use App\Models\Day;
-use App\Models\Hour;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Catch_;
-use PhpParser\Node\Stmt\TryCatch;
 use App\Http\Controllers\Controller;
 
 class ServiceController extends Controller
 {
-    public function index()
-    {
-    }
 
     public function create($venueId)
     {
@@ -125,8 +105,6 @@ class ServiceController extends Controller
             $venue = Venue::findOrFail($venueId);
             $service = ServiceEvent::findOrFail($serviceId);
             $serviceTypes = ServiceType::all();
-            // $printPhotos = PrintPhoto::all();
-            // $printServiceEvents = PrintServiceEvent::where('service_event_id', $service->id)->get();
             $serviceEventImages = ServiceEventImage::where('service_event_id', $service->id)->get();
             session()->put('temp_catalog', $service->catalog);
             return view('back.pages.owner.service-manage.update', compact('venue', 'serviceTypes','service', 'serviceEventImages'));
@@ -137,7 +115,6 @@ class ServiceController extends Controller
     public function update(Request $request, $venueId, $serviceId)
     {
         try {
-            // Validasi data yang dikirimkan melalui formulir
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'service_type_id' => 'required|exists:service_types,id',
@@ -150,45 +127,6 @@ class ServiceController extends Controller
             $service->name = $validatedData['name'];
             $service->service_type_id = $validatedData['service_type_id'];
             $service->description = $validatedData['description'];
-
-
-            // if ($request->has('print_photos_switch')) {
-            //     $print_photos_switch = $request->input('print_photos_switch');
-            //     if ($print_photos_switch) {
-            //         $printPhotos = $request->input('print_photos', []);
-            //         $prices = $request->input('prices', []);
-
-            //         // Ambil semua print photos yang sudah ada untuk service event ini
-            //         $existingPrintPhotos = PrintServiceEvent::where('service_event_id', $service->id)
-            //             ->pluck('print_photo_id')
-            //             ->toArray();
-
-            //         foreach ($printPhotos as $printPhotoId) {
-            //             if (isset($prices[$printPhotoId])) {
-            //                 $price = $prices[$printPhotoId];
-            //                 PrintServiceEvent::updateOrCreate(
-            //                     ['print_photo_id' => $printPhotoId, 'service_event_id' => $service->id],
-            //                     ['price' => $price]
-            //                 );
-            //             } else {
-            //                 if (in_array($printPhotoId, $existingPrintPhotos)) {
-            //                     PrintServiceEvent::where('print_photo_id', $printPhotoId)
-            //                         ->where('service_event_id', $service->id)
-            //                         ->delete();
-            //                 } else {
-            //                     dd("Harga tidak valid atau tidak ditemukan untuk Print Photo ID: $printPhotoId");
-            //                 }
-            //             }
-            //         }
-            //         PrintServiceEvent::where('service_event_id', $service->id)
-            //             ->whereNotIn('print_photo_id', $printPhotos)
-            //             ->delete();
-            //     } else {
-            //         dd('Data cetak foto akan dihapus');
-            //     }
-            // } else {
-            //     PrintServiceEvent::where('service_event_id', $service->id)->delete();
-            // }
             if ($request->hasFile('new_catalog')) {
                 if ($service->catalog) {
                     $catalogPath = public_path('/images/venues/Katalog/' . $service->catalog);

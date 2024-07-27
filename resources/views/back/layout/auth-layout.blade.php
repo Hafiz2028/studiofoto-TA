@@ -134,16 +134,16 @@
                     @if (!Route::is('admin.*'))
                         @if (Route::is('owner.*'))
                             @if (Route::is('owner.login'))
-                                <li><a href="{{ route('owner.register') }}">Register</a></li>
+                                <li><a href="{{ route('owner.register') }}" style="color:#e27201;">Register</a></li>
                             @else
-                                <li><a href="{{ route('owner.login') }}">Login</a></li>
+                                <li><a href="{{ route('owner.login') }}" style="color:#e27201;">Login</a></li>
                             @endif
                         @endif
                         @if (Route::is('customer.*'))
                             @if (Route::is('customer.login'))
-                                <li><a href="{{ route('customer.register') }}">Register</a></li>
+                                <li><a href="{{ route('customer.register') }}" style="color:#e27201;">Register</a></li>
                             @else
-                                <li><a href="{{ route('customer.login') }}">Login</a></li>
+                                <li><a href="{{ route('customer.login') }}" style="color:#e27201;">Login</a></li>
                             @endif
                         @endif
                     @endif

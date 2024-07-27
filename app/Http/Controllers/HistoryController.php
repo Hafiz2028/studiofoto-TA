@@ -2,25 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Hour;
 use App\Models\Rent;
 use App\Models\Venue;
-use App\Models\RentDetail;
 use App\Models\OpeningHour;
-use App\Models\RentPayment;
-use App\Models\ServiceType;
 use App\Models\RentCustomer;
-use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
-use App\models\ServicePackage;
-use App\Models\PrintPhotoDetail;
-use Illuminate\Support\Facades\DB;
-use App\Models\PaymentMethodDetail;
-use Illuminate\Support\Facades\Log;
-use App\Models\ServicePackageDetail;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class HistoryController extends Controller
 {

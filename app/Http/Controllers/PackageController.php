@@ -2,44 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Day;
-use App\Models\Hour;
-use App\Models\Admin;
-use App\Models\Owner;
 use App\Models\Venue;
 use App\Models\PrintPhoto;
-use App\Models\VenueImage;
-use App\Models\OpeningHour;
 use App\Models\ServiceType;
-use Illuminate\Support\Str;
 use App\Models\AddOnPackage;
 use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
-use App\Models\PaymentMethod;
 use App\Models\ServicePackage;
-use Illuminate\Support\Carbon;
-use PhpParser\Node\Stmt\Catch_;
 use App\Models\FramePhotoDetail;
 use App\Models\PrintPhotoDetail;
-use App\Models\PrintServiceEvent;
-use App\Models\ServiceEventImage;
-use PhpParser\Node\Stmt\TryCatch;
 use App\Models\AddOnPackageDetail;
 use Illuminate\Support\Facades\DB;
-use App\Models\PaymentMethodDetail;
-use Illuminate\Support\Facades\Log;
 use App\Models\ServicePackageDetail;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class PackageController extends Controller
 {
-
-    public function index($venueId, $serviceId)
-    {
-    }
-
 
     public function create($venueId, $serviceId)
     {
@@ -424,8 +401,5 @@ class PackageController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-    }
-    public function show($venueId, $serviceId, $packageId)
-    {
     }
 }

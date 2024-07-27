@@ -10,9 +10,6 @@ use ConstDefaults;
 use App\Models\Owner;
 use App\Models\Venue;
 use App\Models\Rent;
-use App\Models\RentDetail;
-use App\Models\Hour;
-use App\Models\OpeningHour;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -76,10 +73,6 @@ class OwnerController extends Controller
         // Mengirimkan data dalam format JSON
         return response()->json($rentEvents);
     }
-
-
-
-
     public function createOwner(Request $request)
     {
         $request->validate([
@@ -434,22 +427,6 @@ class OwnerController extends Controller
             return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
         }
     }
-
-
-
-
-
-
-
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
-    // {
-    //     $owner = Owner::all();
-    //     return view('back.pages.admin.manage-users.owner.owner-list', compact('owner'));
-    // }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -587,11 +564,4 @@ class OwnerController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 }

@@ -2,28 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use ConstGuards;
-use ConstDefaults;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
 use App\Models\Venue;
-use App\Models\Admin;
-use App\Models\PaymentMethod;
 use App\Models\PaymentMethodDetail;
 use App\Models\OpeningHour;
 use App\Models\VenueImage;
-use Illuminate\Support\Facades\Http;
-use App\Models\Owner;
-use App\Models\Day;
-use App\Models\Hour;
 use App\Models\ServiceEvent;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Catch_;
-use PhpParser\Node\Stmt\TryCatch;
 
 class VenueController extends Controller
 {
@@ -136,13 +121,5 @@ class VenueController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-    }
-
-
-    public function update(Request $request, Venue $venue)
-    {
-    }
-    public function store(Request $request)
-    {
     }
 }

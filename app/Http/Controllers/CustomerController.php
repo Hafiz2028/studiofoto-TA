@@ -20,14 +20,6 @@ class CustomerController extends Controller
 {
     public $now;
 
-    // public function home(Request $request)
-    // {
-    //     $data = [
-    //         'pageTitle' => 'Foto Yuk | Home Page',
-    //     ];
-    //     return view('front.pages.home', $data);
-    // }
-
     public function __construct()
     {
         $this->now = Carbon::now()->tz('Asia/Jakarta');

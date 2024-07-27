@@ -60,10 +60,10 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="service_type_id"><strong>2. Jenis Layanan</strong></label>
+                                    <label for="service_type_id"><strong>2. Tipe Layanan</strong></label>
                                     <select class="form-control @error('service_type_id') is-invalid @enderror"
                                         id="service_type_id" name="service_type_id">
-                                        <option value="">Pilih Jenis Layanan</option>
+                                        <option value="">Pilih Tipe Layanan</option>
                                         @foreach ($serviceTypes as $serviceType)
                                             <option value="{{ $serviceType->id }}">{{ $serviceType->service_name }}</option>
                                         @endforeach
@@ -86,57 +86,6 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <div class="col-md-6 col-lg-12">
-                                <div class="form-group">
-                                    <label for="print_photos_switch"><strong>4. Cetak Foto Layanan</strong></label>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="print_photos_switch"
-                                            name="print_photos_switch">
-                                        <label class="custom-control-label" for="print_photos_switch">Aktifkan Untuk Pilih
-                                            Ukuran Cetak Foto</label>
-                                    </div>
-                                </div>
-                                <div id="print_photos_options" style="display: none;">
-                                    <label for="print_photos">Pilih Ukuran Foto & Harga jika layanan ini bisa Print
-                                        Foto.</label><br>
-                                    <div class="row mb-2">
-                                        <div class="col-md-12">
-                                            <button id="check-all-button" type="button"
-                                                class="btn btn-outline-success mr-2" data-toggle="check-all"
-                                                title="Ceklis semua ukuran foto"><i class="bi bi-check-all"></i></button>
-                                            <button id="uncheck-all-button" type="button" class="btn btn-outline-danger"
-                                                data-toggle="uncheck-all" title="Uncheck semua ukuran foto"><i
-                                                    class="fa fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        @php
-                                            $columnCount = 9;
-                                            $rowCount = ceil(count($printPhotos) / $columnCount);
-                                        @endphp
-                                        @for ($i = 0; $i < $rowCount; $i++)
-                                            <div class="col-md-4">
-                                                @for ($j = 0; $j < $columnCount; $j++)
-                                                    @php $index = $i * $columnCount + $j; @endphp
-                                                    @if ($index < count($printPhotos))
-                                                        @php $printPhoto = $printPhotos[$index]; @endphp
-
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input"
-                                                                id="print_photo_{{ $printPhoto->id }}"
-                                                                name="print_photos[]" value="{{ $printPhoto->id }}">
-                                                            <label class="custom-control-label"
-                                                                for="print_photo_{{ $printPhoto->id }}">Size
-                                                                <strong>{{ $printPhoto->size }}</strong></label>
-                                                        </div>
-                                                    @endif
-                                                @endfor
-                                            </div>
-                                        @endfor
-                                    </div>
-                                </div>
-                            </div> --}}
-
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
