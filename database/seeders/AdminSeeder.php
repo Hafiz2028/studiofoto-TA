@@ -43,7 +43,7 @@ class AdminSeeder extends Seeder
                 'email' => 'owner@gmail.com',
                 'password' => Hash::make('admin'),
                 'handphone' => '01111111',
-                'ktp' => 'https://i.pinimg.com/originals/75/47/96/754796aee83e3a925a80abe18bb478a9.jpg',
+                'ktp' => '',
                 'address' => '123 owner street',
                 'verified' => 1,
             ]
@@ -56,7 +56,7 @@ class AdminSeeder extends Seeder
                 'email' => 'owner2@gmail.com',
                 'password' => Hash::make('admin'),
                 'handphone' => '011111112343',
-                'ktp' => 'https://i.pinimg.com/originals/75/47/96/754796aee83e3a925a80abe18bb478a9.jpg',
+                'ktp' => 'ktp1.jpg',
                 'address' => '123 owner street',
                 'verified' => 1,
             ]
@@ -69,7 +69,7 @@ class AdminSeeder extends Seeder
                 'email' => 'owner3@gmail.com',
                 'password' => Hash::make('admin'),
                 'handphone' => '011111112343',
-                'ktp' => 'https://i.pinimg.com/originals/75/47/96/754796aee83e3a925a80abe18bb478a9.jpg',
+                'ktp' => '',
                 'address' => '123 owner street',
                 'verified' => 1,
             ]

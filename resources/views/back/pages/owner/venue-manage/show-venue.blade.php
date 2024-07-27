@@ -344,7 +344,7 @@
                                         alt="Placeholder" style="width: 100%; max-width: 200px; height: 281px;">
                                 @endif
                             </div>
-                            @if ($venue->imb)
+                            @if ($venue->imb != null)
                                 <div class="alert alert-success" role="alert"
                                     style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">
                                     <span class="text-nowrap">Ada</span>
@@ -357,8 +357,12 @@
                             @endif
                             <h5 class="mb-3 mt-3">Foto KTP</h5>
                             <div class="photo-display mb-3">
-                                @if ($venue->owner->ktp != null)
-                                    <img src="{{ $venue->owner->ktp }}" alt="Foto KTP"
+                                @if (
+                                    $venue->owner->ktp != null &&
+                                        $owner->ktp !== 'http://studiofoto.test/images/users/owners/KTP_owner/ktp.png' &&
+                                        $owner->ktp !== 'http://127.0.0.1:8000/images/users/owners/KTP_owner/ktp.png' &&
+                                        $owner->ktp !== 'http://20.189.98.157:8000/images/users/owners/KTP_owner/ktp.png')
+                                    <img src="{{ $venue->owner->ktp }}" alt="KTP {{ $venue->owner->name }}"
                                         style="width: 100%; max-width: 300px; height: auto;">
                                 @else
                                     <img src="/images/users/owners/KTP_owner/ktp.png" alt="Tidak Ada KTP"
