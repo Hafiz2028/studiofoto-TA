@@ -31,8 +31,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files":[
-            "app/helpers/helpers.php",
-            "app/helpers/constants.php"
+            "app/Helpers/helpers.php"
         ]
     },
     "autoload-dev": {

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use ConstGuards;
-use ConstDefaults;
+use App\Helpers\ConstGuards;
+use App\Helpers\ConstDefaults;
 use App\Models\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
