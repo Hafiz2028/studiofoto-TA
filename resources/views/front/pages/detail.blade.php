@@ -191,17 +191,17 @@
                                                         class="card-body d-flex flex-wrap justify-content-center align-items-start">
                                                         <div class="photo-display text-center">
                                                             @if (!empty($serviceEvent->catalog))
-                                                                <a href="http://studiofoto.test/images/venues/Katalog/{{ $serviceEvent->catalog }}"
+                                                                <a href="/images/venues/Katalog/{{ $serviceEvent->catalog }}"
                                                                     data-lightbox="catalog">
-                                                                    <img src="http://studiofoto.test/images/venues/Katalog/{{ $serviceEvent->catalog }}"
+                                                                    <img src="/images/venues/Katalog/{{ $serviceEvent->catalog }}"
                                                                         alt="Katalog Image"
                                                                         style="width: 100%; max-width: 200px; height: 281px;"
                                                                         class="document-display mb-2">
                                                                 </a>
                                                             @else
-                                                                <a href="http://studiofoto.test/images/venues/IMB/default-surat.png"
+                                                                <a href="/images/venues/IMB/default-surat.png"
                                                                     data-lightbox="catalog">
-                                                                    <img src="http://studiofoto.test/images/venues/IMB/default-surat.png"
+                                                                    <img src="/images/venues/IMB/default-surat.png"
                                                                         alt="Katalog Image"
                                                                         style="width: 100%; max-width: 200px; height: 281px;"
                                                                         class="document-display mb-2">
