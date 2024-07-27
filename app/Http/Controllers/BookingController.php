@@ -13,7 +13,7 @@ use App\Models\ServiceType;
 use App\Models\RentCustomer;
 use App\Models\ServiceEvent;
 use Illuminate\Http\Request;
-use App\models\ServicePackage;
+use App\Models\ServicePackage;
 use App\Models\PrintPhotoDetail;
 use App\Models\PaymentMethodDetail;
 use Illuminate\Support\Facades\Log;
