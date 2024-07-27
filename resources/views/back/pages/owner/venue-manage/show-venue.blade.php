@@ -357,8 +357,7 @@
                             @endif
                             <h5 class="mb-3 mt-3">Foto KTP</h5>
                             <div class="photo-display mb-3">
-                                @if (
-                                    $venue->owner->ktp != null &&
+                                @if ($venue->owner->ktp != null &&
                                         $venue->owner->ktp !== 'http://studiofoto.test/images/users/owners/KTP_owner/ktp.png' &&
                                         $venue->owner->ktp !== 'http://127.0.0.1:8000/images/users/owners/KTP_owner/ktp.png' &&
                                         $venue->owner->ktp !== 'http://20.189.98.157:8000/images/users/owners/KTP_owner/ktp.png')

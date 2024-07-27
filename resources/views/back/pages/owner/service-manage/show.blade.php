@@ -123,12 +123,12 @@
                                         <div class="d-flex justify-content-center">
                                             <div class="photo-display">
                                                 @if (!empty($service->catalog))
-                                                    <img src="http://studiofoto.test/images/venues/Katalog/{{ $service->catalog }}"
+                                                    <img src="/images/venues/Katalog/{{ $service->catalog }}"
                                                         alt="Katalog Image"
                                                         style="width: 100%; max-width: 200px; height: 281px;"
                                                         class="document-display mb-2" id="imbDocument">
                                                 @else
-                                                    <img src="http://studiofoto.test/images/venues/IMB/default-surat.png"
+                                                    <img src="/images/venues/IMB/default-surat.png"
                                                         alt="Placeholder Image"
                                                         style="width: 100%; max-width: 200px; height: 281px;">
                                                 @endif
