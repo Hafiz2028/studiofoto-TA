@@ -35,6 +35,7 @@
                     @if (
                         $owner->ktp !== 'http://studiofoto.test/images/users/owners/KTP_owner/ktp.png' &&
                             $owner->ktp !== 'http://127.0.0.1:8000/images/users/owners/KTP_owner/ktp.png' &&
+                            $owner->ktp !== 'http://20.189.98.157:8000/images/users/owners/KTP_owner/ktp.png' &&
                             $owner->ktp !== null)
                         <p class="alert alert-success mb-4">Ada</p>
                     @else
@@ -57,7 +58,11 @@
                             style="opacity:0">
                     </div>
                     <h5 class="text-center h5 my-2">Logo Studio Foto</h5>
-                    @if ($owner->logo !== 'http://studiofoto.test/images/users/owners/LOGO_owner/default-logo.png' && $owner->logo !== 'http://127.0.0.1:8000/images/users/owners/LOGO_owner/default-logo.png' && $owner->logo !== null)
+                    @if (
+                        $owner->logo !== 'http://studiofoto.test/images/users/owners/LOGO_owner/default-logo.png' &&
+                            $owner->logo !== 'http://127.0.0.1:8000/images/users/owners/LOGO_owner/default-logo.png' &&
+                            $owner->logo !== 'http://20.189.98.157:8000/images/users/owners/LOGO_owner/default-logo.png' &&
+                            $owner->logo !== null)
                         <p class="alert alert-success mb-4">Ada</p>
                     @else
                         <p class="alert alert-danger mb-4">Tidak Ada</p>
