@@ -194,7 +194,7 @@
                                                                 <a href="/images/venues/Katalog/{{ $serviceEvent->catalog }}"
                                                                     data-lightbox="catalog">
                                                                     <img src="/images/venues/Katalog/{{ $serviceEvent->catalog }}"
-                                                                        alt="Katalog Image"
+                                                                        alt="Katalog Image {{ $serviceEvent->name }}"
                                                                         style="width: 100%; max-width: 200px; height: 281px;"
                                                                         class="document-display mb-2">
                                                                 </a>
@@ -202,7 +202,7 @@
                                                                 <a href="/images/venues/IMB/default-surat.png"
                                                                     data-lightbox="catalog">
                                                                     <img src="/images/venues/IMB/default-surat.png"
-                                                                        alt="Katalog Image"
+                                                                        alt="Tidak ada Katalog"
                                                                         style="width: 100%; max-width: 200px; height: 281px;"
                                                                         class="document-display mb-2">
                                                                 </a>
