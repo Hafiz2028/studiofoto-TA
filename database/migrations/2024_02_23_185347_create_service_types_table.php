@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('service_types', function (Blueprint $table) {
             $table->unsignedInteger('id')->autoIncrement();
-            $table->string('service_name');
-            $table->string('service_slug')->unique();
-            // $table->integer('ordering')->default(10000);
+            $table->string('service_name',50);
+            $table->string('service_slug',50)->unique();
             $table->timestamps();
         });
     }

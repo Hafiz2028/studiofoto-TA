@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('service_event_images', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('service_event_id')->unsigned();
-            $table->string('image');
+            $table->string('image',150);
             $table->timestamps();
             $table->foreign('service_event_id')->references('id')->on('service_events')->onUpdate('cascade')->onDelete('cascade');
         });

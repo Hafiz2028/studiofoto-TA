@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('districts', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('name');
+            $table->string('id',20)->primary();
+            $table->string('name',50);
             $table->timestamps();
         });
     }

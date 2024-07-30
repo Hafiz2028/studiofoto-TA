@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payment_method_details', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('no_rek');
+            $table->string('no_rek',50);
             $table->unsignedInteger('venue_id');
             $table->unsignedInteger('payment_method_id');
             $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');

@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('villages', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('district_id');
+            $table->string('id',20)->primary();
+            $table->string('district_id',20);
             $table->foreign('district_id')->references('id')->on('districts');
             $table->string('name');
-            $table->timestamps(); 
+            $table->timestamps();
         });
     }
 

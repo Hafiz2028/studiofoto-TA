@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rent_payments', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('image');
+            $table->string('image',150);
             $table->unsignedInteger('rent_id')->unsigned();
             $table->unsignedInteger('payment_method_detail_id')->unsigned();
             $table->foreign('rent_id')->references('id')->on('rents')->onUpdate('cascade')->onDelete('cascade');

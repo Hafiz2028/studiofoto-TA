@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('service_events', function (Blueprint $table) {
             $table->unsignedInteger('id')->autoIncrement();
-            $table->string('name');
-            $table->string('catalog')->nullable();
+            $table->string('name',50);
+            $table->string('catalog',150)->nullable();
             $table->text('description')->nullable();
             $table->unsignedInteger('venue_id')->unsigned();
             $table->unsignedInteger('service_type_id')->unsigned();

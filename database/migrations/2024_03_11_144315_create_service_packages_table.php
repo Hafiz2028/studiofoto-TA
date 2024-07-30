@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('service_packages', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->string('name',50);
             $table->text('information')->nullable();
             $table->tinyInteger('dp_status')->default(0);
             $table->float('dp_percentage',10,5)->nullable();

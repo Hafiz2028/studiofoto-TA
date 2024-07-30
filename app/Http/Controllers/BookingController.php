@@ -57,7 +57,6 @@ class BookingController extends Controller
         } elseif (Auth::guard('owner')->check() && route('owner.booking.index')) {
             $selectedRentId = $request->input('selectedRentId', null);
             $ownerId = Auth::guard('owner')->id();
-
             $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
             if ($venues->isEmpty()) {
                 return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');

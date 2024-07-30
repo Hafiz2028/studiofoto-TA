@@ -890,12 +890,9 @@
                     field.value = '';
                     field.classList.remove('is-invalid');
                 });
-                var serviceEventSelect = document.getElementById('service');
                 var packageDetailSelect = document.getElementById('package_detail');
                 var dateSelect = document.getElementById('date');
                 var scheduleContainer = document.getElementById('schedule-container');
-                serviceEventSelect.innerHTML =
-                    '<option value="" disabled selected>Pilih Layanan...</option>';
                 packageDetailSelect.innerHTML =
                     '<option value="" disabled selected>Pilih Jumlah Orang...</option>';
                 packageDetailSelect.setAttribute('disabled', true);

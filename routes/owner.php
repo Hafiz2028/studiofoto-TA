@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\VenueController;
@@ -13,7 +12,6 @@ use App\Http\Controllers\TransactionController;
 
 Route::prefix('owner')->name('owner.')->group(function () {
     Route::middleware(['guest:owner', 'PreventBackHistory'])->group(function () {
-
         Route::controller(OwnerController::class)->group(function () {
             Route::get('/login', 'login')->name('login');
             Route::post('/login_handler', 'loginHandler')->name('login-handler');

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('print_photos', function (Blueprint $table) {
             $table->unsignedInteger('id')->autoIncrement();
-            $table->string('size');
+            $table->string('size',20);
             $table->timestamps();
         });
     }

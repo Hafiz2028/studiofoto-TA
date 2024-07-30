@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('rents', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('faktur');
-            $table->string('name');
+            $table->string('faktur',50);
+            $table->string('name',50);
             $table->unsignedInteger('service_package_detail_id')->unsigned();
             $table->tinyInteger('rent_status')->default(0);
             $table->tinyInteger('book_type');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->tinyInteger('payment_status')->nullable();
             $table->integer('dp_price')->nullable();
             $table->integer('total_price');
-            $table->string('reject_note')->nullable();
+            $table->text('reject_note')->nullable();
             $table->foreign('service_package_detail_id')->references('id')->on('service_package_details')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

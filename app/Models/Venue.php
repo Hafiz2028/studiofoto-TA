@@ -1,14 +1,10 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 class Venue extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'name',
         'status',
@@ -21,7 +17,6 @@ class Venue extends Model
         'map_link',
         'reject_note',
         'owner_id'
-
     ];
     public function owner()
     {
@@ -31,17 +26,14 @@ class Venue extends Model
     {
         return $this->belongsTo(Village::class, 'village_id', 'id');
     }
-
     public function serviceEvents()
     {
         return $this->hasMany(ServiceEvent::class, 'venue_id', 'id');
     }
-
     public function venueImages()
     {
         return $this->hasMany(VenueImage::class, 'venue_id', 'id');
     }
-
     public function openingHours()
     {
         return $this->hasMany(OpeningHour::class, 'venue_id', 'id');
@@ -62,7 +54,6 @@ class Venue extends Model
                 return array_search($day->id, $order);
             });
     }
-
     public function paymentMethodDetails()
     {
         return $this->hasMany(PaymentMethodDetail::class, 'venue_id', 'id');
