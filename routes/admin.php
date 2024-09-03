@@ -11,7 +11,7 @@ use App\Http\Controllers\ServiceController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::middleware(['guest:admin', 'PreventBackHistory'])->group(function () {
+    Route::middleware(['guest', 'PreventBackHistory'])->group(function () {
         //route saat admin tidak autentikasi
         Route::view('/login', 'back.pages.admin.auth.login')->name('login');
         Route::post('/login_handler', [AdminController::class, 'loginHandler'])->name('login_handler');
@@ -20,7 +20,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/password/reset/{token}', [AdminController::class, 'resetPassword'])->name('reset-password');
         Route::post('/reset-password-handler', [AdminController::class, 'resetPasswordHandler'])->name('reset-password-handler');
     });
-    Route::middleware(['auth:admin', 'PreventBackHistory'])->group(function () {
+    Route::middleware(['auth', 'role:admin', 'PreventBackHistory'])->group(function () {
         //route saat admin autentikasi
         Route::get('/home', [AdminController::class, 'index'])->name('home');
         Route::post('/logout_handler', [AdminController::class, 'logoutHandler'])->name('logout_handler');

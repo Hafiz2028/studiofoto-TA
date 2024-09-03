@@ -7,12 +7,12 @@
                         <a href="javascript:;"
                             onclick="event.preventDefault();document.getElementById('ownerProfilePictureFile').click();"
                             class="edit-avatar"><i class="fas fa-pencil-alt"></i></a>
-                        <img src="{{ $owner->picture }}" alt="" class="avatar-photo" id="ownerProfilePicture">
+                        <img src="{{ $user->picture }}" alt="" class="avatar-photo" id="ownerProfilePicture">
                         <input type="file" name="ownerProfilePictureFile" id="ownerProfilePictureFile" class="d-none"
                             style="opacity:0">
                     </div>
-                    <h5 class="text-center h5 mb-0" id="ownerProfileName">{{ $owner->name }}</h5>
-                    <p class="text-center text-muted font-14" id="ownerProfileEmail">{{ $owner->email }}</p>
+                    <h5 class="text-center h5 mb-0" id="ownerProfileName">{{ $user->name }}</h5>
+                    <p class="text-center text-muted font-14" id="ownerProfileEmail">{{ $user->email }}</p>
                 </div>
                 {{-- INPUT KTP untuk owner --}}
                 <div class="divider"></div>
@@ -27,16 +27,12 @@
                             <i class="fas fa-pencil-alt"
                                 style="color: white; font-size: 20px; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center;"></i>
                         </a>
-                        <img src="{{ $owner->ktp }}" alt="" class="avatar-photo" id="ownerKtpImage">
+                        <img src="{{ $user->owner->ktp }}" alt="" class="avatar-photo" id="ownerKtpImage">
                         <input type="file" name="ownerKtpImageFile" id="ownerKtpImageFile" class="d-none"
                             style="opacity:0;">
                     </div>
                     <h5 class="text-center h5 my-2">KTP Owner</h5>
-                    @if (
-                        $owner->ktp !== 'http://studiofoto.test/images/users/owners/KTP_owner/ktp.png' &&
-                            $owner->ktp !== 'http://127.0.0.1:8000/images/users/owners/KTP_owner/ktp.png' &&
-                            $owner->ktp !== 'http://20.189.98.157:8000/images/users/owners/KTP_owner/ktp.png' &&
-                            $owner->ktp !== null)
+                    @if ($user->owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
                         <p class="alert alert-success mb-4">Ada</p>
                     @else
                         <p class="alert alert-danger mb-4">Tidak Ada</p>
@@ -53,16 +49,16 @@
                             onmouseout="this.style.backgroundColor='#757575'; this.querySelector('i').style.color='white';"><i
                                 class="fas fa-pencil-alt"
                                 style="color: white; font-size: 20px; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center;"></i></a>
-                        <img src="{{ $owner->logo }}" alt="" class="avatar-photo" id="ownerLogoImage">
+                        <img src="{{ $user->owner->logo }}" alt="" class="avatar-photo" id="ownerLogoImage">
                         <input type="file" name="ownerLogoImageFile" id="ownerLogoImageFile" class="d-none"
                             style="opacity:0">
                     </div>
                     <h5 class="text-center h5 my-2">Logo Studio Foto</h5>
                     @if (
-                        $owner->logo !== 'http://studiofoto.test/images/users/owners/LOGO_owner/default-logo.png' &&
-                            $owner->logo !== 'http://127.0.0.1:8000/images/users/owners/LOGO_owner/default-logo.png' &&
-                            $owner->logo !== 'http://20.189.98.157:8000/images/users/owners/LOGO_owner/default-logo.png' &&
-                            $owner->logo !== null)
+                        $user->owner->logo !== 'http://studiofoto.test/images/users/owners/LOGO_owner/default-logo.png' &&
+                            $user->owner->logo !== 'http://127.0.0.1:8000/images/users/owners/LOGO_owner/default-logo.png' &&
+                            $user->owner->logo !== 'http://20.189.98.157:8000/images/users/owners/LOGO_owner/default-logo.png' &&
+                            $user->owner->logo !== null)
                         <p class="alert alert-success mb-4">Ada</p>
                     @else
                         <p class="alert alert-danger mb-4">Tidak Ada</p>

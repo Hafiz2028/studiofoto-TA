@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Helpers\ConstGuards;
 use App\Helpers\ConstDefaults;
-use App\Models\Admin;
+use App\Models\User;
 use App\Models\Customer;
 use App\Models\Venue;
 use App\Models\Owner;
@@ -22,7 +22,11 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $admin = Auth::guard('admin')->user();
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return redirect()->route('admin.login')->with('fail', 'Akun ini bukan pengguna Admin.');
+        }
+        $venue = Venue::where('status', 0)->get();
         $totalVenues = Venue::count();
         $activeVenues = Venue::where('status', 1)->count();
         $pendingVenues = Venue::where('status', 0)->count();
@@ -32,7 +36,7 @@ class AdminController extends Controller
         $activeOwner = Owner::whereHas('venues')->count();
         $data = [
             'pageTitle' => "Admin List",
-            'admin' => $admin,
+            'user' => $user,
             'totalVenues' => $totalVenues,
             'activeVenues' => $activeVenues,
             'pendingVenues' => $pendingVenues,
@@ -40,6 +44,7 @@ class AdminController extends Controller
             'activeOwner' => $activeOwner,
             'totalOwner' => $totalOwner,
             'totalCust' => $totalCust,
+            'venue' => $venue,
         ];
 
         return view('back.pages.admin.home', $data);
@@ -50,33 +55,39 @@ class AdminController extends Controller
         $fieldType = filter_var($request->login_id, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         if ($fieldType == 'email') {
             $request->validate([
-                'login_id' => 'required|email|exists:admins,email',
+                'login_id' => 'required|email|exists:users,email,role,admin',
                 'password' => 'required|min:5|max:45'
             ], [
-                'login_id,required' => 'Email or Username is required',
-                'login_id.email' => 'Invalid email address',
-                'login_id.exists' => 'Email is not exists in system',
-                'password.required' => 'Password is required'
+                'login_id.required' => 'Masukkan Username atau Email',
+                'login_id.email' => 'Email salah',
+                'login_id.exists' => 'Tidak ada Email ini',
+                'password.required' => 'Masukkan Password'
             ]);
         } else {
             $request->validate([
-                'login_id' => 'required|exists:admins,username',
+                'login_id' => 'required|exists:users,username,role,admin',
                 'password' => 'required|min:5|max:45'
             ], [
-                'login_id.required' => 'Email or Username is required',
-                'login_id.exists' => 'Username is not exists in system',
-                'password.required' => 'Password is required'
+                'login_id.required' => 'Masukkan Username atau Email',
+                'login_id.exists' => 'Tidak ada Username ini',
+                'password.required' => 'Masukkan Password'
             ]);
         }
         $creds = array(
             $fieldType => $request->login_id,
-            'password' => $request->password
+            'password' => $request->password,
+            'role' => 'admin',
 
         );
-        if (Auth::guard('admin')->attempt($creds)) {
-            return redirect()->route('admin.home');
+        if (Auth::attempt($creds)) {
+            $user = Auth::user();
+            if ($user->role == 'admin') {
+                return redirect()->route('admin.home')->with('success', "Welcome to Admin's Home Page");
+            } else {
+                return redirect()->back()->with('fail', 'User yang login bukan Admin, silahkan coba lagi');
+            }
         } else {
-            session()->flash('fail', 'wrong password');
+            session()->flash('fail', 'Password salah');
             return redirect()->route('admin.login');
         }
     }
@@ -85,9 +96,8 @@ class AdminController extends Controller
     //logout start
     public function logoutHandler(Request $request)
     {
-        Auth::guard('admin')->logout();
-        session()->flash('fail', 'You are logged out');
-        return redirect()->route('admin.login');
+        Auth::logout();
+        return redirect()->route('admin.login')->with('fail', 'akun anda telah Log out dari sistem.');
     }
 
     //logout end
@@ -96,65 +106,68 @@ class AdminController extends Controller
     public function sendPasswordResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:admins,email'
+            'email' => 'required|email|exists:users,email'
         ], [
-            'email.required' => 'The :attribute is required',
-            'email.email' => 'Invalid email address',
-            'email.exists' => 'The :attribute is not exists in system'
+            'email.required' => ':attribute harus diisi',
+            'email.email' => 'Email Salah',
+            'email.exists' => ':attribute Tidak terdaftar'
         ]);
 
         //Get admin details
-        $admin = Admin::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
+        if ($user && $user->role === 'admin') {
+            //generate token
+            $token = base64_encode(Str::random(64));
 
-        //generate token
-        $token = base64_encode(Str::random(64));
+            //check if there is an existing reset password token
+            $oldToken = DB::table('password_reset_tokens')
+                ->where(['email' => $request->email, 'guard' => 'admin'])
+                ->first();
 
-        //check if there is an existing reset password token
-        $oldToken = DB::table('password_reset_tokens')
-            ->where(['email' => $request->email, 'guard' => ConstGuards::ADMIN])
-            ->first();
-
-        if ($oldToken) {
-            //update token
-            DB::table('password_reset_tokens')
-                ->where(['email' => $request->email, 'guard' => ConstGuards::ADMIN])
-                ->update([
+            if ($oldToken) {
+                //update token
+                DB::table('password_reset_tokens')
+                    ->where(['email' => $request->email, 'guard' => 'admin'])
+                    ->update([
+                        'token' => $token,
+                        'created_at' => Carbon::now()
+                    ]);
+            } else {
+                DB::table('password_reset_tokens')->insert([
+                    'email' => $request->email,
+                    'guard' => 'admin',
                     'token' => $token,
                     'created_at' => Carbon::now()
                 ]);
+            }
+
+            $actionLink = route('admin.reset-password', ['token' => $token, 'email' => $request->email]);
+
+            $data = array(
+                'actionLink' => $actionLink,
+                'user' => $user
+            );
+
+            $mail_body = view('email-templates.admin-forgot-email-template', $data)->render();
+
+            $mailConfig = array(
+                'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                'mail_from_name' => env('EMAIL_FROM_NAME'),
+                'mail_recipient_email' => $user->email,
+                'mail_recipient_name' => $user->name,
+                'mail_subject' => 'Reset password',
+                'mail_body' => $mail_body,
+            );
+
+            if (sendEmail($mailConfig)) {
+                session()->flash('success', 'We have e-mailed your password reset link.');
+                return redirect()->route('admin.forgot-password');
+            } else {
+                session()->flash('fail', 'Something went wrong!');
+                return redirect()->route('admin.forgot-password');
+            }
         } else {
-            DB::table('password_reset_tokens')->insert([
-                'email' => $request->email,
-                'guard' => ConstGuards::ADMIN,
-                'token' => $token,
-                'created_at' => Carbon::now()
-            ]);
-        }
-
-        $actionLink = route('admin.reset-password', ['token' => $token, 'email' => $request->email]);
-
-        $data = array(
-            'actionLink' => $actionLink,
-            'admin' => $admin
-        );
-
-        $mail_body = view('email-templates.admin-forgot-email-template', $data)->render();
-
-        $mailConfig = array(
-            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
-            'mail_from_name' => env('EMAIL_FROM_NAME'),
-            'mail_recipient_email' => $admin->email,
-            'mail_recipient_name' => $admin->name,
-            'mail_subject' => 'Reset password',
-            'mail_body' => $mail_body,
-        );
-
-        if (sendEmail($mailConfig)) {
-            session()->flash('success', 'We have e-mailed your password reset link.');
-            return redirect()->route('admin.forgot-password');
-        } else {
-            session()->flash('fail', 'Something went wrong!');
-            return redirect()->route('admin.forgot-password');
+            return redirect()->route('admin.forgot-password')->with('fail', 'Invalid Admin email.');
         }
     }
     //send email reset password link
@@ -163,7 +176,7 @@ class AdminController extends Controller
     public function resetPassword(Request $request, $token = null)
     {
         $check_token = DB::table('password_reset_tokens')
-            ->where(['token' => $token, 'guard' => ConstGuards::ADMIN])
+            ->where(['token' => $token, 'guard' => 'admin'])
             ->first();
         if ($check_token) {
             //check if token is not expired
@@ -190,43 +203,48 @@ class AdminController extends Controller
         ]);
 
         $token = DB::table('password_reset_tokens')
-            ->where(['token' => $request->token, 'guard' => ConstGuards::ADMIN])
+            ->where(['token' => $request->token, 'guard' => 'admin'])
             ->first();
-
+        if (!$token) {
+            return redirect()->route('admin.reset-password')->with('fail', 'Reset Password telah kadaluarsa, silahkan reset ulang kembali.');
+        }
         // GET admin details
-        $admin = Admin::where('email', $token->email)->first();
-
+        $user = User::where('email', $token->email)->first();
         //update admin password
-        Admin::where('email', $admin->email)->update([
-            'password' => Hash::make($request->new_password)
-        ]);
+        if ($user && $user->role === 'admin') {
+            $user->update([
+                'password' => Hash::make($request->new_password)
+            ]);
 
-        //delete token record
-        DB::table('password_reset_tokens')->where([
-            'email' => $admin->email,
-            'token' => $request->token,
-            'guard' => ConstGuards::ADMIN
-        ])->delete();
+            //delete token record
+            DB::table('password_reset_tokens')->where([
+                'email' => $user->email,
+                'token' => $request->token,
+                'guard' => 'admin'
+            ])->delete();
 
-        //send email to notify admin
-        $data = array(
-            'admin' => $admin,
-            'new_password' => $request->new_password
-        );
+            //send email to notify admin
+            $data = array(
+                'user' => $user,
+                'new_password' => $request->new_password
+            );
 
-        $mail_body = view('email-templates.admin-reset-email-template', $data)->render();
+            $mail_body = view('email-templates.admin-reset-email-template', $data)->render();
 
-        $mailConfig = array(
-            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
-            'mail_from_name' => env('EMAIL_FROM_NAME'),
-            'mail_recipient_email' => $admin->email,
-            'mail_recipient_name' => $admin->name,
-            'mail_subject' => 'Password Changed',
-            'mail_body' => $mail_body
-        );
+            $mailConfig = array(
+                'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                'mail_from_name' => env('EMAIL_FROM_NAME'),
+                'mail_recipient_email' => $user->email,
+                'mail_recipient_name' => $user->name,
+                'mail_subject' => 'Password Changed',
+                'mail_body' => $mail_body
+            );
 
-        sendEmail($mailConfig);
-        return redirect()->route('admin.login')->with('success', 'Done!, Your password has been changed, Use new password to login.');
+            sendEmail($mailConfig);
+            return redirect()->route('admin.login')->with('success', 'Done!, Your password has been changed, Use new password to login.');
+        } else {
+            return redirect()->route('admin.reset-password')->with('fail', 'Invalid admin email.');
+        }
     }
     //reset password & email end
 
@@ -234,31 +252,37 @@ class AdminController extends Controller
     public function profileView(Request $request)
     {
         $admin = null;
-        if (Auth::guard('admin')->check()) {
-            $admin = Admin::findOrFail(auth()->id());
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $user = User::where('id', $userId)
+                ->where('role', 'admin')
+                ->first();
         }
-        return view('back.pages.admin.profile', compact('admin'));
+        return view('back.pages.admin.profile', compact('user'));
     }
 
     public function changeProfilePicture(Request $request)
     {
-        $admin = Admin::findOrFail(auth('admin')->id());
-        $path = 'images/users/admins/';
-        $file = $request->file('adminProfilePictureFile');
-        $old_picture = $admin->getAttributes()['picture'];
-        $file_path = $path . $old_picture;
-        $filename = 'ADMIN_IMG_' . rand(2, 1000) . $admin->id . time() . uniqid() . '.jpg';
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            $path = 'images/users/admins/';
+            $file = $request->file('adminProfilePictureFile');
+            $old_picture = $user->picture;
+            $file_path = $path . $old_picture;
+            $filename = 'ADMIN_IMG_' . rand(2, 1000) . $user->id . time() . uniqid() . '.jpg';
+            $upload = $file->move(public_path($path), $filename);
 
-        $upload = $file->move(public_path($path), $filename);
-
-        if ($upload) {
-            if ($old_picture != null && File::exists(public_path($file_path))) {
-                File::delete(public_path($file_path));
+            if ($upload) {
+                if ($old_picture != null && File::exists(public_path($file_path))) {
+                    File::delete(public_path($file_path));
+                }
+                $user->update(['picture' => $filename]);
+                return response()->json(['status' => 1, 'msg' => 'Your profile picture has been successfully uploaded']);
+            } else {
+                return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
             }
-            $admin->update(['picture' => $filename]);
-            return response()->json(['status' => 1, 'msg' => 'Your profile picture has been successfully uploaded']);
         } else {
-            return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
+            return response()->json(['status' => 0, 'msg' => 'Unauthorized access.']);
         }
     }
     //profile page end
@@ -266,11 +290,13 @@ class AdminController extends Controller
     //crud list admin user
     public function adminList(Request $request)
     {
-        $currentAdmin = Auth::guard('admin')->user();
-        if (!$currentAdmin) {
+        $currentAdmin = Auth::user();
+        if (!$currentAdmin || $currentAdmin->role !== 'admin') {
             return redirect()->route('admin.login');
         }
-        $admins = Admin::where('id', '!=', $currentAdmin->id)->get();
+        $admins = User::where('id', '!=', $currentAdmin->id)
+            ->where('role', 'admin')
+            ->get();
         $data = [
             'pageTitle' => "Admin List",
             'admins' => $admins
@@ -291,9 +317,9 @@ class AdminController extends Controller
     {
         //validate
         $validatedData = $request->validate([
-            'name' => 'required|min:5|unique:admins,name',
-            'username' => 'required|min:5|unique:admins,username|regex:/^\S*$/',
-            'email' => 'required|email|unique:admins,email',
+            'name' => 'required|min:5|unique:users,name',
+            'username' => 'required|min:5|unique:users,username|regex:/^\S*$/',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:5|max:45',
             'handphone' => 'required|min:9|max:15',
             'address' => 'required|string|max:255',
@@ -323,9 +349,10 @@ class AdminController extends Controller
             'address.string' => ':Attribute must be a string.',
             'address.max' => ':Attribute may not be greater than 255 characters.',
         ]);
-        $admin = new Admin();
+        $admin = new User();
 
         $admin->name = $validatedData['name'];
+        $admin->role = 'admin';
         $admin->username = $validatedData['username'];
         $admin->email = $validatedData['email'];
         $admin->password = Hash::make($validatedData['password']);
@@ -341,8 +368,12 @@ class AdminController extends Controller
     }
     public function editAdmin(Request $request)
     {
+        $currentAdmin = Auth::user();
+        if (!$currentAdmin || $currentAdmin->role !== 'admin') {
+            return redirect()->route('admin.login');
+        }
         $admin_id = $request->id;
-        $admin = Admin::findOrFail($admin_id);
+        $admin = User::findOrFail($admin_id);
         $data = [
             'pageTitle' => 'Edit Admin User',
             'admin' => $admin
@@ -351,13 +382,17 @@ class AdminController extends Controller
     }
     public function updateAdmin(Request $request)
     {
+        $currentAdmin = Auth::user();
+        if (!$currentAdmin || $currentAdmin->role !== 'admin') {
+            return redirect()->route('admin.login');
+        }
         $admin_id = $request->admin_id;
-        $admin = Admin::findOrFail($admin_id);
+        $admin = User::findOrFail($admin_id);
 
         //validate
         $request->validate([
-            'name' => 'required|min:5|unique:admins,name,' . $admin_id,
-            'username' => 'required|min:5|unique:admins,username,' . $admin_id . '|regex:/^\S*$/',
+            'name' => 'required|min:5|unique:users,name,' . $admin_id,
+            'username' => 'required|min:5|unique:users,username,' . $admin_id . '|regex:/^\S*$/',
             'handphone' => 'required|min:9|max:15',
             'address' => 'required|string|max:255',
         ], [
@@ -390,8 +425,12 @@ class AdminController extends Controller
 
     public function deleteAdmin(Request $request)
     {
+        $currentAdmin = Auth::user();
+        if (!$currentAdmin || $currentAdmin->role !== 'admin') {
+            return redirect()->route('admin.login');
+        }
         $admin_id = $request->id;
-        $admin = Admin::findOrFail($admin_id);
+        $admin = User::findOrFail($admin_id);
         $admin_name = $admin->name;
 
         $delete = $admin->delete();

@@ -2,31 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Models\Customer;
 use App\Models\Hour;
-use App\Models\Rent;
-use App\Models\Venue;
-use App\Models\RentDetail;
 use App\Models\OpeningHour;
-use App\Models\RentPayment;
-use App\Models\ServiceType;
-use App\Models\RentCustomer;
-use App\Models\ServiceEvent;
-use Illuminate\Http\Request;
-use App\Models\ServicePackage;
-use App\Models\PrintPhotoDetail;
 use App\Models\PaymentMethodDetail;
-use Illuminate\Support\Facades\Log;
+use App\Models\PrintPhotoDetail;
+use App\Models\Rent;
+use App\Models\RentCustomer;
+use App\Models\RentDetail;
+use App\Models\RentPayment;
+use App\Models\ServiceEvent;
+use App\Models\ServicePackage;
 use App\Models\ServicePackageDetail;
+use App\Models\ServiceType;
+use App\Models\Venue;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
 {
     public function index(Request $request)
     {
-        if (Auth::guard('customer')->check() && route('customer.booking.index')) {
-            $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
+        if ($user && $user->role === 'customer') {
+            $customer = Customer::where('user_id', $user->id)->first();
             $rentIds = RentCustomer::where('customer_id', $customer->id)->pluck('rent_id');
             $rents = Rent::with(['rentDetails.openingHour.hour'])
                 ->whereIn('id', $rentIds)
@@ -52,11 +54,12 @@ class BookingController extends Controller
             }
             $data = [
                 'rents' => $rents,
+                'user' => $user,
             ];
             return view('front.pages.booking-manage.index', $data);
-        } elseif (Auth::guard('owner')->check() && route('owner.booking.index')) {
+        } elseif ($user && $user->role === 'owner') {
             $selectedRentId = $request->input('selectedRentId', null);
-            $ownerId = Auth::guard('owner')->id();
+            $ownerId = $user->owner->id;
             $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
             if ($venues->isEmpty()) {
                 return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');
@@ -118,6 +121,7 @@ class BookingController extends Controller
                 })
                 ->toArray();
             $data = [
+                'user' => $user,
                 'pageTitle' => 'Booking',
                 'venues' => $venues,
                 'uniqueDayIds' => $uniqueDayIds,
@@ -325,15 +329,17 @@ class BookingController extends Controller
             'formattedLastOpeningHour' => $formattedLastOpeningHour,
 
         ];
-        if (Auth::guard('customer')->check() && route('customer.booking.show', $rent->id)) {
+        $user = Auth::user();
+        if ($user && $user->role === 'customer') {
             return view('front.pages.booking-manage.show', $data);
-        } elseif (Auth::guard('owner')->check() && route('owner.booking.show', $rent->id)) {
+        } elseif ($user && $user->role === 'owner') {
             return view('back.pages.owner.booking-manage.show', $data);
         }
     }
     public function edit(string $id)
     {
-        $ownerId = Auth::guard('owner')->id();
+        $user = Auth::user();
+        $ownerId = $user->owner->id;
         $venues = Venue::where('owner_id', $ownerId)->where('status', 1)->get();
         if ($venues->isEmpty()) {
             return back()->with('error', 'Tidak ada venue yang terdaftar, daftarkan sekarang!!');
@@ -504,7 +510,9 @@ class BookingController extends Controller
             $rent->date = $date;
             $rent->total_price = $validatedData['total_price'];
             $rent->rent_status = 5;
-            if (Auth::guard('owner')->check()) {
+
+            $user = Auth::user();
+            if ($user && $user->role === 'owner') {
                 $rent->book_type = 0;
                 $rent->save();
                 Log::info('Data rent berhasil disimpan', ['rent' => $rent]);
@@ -516,7 +524,7 @@ class BookingController extends Controller
                     Log::info('Data rent detail berhasil disimpan', ['rentDetail' => $rentDetail]);
                 }
                 return redirect()->route('owner.booking.show-payment', ['booking' => $rent->id])->with('success', 'Lanjutkan Ke Bagian Pembayaran Booking.');
-            } else if (Auth::guard('customer')->check()) {
+            } else if ($user && $user->role === 'customer') {
                 $rent->book_type = 1;
                 $rent->save();
                 Log::info('Data rent berhasil disimpan oleh customer', ['rent' => $rent]);
@@ -527,7 +535,7 @@ class BookingController extends Controller
                     $rentDetail->save();
                     Log::info('Data rent detail berhasil disimpan', ['rentDetail' => $rentDetail]);
                 }
-                $customer_id = Auth::guard('customer')->id();
+                $customer_id = $user->customer->id;
                 $rentCustomer = new RentCustomer();
                 $rentCustomer->rent_id = $rent->id;
                 $rentCustomer->customer_id = $customer_id;
@@ -537,9 +545,9 @@ class BookingController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Gagal menambahkan paket foto', ['error' => $e->getMessage()]);
-            if (Auth::guard('customer')->check()) {
+            if ($user && $user->role === 'customer') {
                 return redirect()->back()->with('fail', 'Gagal menambahkan paket foto. Terjadi kesalahan: ' . $e->getMessage());
-            } elseif (Auth::guard('owner')->check()) {
+            } elseif ($user && $user->role === 'owner') {
                 return redirect()->route('owner.booking.index')->with('fail', 'Gagal menambahkan paket foto. Terjadi kesalahan: ' . $e->getMessage());
             }
         }
@@ -565,8 +573,8 @@ class BookingController extends Controller
             $rent->formatted_schedule = 'Invalid time format';
         }
 
-
-        if (Auth::guard('customer')->check()) {
+        $user = Auth::user();
+        if ($user && $user->role === 'customer') {
             $data = [
                 'pageTitle' => 'FotoYuk | Payment',
                 'rent' => $rent,
@@ -574,7 +582,7 @@ class BookingController extends Controller
                 'paymentMethodDetails' => $paymentMethodDetails,
             ];
             return view('front.pages.payment-manage.show-payment', $data);
-        } elseif (Auth::guard('owner')->check()) {
+        } elseif ($user && $user->role === 'owner') {
             $data = [
                 'pageTitle' => 'FotoYuk | Payment',
                 'rent' => $rent,
@@ -603,7 +611,10 @@ class BookingController extends Controller
                     }
                 }],
                 'min_payment_input' => [
-                    'nullable', 'integer', 'min:0', 'required_if:dp_price,min_payment',
+                    'nullable',
+                    'integer',
+                    'min:0',
+                    'required_if:dp_price,min_payment',
                     function ($attribute, $value, $fail) use ($minPaymentValue, $totalPrice) {
                         if ($value < $minPaymentValue) {
                             $fail("Minimal Pembayaran harus lebih dari Rp " . number_format($minPaymentValue, 0, ',', '.'));
@@ -661,7 +672,10 @@ class BookingController extends Controller
                     }
                 }],
                 'min_payment_input' => [
-                    'nullable', 'integer', 'min:0', 'required_if:dp_price,min_payment',
+                    'nullable',
+                    'integer',
+                    'min:0',
+                    'required_if:dp_price,min_payment',
                     function ($attribute, $value, $fail) use ($minPaymentValue, $totalPrice) {
                         if ($value < $minPaymentValue) {
                             $fail("Minimal Pembayaran harus lebih dari Rp " . number_format($minPaymentValue, 0, ',', '.'));
@@ -740,7 +754,8 @@ class BookingController extends Controller
     {
         Log::info('Masuk ke fungsi store');
         try {
-            if (Auth::guard('owner')->check()) {
+            $user = Auth::user();
+            if ($user && $user->role === 'owner') {
                 $rent = Rent::findOrFail($id);
                 $rent->update([
                     'dp_payment' => Carbon::now()->format('Y-m-d H:i:s'),

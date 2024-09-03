@@ -1,11 +1,13 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FrontEndController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\ServiceController;
+use App\Models\Venue;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +31,11 @@ Route::get('/package-details/{packageId}', [BookingController::class, 'getPackag
 Route::get('/services/{venueId}/{serviceTypeId}', [BookingController::class, 'getServicesByTypeAndVenue']);
 //not used
 
-
+Route::get('/venue-suggestions', function (Request $request) {
+    $query = $request->input('query', '');
+    $venues = Venue::where('name', 'like', "%{$query}%")->pluck('name');
+    return response()->json($venues);
+});
 Route::get('/print-photo-details/{packageId}', [BookingController::class, 'getPrintPhotoDetails']);
 Route::get('/get-book-dates', [BookingController::class, 'getBookDates'])->name('getBookDates');
 
@@ -42,5 +48,3 @@ Route::get('/cust/print-photo-details/{packageId}', [FrontEndController::class, 
 Route::get('/cust/get-book-dates', [FrontEndController::class, 'getBookDates']);
 // katalog
 Route::get('/price-catalog/{venue}', [FrontEndController::class, 'getPriceCatalog']);
-
-

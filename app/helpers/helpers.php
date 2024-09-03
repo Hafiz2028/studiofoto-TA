@@ -78,6 +78,32 @@ if (!function_exists('get_venues_with_service_slug')) {
         return $filteredVenues;
     }
 }
+if (!function_exists('get_venues_with_min_price')) {
+    function get_venues_with_min_price()
+    {
+        $venues = Venue::where('status', 1)->orderBy('id', 'ASC')->get();
+
+        foreach ($venues as $venue) {
+            $minPrice = PHP_INT_MAX;
+            $hasValidPrice = false;
+
+            foreach ($venue->serviceEvents as $serviceEvent) {
+                foreach ($serviceEvent->servicePackages as $servicePackage) {
+                    foreach ($servicePackage->servicePackageDetails as $packageDetail) {
+                        if ($packageDetail->price < $minPrice) {
+                            $minPrice = $packageDetail->price;
+                            $hasValidPrice = true;
+                        }
+                    }
+                }
+            }
+
+            $venue->min_price = $hasValidPrice ? $minPrice : null;
+        }
+
+        return $venues;
+    }
+}
 
 /** GET VENUE's DETAIL */
 if (!function_exists('getVenueData')) {

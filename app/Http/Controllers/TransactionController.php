@@ -13,7 +13,8 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $ownerId = Auth::guard('owner')->id();
+        $user = Auth::user();
+        $ownerId = $user->owner->id;
         $venueIds = Venue::where('owner_id', $ownerId)->pluck('id');
         $venues = Venue::where('owner_id', $ownerId)
             ->where('status', 1)

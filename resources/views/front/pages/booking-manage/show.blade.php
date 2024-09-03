@@ -18,7 +18,74 @@
         </div>
     </section>
 
-    <section class="checkout spad pb-2">
+    <section class="checkout spad pb-2 pt-4">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="card-box shadow">
+                        @if ($rent->rent_status == 0)
+                            <div class="alert alert-info">
+                                <h4 class="text-info">Jadwal Diajukan</h4>
+                                <br>
+                                Jadwal peminjaman sedang menunggu persetujuan dari owner.
+                            </div>
+                        @elseif($rent->rent_status == 1)
+                            <div class="alert alert-success">
+                                <h4 class="text-success">Jadwal Berhasil Dibooking</h4>
+                                <br>
+                                Jadwal peminjaman telah berhasil dibooking, silahkan melakukan konfirmasi ulang maksimal 1
+                                hari sebelum pemotretan.
+                            </div>
+                        @elseif($rent->rent_status == 2)
+                            <div class="alert alert-primary">
+                                <h4 class="text-primary">Jadwal Selesai</h4>
+                                <br>
+                                Jadwal ini telah selesai melakukan pemotretan.
+                            </div>
+                        @elseif($rent->rent_status == 3)
+                            <div class="alert alert-danger">
+                                <h4 class="text-danger">Jadwal Ditolak</h4>
+                                <br>
+                                Alasan Penolakan : <br> {{ $rent->reject_note }}
+                            </div>
+                        @elseif($rent->rent_status == 4)
+                            <div class="alert alert-secondary">
+                                <h4 class="text-secondary">Jadwal Expired</h4>
+                                <br>
+                                Jadwal Peminjaman Telah kadaluarsa / telah melewati waktu peminjaman.
+                            </div>
+                        @elseif($rent->rent_status == 5)
+                            <div class="alert alert-warning">
+                                <h4 class="text-warning">Jadwal Belum Bayar</h4>
+                                <br>
+                                Jadwal Peminjaman Belum Melakukan Pembayaran Awal, silahkan melakukan pembayaran awal agar
+                                dapat melakukan pengajuan peminjaman.
+                            </div>
+                        @elseif($rent->rent_status == 6)
+                            <div class="alert alert-dark">
+                                <h4 class="text-dark">Jadwal Sedang Foto</h4>
+                                <br>
+                                Jadwal Ini sedang melakukan pemotretan, selamat melakukan pemotretan
+                            </div>
+                        @elseif($rent->rent_status == 7)
+                            <div class="alert alert-danger">
+                                <h4 class="text-danger">Jadwal Peminjaman Dibatalkan</h4>
+                                <br>
+                                Alasan Dibatalkan : <br> {{ $rent->reject_note }}
+                            </div>
+                        @else
+                            <div class="alert alert-danger">
+                                <h4 class="text-danger">Jadwal Status Tidak Valid</h4>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="checkout spad pb-2 pt-2">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
@@ -55,7 +122,6 @@
                                 @else
                                     <span class="badge badge-danger ">Tidak Valid</span>
                                 @endif
-
                                 @if ($rent->rent_status != 4)
                                     @if ($rent->dp_payment != null)
                                         <span class="badge badge-success"><i class="icon-copy dw dw-money-2"></i>
@@ -92,11 +158,6 @@
                                             class="icon-copy dw dw-print"></i>
                                         Cetak Invoice</a>
                                     @include('back.pages.owner.booking-manage.invoice')
-                                    @if ($rent->dp_payment == null)
-                                        <a href="{{ route('owner.booking.show-payment-lunas', $rent->id) }}"
-                                            class="btn btn-primary"><i class="icon-copy dw dw-money-1"></i>
-                                            Pelunasan</a>
-                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -115,51 +176,6 @@
                                 <h5 class="text-white mb-0 text-center">Detail Jadwal Booking</h5>
                             </div>
                             <div class="card-body">
-                                {{-- <p><b>{{ ucwords($rent->name) }}</b> Telah membooking Venue
-                                    <b>{{ ucwords($rent->servicePackageDetail->servicePackage->serviceEvent->venue->name) }}</b>
-                                    yang berlokasi di
-                                    <b>{{ ucwords(strtolower($rent->servicePackageDetail->servicePackage->serviceEvent->venue->address)) }},{{ ucwords(strtolower($rent->servicePackageDetail->servicePackage->serviceEvent->venue->village->name)) }},{{ ucwords(strtolower($rent->servicePackageDetail->servicePackage->serviceEvent->venue->village->district->name)) }}</b>
-                                    <br>Pada Tanggal <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
-                                    dengan
-                                    Jadwal
-                                    Foto dari Pukul
-                                    <b>{{ date('H:i', strtotime(str_replace('.', ':', $firstOpeningHour->hour))) }}</b>
-                                    Hingga
-                                    Pukul
-                                    <b>{{ $formattedLastOpeningHour }}</b>.<br>Untuk Paket foto
-                                    yang dipesan adalah
-                                    <b>{{ $rent->servicePackageDetail->servicePackage->name }}</b> dengan total Orang yang
-                                    foto
-                                    <b>{{ $rent->servicePackageDetail->sum_person }} Orang</b> & lama pemotretannya
-                                    @if ($rent->servicePackageDetail->time_status == 0)
-                                        <b>30 Menit.</b>
-                                    @elseif($rent->servicePackageDetail->time_status == 1)
-                                        <b>60 Menit.</b>
-                                    @elseif($rent->servicePackageDetail->time_status == 2)
-                                        <b>90 Menit.</b>
-                                    @elseif($rent->servicePackageDetail->time_status == 3)
-                                        <b>120 Menit.</b>
-                                    @else
-                                        <b>Tidak Valid</b>
-                                    @endif
-                                    <br> Booking Foto ini
-
-                                    @if ($rent->dp_payment == null)
-                                        @if ($rent->dp_price == 0)
-                                            <b class="badge badge-danger">Belum membayar Dp awal</b>
-                                        @elseif($rent->dp_price < $rent->total_price)
-                                            Baru membayar<b class="badge badge-warning">Dp awal Rp
-                                                {{ number_format($rent->dp_price) }}</b>
-                                        @elseif($rent->dp_price == $rent->total_price)
-                                            <b class="badge badge-success">Telah Lunas</b>
-                                        @else
-                                            <b>Tidak Valid</b>
-                                        @endif
-                                    @else
-                                        <b class="badge badge-success">Telah Lunas</b> Pada
-                                        <b>{{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</b>
-                                    @endif
-                                    Dengan Total Harga <b>Rp{{ number_format($rent->total_price, 0, ',', '.') }}</b> --}}
                                 Berikut Detail Dari Jadwal Booking & Paket
                                 yang dipesan :
                                 </p>
@@ -254,7 +270,8 @@
                                             @elseif ($rent->book_type == 1)
                                                 <div class="badge badge-success"><i class="fa fa-user"></i> Online</div>
                                             @else
-                                                <div class="badge badge-danger"><i class="fa fa-user"></i> Tidak Valid</div>
+                                                <div class="badge badge-danger"><i class="fa fa-user"></i> Tidak Valid
+                                                </div>
                                             @endif
                                         </td>
                                     </tr>
@@ -262,13 +279,16 @@
                                         <th>Lama Pemotretan</th>
                                         <td>
                                             @if ($rent->servicePackageDetail->time_status == 0)
-                                                <div class="badge badge-success"><i class="fa fa-clock"></i> 30 Menit</div>
+                                                <div class="badge badge-success"><i class="fa fa-clock"></i> 30 Menit
+                                                </div>
                                             @elseif($rent->servicePackageDetail->time_status == 1)
-                                                <div class="badge badge-primary"><i class="fa fa-clock"></i> 60 Menit</div>
+                                                <div class="badge badge-primary"><i class="fa fa-clock"></i> 60 Menit
+                                                </div>
                                             @elseif($rent->servicePackageDetail->time_status == 2)
                                                 <div class="badge badge-info"><i class="fa fa-clock"></i> 90 Menit</div>
                                             @elseif($rent->servicePackageDetail->time_status == 3)
-                                                <div class="badge badge-warning"><i class="fa fa-clock"></i> 120 Menit</div>
+                                                <div class="badge badge-warning"><i class="fa fa-clock"></i> 120 Menit
+                                                </div>
                                             @else
                                                 <div class="badge badge-danger"><i class="fa fa-clock"></i> Tidak Valid
                                                 </div>

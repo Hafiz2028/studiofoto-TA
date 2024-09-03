@@ -64,8 +64,8 @@ class AddVenueTabs extends Component
 
     public function mount(Venue $venue = null)
     {
-        $owner = Auth::guard('owner')->user();
-        if ($owner) {
+        $user = Auth::user();
+        if ($user && $user->role === 'owner') {
             $this->venue = $venue;
             $this->payment_methods = PaymentMethod::all();
             $this->days = Day::all();
@@ -627,6 +627,7 @@ class AddVenueTabs extends Component
     public function addImage()
     {
         $this->venueImages[] = null;
+        // Log::info('Image added:', ['venueImages' => $this->venueImages]);
     }
     public function removeImage($imageIndex)
     {
@@ -634,7 +635,10 @@ class AddVenueTabs extends Component
             if (isset($this->venueImages[$imageIndex])) {
                 $image = $this->venueImages[$imageIndex];
                 unset($this->venueImages[$imageIndex]);
+                $this->venueImages = array_values($this->venueImages);
+                Log::info('Image removed:', ['imageIndex' => $imageIndex, 'venueImages' => $this->venueImages]);
                 if ($image instanceof TemporaryUploadedFile) {
+                    // handle temporary file if needed
                 } elseif (isset($image['id'])) {
                     $this->deletedVenueImageIndices[] = $image['id'];
                 }
@@ -642,7 +646,7 @@ class AddVenueTabs extends Component
                 throw new \Exception('Error: Invalid structure of venueImages array. Image ID not found at index: ' . $imageIndex);
             }
         } catch (\Exception $e) {
-            error_log($e->getMessage());
+            Log::error('Error removing image:', ['error' => $e->getMessage()]);
         }
     }
     public function deleteVenueImage($imageId)
@@ -735,7 +739,7 @@ class AddVenueTabs extends Component
             $this->saveVenueData($venue);
             DB::commit();
             session()->flash('success', 'Data venue berhasil diperbarui bree.');
-            return redirect()->route('owner.venue.index');
+            return redirect()->route('owner.venue.show', ['venue' => $venue->id]);
         } catch (\Exception $e) {
             $this->addError('venue_id', $e->getMessage());
             DB::rollBack();
@@ -754,8 +758,13 @@ class AddVenueTabs extends Component
         }
         $newImbName = session('imb_path');
         try {
+            $user = Auth::user();
+            if (!$user || $user->role !== 'owner') {
+                $this->addError('user', 'User is not authorized or not an owner.');
+                return;
+            }
             $venue = Venue::create([
-                'owner_id' => Auth::guard('owner')->id(),
+                'owner_id' => $user->id,
                 'name' => $this->name,
                 'phone_number' => $this->phone_number,
                 'information' => $this->information,

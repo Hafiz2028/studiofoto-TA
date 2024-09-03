@@ -95,9 +95,9 @@
                                 <a href="#" onclick="swalAlert(); return false;" target="_blank" data-toggle="tooltip"
                                     title="Lihat Lokasi di Maps" class="maps-link">
                                     <i class="fas fa-map-marked-alt"></i>
-                                </a>
+                                </a> 
                             @endif
-                            @if (auth()->guard('customer')->check())
+                            @if (auth()->check() && auth()->user()->role === 'customer')
                                 <a href="{{ route('customer.booking.create') }}" class="primary-btn" data-toggle="modal"
                                     data-target="#bookingModal">BOOKING</a>
                                 @include('back.pages.owner.booking-manage.create')

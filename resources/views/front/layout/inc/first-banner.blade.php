@@ -1,4 +1,4 @@
-@if (Request::is('/'))
+@if (Request::is('/') || Request::is('/customer'))
     <div class="hero__item set-bg" data-setbg="/front/img/hero/image.png">
         <div class="hero__text">
             <span style="background-color: #fafddc; border-radius: 15px; padding: 5px;">KEEP MEMORIES</span>

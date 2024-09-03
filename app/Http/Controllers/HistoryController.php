@@ -14,8 +14,9 @@ class HistoryController extends Controller
 {
     public function index(Request $request)
     {
-        if (Auth::guard('owner')->check()) {
-            $ownerId = Auth::guard('owner')->id();
+        $user = Auth::user();
+        if ($user && $user->role === 'owner') {
+            $ownerId = $user->owner->id;
             $venueIds = Venue::where('owner_id', $ownerId)->pluck('id');
             $rents = Rent::whereIn('rent_status', [2, 3, 4, 7])
                 ->whereHas('servicePackageDetail.servicePackage.serviceEvent', function ($query) use ($venueIds) {
@@ -43,8 +44,8 @@ class HistoryController extends Controller
                 'rents' => $rents,
             ];
             return view('back.pages.owner.history-manage.index', compact('rents'));
-        } elseif (Auth::guard('customer')->check()) {
-            $customerId = Auth::guard('customer')->id();
+        } elseif ($user && $user->role === 'customer') {
+            $customerId = $user->customer->id;
             $rentIds = RentCustomer::where('customer_id', $customerId)->pluck('rent_id');
             $venueIds = Rent::whereIn('id', $rentIds)
                 ->with(['servicePackageDetail.servicePackage.serviceEvent' => function ($query) {

@@ -14,10 +14,13 @@ class VenueController extends Controller
 {
     public function index()
     {
-        $owner = Auth::guard('owner')->user();
-        $venues = Venue::with('venueImages')->where('owner_id', $owner->id)->get();
+        $user = Auth::user();
+        if ($user && $user->role === 'owner') {
+            $venues = Venue::with('venueImages')->where('owner_id', $user->owner->id)->get();
+            return view('back.pages.owner.venue-manage.index-venue', compact('venues', 'user'));
+        }
 
-        return view('back.pages.owner.venue-manage.index-venue', compact('venues', 'owner'));
+        return redirect()->route('login')->with('error', 'Akses ditolak. Anda bukan owner.');
     }
     public function create()
     {

@@ -10,7 +10,7 @@
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
-                        @if (auth()->guard('owner')->check())
+                        @if (auth()->check() && auth()->user()->role === 'owner')
                             <li class="breadcrumb-item">
                                 <a href="{{ route('owner.home') }}">Home</a>
                             </li>
@@ -21,7 +21,7 @@
                                 Detail Venue
                             </li>
                         @endif
-                        @if (auth()->guard('admin')->check())
+                        @if (auth()->check() && auth()->user()->role === 'admin')
                             <li class="breadcrumb-item">
                                 <a href="{{ route('admin.home') }}">Home</a>
                             </li>
@@ -61,7 +61,7 @@
                             <span class="text-center"><strong>Alasan penolakan:</strong><br>
                                 {{ ucwords($venue->reject_note) }}</span>
                         @endif
-                        @if (auth()->guard('owner')->check())
+                        @if (auth()->check() && auth()->user()->role === 'owner')
                             <br><br>
                             <a href="javascript:;" class="btn btn-outline-danger mr-2 mr-sm-1 mb-2 mb-sm-0"
                                 id="deleteVenueBtn">
@@ -79,13 +79,13 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="card-box">
-                    @if (auth()->guard('owner')->check())
+                    @if (auth()->check() && auth()->user()->role === 'owner')
                         <div class="alert alert-info text-center">
                             <strong style="font-size: 20px;">PERHATIAN</strong><br>
                             <p class="pb-0 mb-0">Venue ini Belum Di Approve oleh Admin. <br>Silahkan untuk menunggu.
                             </p>
                         </div>
-                    @elseif (auth()->guard('admin')->check())
+                    @elseif (auth()->check() && auth()->user()->role === 'admin')
                         <div class="alert alert-info text-center">
                             <strong style="font-size: 20px;">PERHATIAN</strong><br>
                             {{-- Acc Modal & Button --}}
@@ -111,7 +111,7 @@
                                         <div class="modal-body">
                                             Apakah anda yakin untuk Approve Venue
                                             <b>{{ $venue->name }}</b> dari Owner
-                                            <b>{{ $venue->owner->name }}</b> ini?
+                                            <b>{{ $venue->owner->user->name }}</b> ini?
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger"
@@ -138,7 +138,7 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="card-box">
-                    @if (auth()->guard('owner')->check())
+                    @if (auth()->check() && auth()->user()->role === 'owner')
                         <div
                             class="alert alert-success d-flex justify-content-between align-items-center flex-column flex-sm-row">
                             <div>
@@ -179,9 +179,9 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="profile-photo">
-                                        @if ($venue->owner->picture)
-                                            <img src="{{ $venue->owner->picture }}" alt="" class="avatar-photo"
-                                                id="ownerProfilePicture">
+                                        @if ($venue->owner->user->picture)
+                                            <img src="{{ $venue->owner->user->picture }}" alt=""
+                                                class="avatar-photo" id="ownerProfilePicture">
                                         @else
                                             <img src="{{ asset('/images/users/default-avatar.png') }}" alt=""
                                                 class="avatar-photo" id="ownerProfilePicture">
@@ -190,17 +190,17 @@
                                     <h6 class="mb-2">
                                         <span style="display: inline-block; width: 130px;">Owner</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
-                                            {{ ucwords($venue->owner->name) }}</p>
+                                            {{ ucwords($venue->owner->user->name) }}</p>
                                     </h6>
                                     <h6 class="mb-2">
                                         <span style="display: inline-block; width: 130px;">CP Owner</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
-                                            {{ ucwords($venue->owner->handphone) }}</p>
+                                            {{ ucwords($venue->owner->user->handphone) }}</p>
                                     </h6>
                                     <h6 class="mb-2">
                                         <span style="display: inline-block; width: 130px;">Alamat Owner</span>
                                         : <p style="display: inline-block; margin: 0; font-weight: normal;">
-                                            {{ ucwords($venue->owner->address) }}</p>
+                                            {{ ucwords($venue->owner->user->address) }}</p>
                                     </h6>
                                     <h6 class="mb-2">
                                         <span style="display: inline-block; width: 130px;">CP Venue</span>
@@ -282,7 +282,7 @@
                                                 </div>
                                             @else
                                                 @foreach ($service_events as $service_event)
-                                                    @if (auth()->guard('owner')->check())
+                                                    @if (auth()->check() && auth()->user()->role === 'owner')
                                                         <li>
                                                             <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}"
                                                                 class="btn btn-check-out">
@@ -293,7 +293,7 @@
                                                             </a>
                                                         </li>
                                                     @endif
-                                                    @if (auth()->guard('admin')->check())
+                                                    @if (auth()->check() && auth()->user()->role === 'admin')
                                                         <li>
                                                             <a href="{{ route('admin.venue.services.show', ['venue' => $venue->id, 'service' => $service_event->id]) }}"
                                                                 class="btn btn-check-out">
@@ -357,19 +357,17 @@
                             @endif
                             <h5 class="mb-3 mt-3">Foto KTP</h5>
                             <div class="photo-display mb-3">
-                                @if ($venue->owner->ktp != null &&
-                                        $venue->owner->ktp !== 'http://studiofoto.test/images/users/owners/KTP_owner/ktp.png' &&
-                                        $venue->owner->ktp !== 'http://127.0.0.1:8000/images/users/owners/KTP_owner/ktp.png' &&
-                                        $venue->owner->ktp !== 'http://20.189.98.157:8000/images/users/owners/KTP_owner/ktp.png')
-                                    <img src="{{ $venue->owner->ktp }}" alt="KTP {{ $venue->owner->name }}"
+                                @if ($venue->owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
+                                    <img src="{{ $venue->owner->ktp }}" alt="KTP {{ $venue->owner->user->name }}"
                                         style="width: 100%; max-width: 300px; height: auto;">
                                 @else
                                     <img src="/images/users/owners/KTP_owner/ktp.png" alt="Tidak Ada KTP"
                                         style="width: 100%; max-width: 300px; height: auto;">
                                 @endif
+                                
                             </div>
 
-                            @if ($venue->owner->ktp != null)
+                            @if ($venue->owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
                                 <div class="alert alert-success" role="alert"
                                     style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">
                                     <span class="text-nowrap">Ada</span>

@@ -7,7 +7,7 @@
                     <div class="pd-20 card-box height-100-p">
                         <div class="profile-section">
                             <div class="profile-photo text-center position-relative">
-                                <img src="{{ $customer->picture }}" alt="" class="avatar-photo rounded-circle""
+                                <img src="{{ $user->picture }}" alt="" class="avatar-photo rounded-circle""
                                     id="customerProfilePicture">
                                 <a href="javascript:;"
                                     onclick="event.preventDefault();document.getElementById('customerProfilePictureFile').click();"
@@ -15,8 +15,8 @@
                                 <input type="file" name="customerProfilePictureFile" id="customerProfilePictureFile"
                                     class="d-none" style="opacity:0">
                             </div>
-                            <h5 class="text-center h5 mb-0 mt-3" id="customerProfileName">{{ $customer->name }}</h5>
-                            <p class="text-center text-muted font-14" id="customerProfileEmail">{{ $customer->email }}
+                            <h5 class="text-center h5 mb-0 mt-3" id="customerProfileName">{{ $user->name }}</h5>
+                            <p class="text-center text-muted font-14" id="customerProfileEmail">{{ $user->email }}
                             </p>
                         </div>
                     </div>

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -12,24 +10,15 @@ use Laravel\Sanctum\HasApiTokens;
 class Owner extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    protected $guard = "owner";
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'username',
-        'email',
-        'password',
-        'handphone',
+        'user_id',
         'ktp',
         'logo',
-        'address',
-        'picture',
         'email_verified_at',
         'verified',
     ];
@@ -50,39 +39,31 @@ class Owner extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function getPictureAttribute($value)
     {
-        if ($value) {
-            return asset('/images/users/owners/' . $value);
-        } else {
-            return asset('/images/users/default-avatar.png');
-        }
+        return $value ? asset('/images/users/owners/' . $value) : asset('/images/users/default-avatar.png');
     }
     public function getKtpAttribute($value)
     {
-        if ($value) {
-            return asset('/images/users/owners/KTP_owner/' . $value);
-        } else {
-            return asset('/images/users/owners/KTP_owner/ktp.png');
-        }
+        return $value ? asset('/images/users/owners/KTP_owner/' . $value) : asset('/images/users/owners/KTP_owner/ktp.png');
     }
+
     public function getLogoAttribute($value)
     {
-        if ($value) {
-            return asset('/images/users/owners/LOGO_owner/' . $value);
-        } else {
-            return asset('/images/users/owners/LOGO_owner/default-logo.png');
-        }
+        return $value ? asset('/images/users/owners/LOGO_owner/' . $value) : asset('/images/users/owners/LOGO_owner/default-logo.png');
     }
 
     public function venues()
     {
-        return $this->hasMany(Venue::class, 'owner_id', 'id');
+        return $this->hasMany(Venue::class, 'owner_id');
     }
     public function rents()
     {
-        return $this->hasManyThrough(Rent::class, Venue::class);
+        return $this->hasManyThrough(Rent::class, Venue::class, 'owner_id', 'venue_id');
     }
 }

@@ -7,7 +7,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FrontEndController;
 
 Route::prefix('customer')->name('customer.')->group(function () {
-    Route::middleware(['guest:customer', 'PreventBackHistory'])->group(function () {
+    Route::middleware(['guest', 'PreventBackHistory'])->group(function () {
         Route::controller(CustomerController::class)->group(function () {
             Route::get('/login', 'login')->name('login');
             Route::post('/login_handler', 'loginHandler')->name('login-handler');
@@ -24,7 +24,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::controller(FrontEndController::class)->group(function () {
         Route::get('/detail-not/{id}', 'detailVenueNotLogin')->name('detail-venue-not-login');
     });
-    Route::middleware(['auth:customer', 'PreventBackHistory'])->group(function () {
+    Route::middleware(['auth', 'role:customer', 'PreventBackHistory'])->group(function () {
         Route::controller(CustomerController::class)->group(function () {
             Route::post('/logout', 'logoutHandler')->name('logout');
             Route::get('/profile', 'profileView')->name('profile');

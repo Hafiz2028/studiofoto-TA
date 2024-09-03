@@ -15,16 +15,11 @@ class CreateOwnersTable extends Migration
     {
         Schema::create('owners', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name',50);
-            $table->string('username',50)->unique();
-            $table->string('email',50)->unique();
-            $table->string('password',100);
-            $table->string('handphone', 20)->nullable();
+            $table->unsignedInteger('user_id');
             $table->string('ktp',150)->nullable();
-            $table->text('address')->nullable();
-            $table->string('picture',150)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->integer('verified')->default(0);
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

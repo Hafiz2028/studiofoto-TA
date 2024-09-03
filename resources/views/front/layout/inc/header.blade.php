@@ -19,7 +19,7 @@
                             <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
                             <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
                         </div>
-                        @if (auth()->guard('customer')->check())
+                        @if (auth()->check() && auth()->user()->role === 'customer')
                             @livewire('customer-header-profile-info')
                         @else
                             <div class="header__top__right__language">
@@ -49,7 +49,7 @@
                         <li class="{{ Route::is('home') ? 'active' : '' }}"><a href="{{ route('home') }}">Home</a></li>
                         <li class="{{ Route::is('search-page') ? 'active' : '' }}"><a
                                 href="{{ route('search-page') }}">Search</a></li>
-                        @if (auth()->guard('customer')->check())
+                        @if (auth()->check() && auth()->user()->role === 'customer')
                             <li class="{{ Route::is('customer.booking.index') ? 'active' : '' }}"><a
                                     href="{{ route('customer.booking.index') }}">Booking</a>
                             </li>

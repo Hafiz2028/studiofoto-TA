@@ -3,12 +3,11 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content shadow">
             <div class="modal-header bg-info text-white">
-                @if (auth()->guard('owner')->check() && request()->routeIs('owner.booking.index'))
+                @if (auth()->check() && auth()->user()->role === 'owner')
                     <h5 class="modal-title text-white" id="bookingModalLabel">
                         <i class="fas fa-calendar-plus mr-2"></i> Tambah Booking Offline
                     </h5>
-                @elseif (auth()->guard('customer')->check() &&
-                        (request()->routeIs('customer.detail-venue') || request()->routeIs('customer.detail-venue-not-login')))
+                @elseif (auth()->check() && auth()->user()->role === 'customer')
                     <h5 class="modal-title text-white" id="bookingModalLabel">
                         <i class="fas fa-calendar-plus mr-2"></i> Tambah Booking <b>{{ $venue->name }}</b>
                     </h5>
@@ -18,7 +17,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @if (auth()->guard('owner')->check() && request()->routeIs('owner.booking.index'))
+                @if (auth()->check() && auth()->user()->role === 'owner')
                     <form action="{{ route('owner.booking.store') }}" method="POST" enctype="multipart/form-data"
                         class="mt-3" id="bookingForm">
                         @csrf
@@ -170,8 +169,7 @@
                             <button type="submit" class="btn btn-success">Pembayaran</button>
                         </div>
                     </form>
-                @elseif (auth()->guard('customer')->check() &&
-                        (request()->routeIs('customer.detail-venue') || request()->routeIs('customer.detail-venue-not-login')))
+                @elseif (auth()->check() && auth()->user()->role === 'customer')
                     <form action="{{ route('customer.booking.store') }}" method="POST" enctype="multipart/form-data"
                         class="mt-3" id="bookingForm">
                         @csrf
@@ -190,7 +188,7 @@
                                 <div class="form-group">
                                     <label>2. Nama Penyewa</label>
                                     <input type="text" class="form-control" name="name_tenant"
-                                        value="{{ $customer->name }}" required>
+                                        value="{{ auth()->user()->name }}" required>
                                 </div>
                             </div>
                             <div class="col-lg-2 col-md-6 col-sm-6">

@@ -1,9 +1,28 @@
 @extends('back.layout.auth-layout')
 @section('pageTitle', isset($pageTitle) ? $pageTitle : 'Forgot Password')
 @section('content')
+    <style>
+        .custom-btn {
+            color: #e27201;
+            /* Warna teks default */
+            border-color: #e27201;
+            /* Warna border */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            /* Transisi animasi */
+        }
+
+        .custom-btn:hover {
+            background-color: #e27201;
+            /* Warna latar belakang saat hover */
+            color: white;
+            /* Warna teks saat hover */
+            border-color: #e27201;
+            /* Warna border tetap */
+        }
+    </style>
     <div class="login-box bg-white box-shadow border-radius-10">
         <div class="login-title">
-            <h2 class="text-center text-primary">Forgot Password</h2>
+            <h2 class="text-center" style="color:#e27201;">Forgot Password</h2>
         </div>
         <h6 class="mb-20">
             Enter your email address to reset your password
@@ -26,7 +45,8 @@
             <div class="row align-items-center">
                 <div class="col-5">
                     <div class="input-group mb-0">
-                        <input class="btn btn-primary btn-lg btn-block" type="submit" value="Submit">
+                        <input class="btn btn-primary btn-lg btn-block"
+                            style="background-color:#e27201; border-color:#e27201" type="submit" value="Submit">
                     </div>
                 </div>
                 <div class="col-2">
@@ -36,7 +56,9 @@
                 </div>
                 <div class="col-5">
                     <div class="input-group mb-0">
-                        <a class="btn btn-outline-primary btn-lg btn-block" href="{{ route('owner.login') }}">Login</a>
+                        <a class="btn btn-lg btn-block custom-btn" href="{{ route('owner.login') }}">
+                            Login
+                        </a>
                     </div>
                 </div>
             </div>

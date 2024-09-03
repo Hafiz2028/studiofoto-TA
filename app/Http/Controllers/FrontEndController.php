@@ -29,8 +29,11 @@ class FrontEndController extends Controller
             'pageTitle' => 'FotoYuk | Home Page'
         ];
 
-        if ($request->user('customer')) {
-            $data['customer'] = $request->user('customer');
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'customer') {
+                $data['customer'] = Auth::user();
+            }
         }
 
         return view('front.pages.home', $data);
@@ -40,50 +43,71 @@ class FrontEndController extends Controller
         $sort = $request->query('sort', 'name_asc');
         $villageId = $request->query('village_id');
         $districtId = $request->query('district_id');
+        $searchQuery = $request->query('search', '');
         list($sortBy, $sortDirection) = explode('_', $sort);
 
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
-        $villages = Village::with('district', 'venues')->orderBy('name', 'ASC')->get();
-        $districts = $villages->groupBy('district.name');
-        $allVenues = collect(get_venues_with_service_slug());
-        $totalVenuesCount = $allVenues->count();
-        $venues = $allVenues;
-        if ($villageId) {
-            $venues = $venues->where('village_id', $villageId);
-        } elseif ($districtId) {
-            $villageIds = Village::where('district_id', $districtId)->pluck('id');
-            $venues = $venues->whereIn('village_id', $villageIds);
-        }
-        if ($sortBy === 'price') {
-            $venues = $venues->sortBy('min_price', SORT_REGULAR, $sortDirection === 'desc');
-        } else {
-            $venues = $venues->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc');
+        // Use the helper function to get venues with the correct min_price
+        $venues = get_venues_with_min_price();
+
+        // Filter venues based on status and search criteria
+        $query = $venues->filter(function ($venue) {
+            return $venue->status == 1;
+        });
+        if ($searchQuery) {
+            $query = $query->filter(function ($venue) use ($searchQuery) {
+                return stripos($venue->name, $searchQuery) !== false;
+            });
         }
 
+        if ($villageId) {
+            $query = $query->filter(function ($venue) use ($villageId) {
+                return $venue->village_id == $villageId;
+            });
+        } elseif ($districtId) {
+            $villageIds = Village::where('district_id', $districtId)->pluck('id');
+            $query = $query->filter(function ($venue) use ($villageIds) {
+                return in_array($venue->village_id, $villageIds);
+            });
+        }
+
+        if ($sortBy === 'price') {
+            $query = $query->sortBy(function ($venue) {
+                return $venue->min_price ?? PHP_INT_MAX;
+            }, SORT_REGULAR, $sortDirection === 'desc');
+        } else if ($sortBy === 'name') {
+            $query = $query->sortBy(function ($venue) {
+                return strtolower($venue->name); // Sort by lowercase name
+            }, SORT_REGULAR, $sortDirection === 'desc');
+        } else {
+            $query = $query->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc');
+        }
         // Pagination
         $perPage = 12;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = $venues->slice(($currentPage - 1) * $perPage, $perPage)->all();
-        $paginatedItems = new LengthAwarePaginator($currentItems, $venues->count(), $perPage);
+        $currentItems = $query->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedItems = new LengthAwarePaginator($currentItems, $query->count(), $perPage);
         $paginatedItems->setPath($request->url());
 
-
-        $districtVenuesCount = $districts->mapWithKeys(function ($villages, $districtName) {
-            $count = $villages->sum(function ($village) {
-                return $village->venues->filter(function ($venue) {
-                    return $venue->status == 1;
-                })->count();
+        // Recalculate district and village venue counts
+        $villages = Village::with('district', 'venues')->get()->filter(function ($village) {
+            return $village->venues->count() > 0;
+        });
+        $districts = $villages->groupBy('district_id');
+        $districtVenuesCount = $districts->mapWithKeys(function ($villages, $districtId) use ($query) {
+            $count = $villages->sum(function ($village) use ($query) {
+                return $query->where('village_id', $village->id)->count();
             });
+            $districtName = $villages->first()->district->name;
             return [$districtName => $count];
         });
 
-        $villageVenuesCount = $villages->mapWithKeys(function ($village) {
-            return [$village->id => $village->venues->filter(function ($venue) {
-                return $venue->status == 1;
-            })->count()];
+        $villageVenuesCount = $villages->mapWithKeys(function ($village) use ($query) {
+            return [$village->id => $query->where('village_id', $village->id)->count()];
         });
+
 
         $data = [
             'pageTitle' => 'FotoYuk | Search Venue Page',
@@ -93,17 +117,22 @@ class FrontEndController extends Controller
             'districts' => $districts,
             'districtVenuesCount' => $districtVenuesCount,
             'villageVenuesCount' => $villageVenuesCount,
-            'totalVenuesCount' => $totalVenuesCount,
+            'totalVenuesCount' => $query->count(),
+            'searchQuery' => $searchQuery,
         ];
-        if ($request->user('customer')) {
-            $data['customer'] = $request->user('customer');
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'customer') {
+                $data['customer'] = $user;
+            }
         }
 
         return view('front.pages.search', $data);
     }
     public function detailVenue(Request $request, $id)
     {
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
+        $customer = $user->customer;
         $this->venueId = $id;
         $venue = Venue::with('serviceEvents.servicePackages.servicePackageDetails', 'venueImages', 'village.district')->findOrFail($id);
         $payment_method_detail = PaymentMethodDetail::where('venue_id', $venue->id)->get();
@@ -197,6 +226,7 @@ class FrontEndController extends Controller
             $data = [
                 'pageTitle' => 'FotoYuk | Detail Venue Page',
                 'venues' => $allVenues,
+                'user' => $user,
                 'customer' => $customer,
                 'venue' => $venue,
                 'minPrice' => $minPrice,
@@ -305,19 +335,12 @@ class FrontEndController extends Controller
 
         $data = [
             'pageTitle' => 'FotoYuk | Detail Venue Page',
+            'uniqueDayIds' => $uniqueDayIds,
             'venues' => $allVenues,
             'venue' => $venue,
+            'openingHours' => $openingHours,
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
-            'uniqueDayIds' => $uniqueDayIds,
-            'openingHours' => $openingHours,
-            'today' => $today,
-            'services' => $services,
-            'packages' => $packages,
-            'packageDetails' => $packageDetails,
-            'rents' => $rents,
-            'bookDates' => $bookDates,
-            'serviceTypes' => $serviceTypes,
             'payment_method_detail' => $payment_method_detail,
         ];
         return view('front.pages.detail', $data);

@@ -18,20 +18,7 @@ return [
         'passwords' => 'users',
     ],
 
-    'admin'=> [
-        'driver' => 'eloquent',
-        'model' => App\Models\Admin::class,
-    ],
 
-    'owner'=> [
-        'driver' => 'eloquent',
-        'model' => App\Models\Owner::class,
-    ],
-
-    'customer'=> [
-        'driver' => 'eloquent',
-        'model' => App\Models\Customer::class,
-    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -57,15 +44,15 @@ return [
         ],
         'admin' => [
             'driver' => 'session',
-            'provider' => 'admins',
+            'provider' => 'users',
         ],
         'owner' => [
             'driver' => 'session',
-            'provider' => 'owners',
+            'provider' => 'users',
         ],
         'customer' => [
             'driver' => 'session',
-            'provider' => 'customers',
+            'provider' => 'users',
         ],
     ],
 
@@ -91,23 +78,6 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-        'admins' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
-        ],
-        'owners' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Owner::class,
-        ],
-        'customers' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Customer::class,
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
@@ -135,18 +105,6 @@ return [
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
-        ],
-        'admins' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
-        ],
-        'owners' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Owner::class,
-        ],
-        'customers' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Customer::class,
         ],
     ],
 

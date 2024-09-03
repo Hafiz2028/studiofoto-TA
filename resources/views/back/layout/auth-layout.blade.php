@@ -117,6 +117,7 @@
     <link rel="stylesheet" type="text/css" href="/back/vendors/styles/style.css" />
     <link rel="stylesheet" href="/extra-assets/ijabo/ijabo.min.css">
     <link rel="stylesheet" href="/extra-assets/ijaboCropTool/ijaboCropTool.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     @livewireStyles
     @stack('stylesheets')
 </head>
@@ -193,15 +194,15 @@
                 return false;
             }
         });
-        // document.addEventListener('livewire:init',()=>{
-        //     Livewire.on('showToastr',(event)=>{
-        //         toastr.remove();
-        //     if(event[0].type === 'info'){ toastr.info(event[0].message); }
-        //     else if(event[0].type === 'success') {toastr.success(event[0].message);}
-        //     else if(event[0].type === 'error'){toastr.error(event[0].message);}
-        //     else {return false;}
-        //     });
-        // });
+        document.addEventListener('livewire:init',()=>{
+            Livewire.on('showToastr',(event)=>{
+                toastr.remove();
+            if(event[0].type === 'info'){ toastr.info(event[0].message); }
+            else if(event[0].type === 'success') {toastr.success(event[0].message);}
+            else if(event[0].type === 'error'){toastr.error(event[0].message);}
+            else {return false;}
+            });
+        });
     </script>
     @livewireScripts
     @stack('scripts')

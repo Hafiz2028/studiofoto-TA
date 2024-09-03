@@ -19,8 +19,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'handphone',
+        'address',
+        'picture',
+        'role',
     ];
 
     /**
@@ -40,6 +45,29 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'=> 'hashed',
+        'password' => 'hashed',
     ];
+
+    public function getPictureAttribute($value)
+    {
+        $defaultAvatar = asset('/images/users/default-avatar.png');
+        if ($this->role === 'admin') {
+            return $value ? asset('/images/users/admins/' . $value) : $defaultAvatar;
+        } elseif ($this->role === 'owner') {
+            return $value ? asset('/images/users/owners/' . $value) : $defaultAvatar;
+        } elseif ($this->role === 'customer') {
+            return $value ? asset('/images/users/customers/' . $value) : $defaultAvatar;
+        } else {
+            return $defaultAvatar;
+        }
+    }
+    public function owner()
+    {
+        return $this->hasOne(Owner::class);
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
+    }
 }

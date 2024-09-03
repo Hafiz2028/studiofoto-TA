@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers\ConstGuards;
 use App\Helpers\ConstDefaults;
 use App\Models\Customer;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -38,24 +39,28 @@ class CustomerController extends Controller
         ];
         return view('back.pages.customer.auth.register', $data);
     }
-
-
     public function createCustomer(Request $request)
     {
         $request->validate([
             'name' => 'required',
-            'username' => 'required|unique:customers',
-            'email' => 'required|email|unique:customers',
+            'username' => 'required|unique:users',
+            'email' => 'required|email|unique:users',
+            'handphone' => 'required|numeric|min:8',
             'password' => 'min:5|required_with:password_confirmation|same:password_confirmation',
             'password_confirmation' => 'min:5',
         ]);
-        $customer = new Customer();
-        $customer->name = $request->name;
-        $customer->username = $request->username;
-        $customer->email = $request->email;
-        $customer->password = Hash::make($request->password);
-        $saved = $customer->save();
+        $user = new User();
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role = 'customer';
+        $saved = $user->save();
         if ($saved) {
+            $customer = new Customer();
+            $customer->user_id = $user->id;
+            $customer->verified = 0;
+            $customer->save();
             $token = base64_encode(Str::random(64));
             VerificationToken::create([
                 'user_type' => 'customer',
@@ -92,14 +97,19 @@ class CustomerController extends Controller
     {
         $verifyToken = VerificationToken::where('token', $token)->first();
         if (!is_null($verifyToken)) {
-            $customer = Customer::where('email', $verifyToken->email)->first();
-            if (!$customer->verified) {
-                $customer->verified = 1;
-                $customer->email_verified_at = Carbon::now();
-                $customer->save();
-                return redirect()->route('customer.login')->with('success', 'Your E-mail is verified. Login with your account and complete your account profile.');
+            $user = User::where('email', $verifyToken->email)->first();
+            if ($user && $user->role === 'customer') {
+                $customer = Customer::where('user_id', $user->id)->first();
+                if ($customer && !$customer->verified) {
+                    $customer->verified = 1;
+                    $customer->email_verified_at = Carbon::now();
+                    $customer->save();
+                    return redirect()->route('customer.login')->with('success', 'Your E-mail is verified. Login with your account and complete your account profile.');
+                } else {
+                    return redirect()->route('customer.login')->with('info', 'Your E-Mail is already verified. You already can Login with this account.');
+                }
             } else {
-                return redirect()->route('customer.login')->with('info', 'Your E-Mail is already verified. You already can Login with this account.');
+                return redirect()->route('customer.register')->with('fail', 'Bukan Pengguna Customer.');
             }
         } else {
             return redirect()->route('customer.register')->with('fail', 'Invalid Token.');
@@ -115,33 +125,35 @@ class CustomerController extends Controller
         $fieldType = filter_var($request->login_id, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         if ($fieldType == 'email') {
             $request->validate([
-                'login_id' => 'required|email|exists:customers,email',
+                'login_id' => 'required|email|exists:users,email,role,customer',
                 'password' => 'required|min:5|max:45'
             ], [
-                'login_id.required' => 'Email or Username is required',
-                'login_id.email' => 'Invalid email address',
-                'login_id.exists' => 'Email is not exists in system',
-                'password.required' => 'Password is required'
+                'login_id.required' => 'Masukkan Username atau Email',
+                'login_id.email' => 'Email salah',
+                'login_id.exists' => 'Tidak ada Email ini',
+                'password.required' => 'Masukkan Password'
             ]);
         } else {
             $request->validate([
-                'login_id' => 'required|exists:customers,username',
+                'login_id' => 'required|exists:users,username,role,customer',
                 'password' => 'required|min:5|max:45'
             ], [
-                'login_id.required' => 'Email or Username is required',
-                'login_id.exists' => 'Username is not exists in system',
-                'password.required' => 'Password is required'
+                'login_id.required' => 'Masukkan Username atau Email',
+                'login_id.exists' => 'Tidak ada Username ini',
+                'password.required' => 'Masukkan Password'
             ]);
         }
         $creds = array(
             $fieldType => $request->login_id,
-            'password' => $request->password
+            'password' => $request->password,
+            'role' => 'customer'
         );
 
-        if (Auth::guard('customer')->attempt($creds)) {
-            $user = auth('customer')->user();
-            if (!$user->verified) {
-                auth('customer')->logout();
+        if (Auth::attempt($creds)) {
+            $user = Auth::user();
+            $customer = Customer::where('user_id', $user->id)->first();
+            if (!$customer->verified) {
+                Auth::logout();
                 $verifyToken = VerificationToken::where('email', $user->email)->first();
                 if (!$verifyToken || $verifyToken->updated_at->lt(Carbon::now()->subMinutes(15))) {
                     $token = base64_encode(Str::random(64));
@@ -187,8 +199,8 @@ class CustomerController extends Controller
     //logout
     public function logoutHandler(Request $request)
     {
-        Auth::guard('customer')->logout();
-        return redirect()->route('customer.home')->with('fail', 'You are logged out');
+        Auth::logout();
+        return redirect()->route('customer.home')->with('fail', 'akun anda telah Log out dari sistem.');
     }
     public function forgotPassword(Request $request)
     {
@@ -201,60 +213,68 @@ class CustomerController extends Controller
     public function sendPasswordResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:customers,email'
+            'email' => 'required|email|exists:users,email'
         ], [
-            'email.required' => 'The :attribute is required',
-            'email.email' => 'Invalid email address',
-            'email.exists' => 'The :attribute is not exists in system'
+            'email.required' => ':attribute harus diisi',
+            'email.email' => 'Email Salah',
+            'email.exists' => ':attribute Tidak terdaftar'
         ]);
 
         //Get customer details
-        $customer = Customer::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
+        if ($user && $user->role === 'customer') {
+            $customer = Customer::where('user_id', $user->id)->first();
+            if ($customer) {
+                //generate token
+                $token = base64_encode(Str::random(64));
 
-        //generate token
-        $token = base64_encode(Str::random(64));
+                //check if there is an existing reset password token
+                $oldToken = DB::table('password_reset_tokens')
+                    ->where(['email' => $customer->email, 'guard' => 'customer'])
+                    ->first();
 
-        //check if there is an existing reset password token
-        $oldToken = DB::table('password_reset_tokens')
-            ->where(['email' => $customer->email, 'guard' => ConstGuards::CUSTOMER])
-            ->first();
+                if ($oldToken) {
+                    //update token
+                    DB::table('password_reset_tokens')
+                        ->where(['email' => $customer->email, 'guard' => 'customer'])
+                        ->update([
+                            'token' => $token,
+                            'created_at' => Carbon::now()
+                        ]);
+                } else {
+                    DB::table('password_reset_tokens')->insert([
+                        'email' => $customer->email,
+                        'guard' => 'customer',
+                        'token' => $token,
+                        'created_at' => Carbon::now()
+                    ]);
+                }
 
-        if ($oldToken) {
-            //update token
-            DB::table('password_reset_tokens')
-                ->where(['email' => $customer->email, 'guard' => ConstGuards::CUSTOMER])
-                ->update([
-                    'token' => $token,
-                    'created_at' => Carbon::now()
-                ]);
+                $actionLink = route('customer.reset-password', ['token' => $token, 'email' => $customer->email]);
+
+                $data['actionLink'] = $actionLink;
+                $data['user'] = $user;
+                $mail_body = view('email-templates.customer-forgot-email-template', $data)->render();
+
+                $mailConfig = array(
+                    'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                    'mail_from_name' => env('EMAIL_FROM_NAME'),
+                    'mail_recipient_email' => $user->email,
+                    'mail_recipient_name' => $user->name,
+                    'mail_subject' => 'Reset password',
+                    'mail_body' => $mail_body,
+                );
+
+                if (sendEmail($mailConfig)) {
+                    return redirect()->route('customer.forgot-password')->with('success', 'We have e-mailed your password reset link.');
+                } else {
+                    return redirect()->route('customer.forgot-password')->with('fail', 'Something went wrong!');
+                }
+            } else {
+                return redirect()->route('customer.forgot-password')->with('fail', 'No Customer associated with this email.');
+            }
         } else {
-            DB::table('password_reset_tokens')->insert([
-                'email' => $customer->email,
-                'guard' => ConstGuards::CUSTOMER,
-                'token' => $token,
-                'created_at' => Carbon::now()
-            ]);
-        }
-
-        $actionLink = route('customer.reset-password', ['token' => $token, 'email' => urlencode($customer->email)]);
-
-        $data['actionLink'] = $actionLink;
-        $data['customer'] = $customer;
-        $mail_body = view('email-templates.customer-forgot-email-template', $data)->render();
-
-        $mailConfig = array(
-            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
-            'mail_from_name' => env('EMAIL_FROM_NAME'),
-            'mail_recipient_email' => $customer->email,
-            'mail_recipient_name' => $customer->name,
-            'mail_subject' => 'Reset password',
-            'mail_body' => $mail_body,
-        );
-
-        if (sendEmail($mailConfig)) {
-            return redirect()->route('customer.forgot-password')->with('success', 'We have e-mailed your password reset link.');
-        } else {
-            return redirect()->route('customer.forgot-password')->with('fail', 'Something went wrong!');
+            return redirect()->route('customer.forgot-password')->with('fail', 'Invalid Customer email.');
         }
     }
 
@@ -262,7 +282,7 @@ class CustomerController extends Controller
     public function showResetForm(Request $request, $token = null)
     {
         $get_token = DB::table('password_reset_tokens')
-            ->where(['token' => $token, 'guard' => ConstGuards::CUSTOMER])
+            ->where(['token' => $token, 'guard' => 'customer'])
             ->first();
         if ($get_token) {
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $get_token->created_at)->diffInMinutes(Carbon::now());
@@ -284,40 +304,50 @@ class CustomerController extends Controller
         ]);
 
         $token = DB::table('password_reset_tokens')
-            ->where(['token' => $request->token, 'guard' => ConstGuards::CUSTOMER])
+            ->where(['token' => $request->token, 'guard' => 'customer'])
             ->first();
-
+        if (!$token) {
+            return redirect()->route('customer.reset-password')->with('fail', 'Reset Password telah kadaluarsa, silahkan reset ulang kembali.');
+        }
         // GET customer details
-        $customer = Customer::where('email', $token->email)->first();
+        $user = User::where('email', $token->email)->first();
 
         //update customer password
-        Customer::where('email', $customer->email)->update([
-            'password' => Hash::make($request->new_password)
-        ]);
+        if ($user && $user->role === 'customer') {
+            $customer = Customer::where('user_id', $user->id)->first();
+            if (!$customer) {
+                return redirect()->route('customer.reset-password')->with('fail', 'Tidak Ada Email Customer ini.');
+            }
+            $user->update([
+                'password' => Hash::make($request->new_password)
+            ]);
 
-        //delete token record
-        DB::table('password_reset_tokens')->where([
-            'email' => $customer->email,
-            'token' => $request->token,
-            'guard' => ConstGuards::CUSTOMER
-        ])->delete();
+            //delete token record
+            DB::table('password_reset_tokens')->where([
+                'email' => $customer->email,
+                'token' => $request->token,
+                'guard' => 'customer'
+            ])->delete();
 
-        //send email to notify customer
-        $data['customer'] = $customer;
-        $data['new_password'] = $request->new_password;
-        $mail_body = view('email-templates.customer-reset-email-template', $data);
+            //send email to notify customer
+            $data['user'] = $user;
+            $data['new_password'] = $request->new_password;
+            $mail_body = view('email-templates.customer-reset-email-template', $data);
 
-        $mailConfig = array(
-            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
-            'mail_from_name' => env('EMAIL_FROM_NAME'),
-            'mail_recipient_email' => $customer->email,
-            'mail_recipient_name' => $customer->name,
-            'mail_subject' => 'Password Changed',
-            'mail_body' => $mail_body
-        );
+            $mailConfig = array(
+                'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                'mail_from_name' => env('EMAIL_FROM_NAME'),
+                'mail_recipient_email' => $user->email,
+                'mail_recipient_name' => $user->name,
+                'mail_subject' => 'Password Changed',
+                'mail_body' => $mail_body
+            );
 
-        sendEmail($mailConfig);
-        return redirect()->route('customer.login')->with('success', 'Done!, Your password has been changed, Use new password to login.');
+            sendEmail($mailConfig);
+            return redirect()->route('customer.login')->with('success', 'Done!, Your password has been changed, Use new password to login.');
+        } else {
+            return redirect()->route('customer.reset-password')->with('fail', 'Invalid Customer email.');
+        }
     }
     //reset password & email end
 
@@ -325,39 +355,50 @@ class CustomerController extends Controller
     public function profileView(Request $request)
     {
         $customer = null;
-        if (Auth::guard('customer')->check()) {
-            $customer = Customer::findOrFail(auth()->id());
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $user = User::where('id', $userId)
+                ->where('role', 'customer')
+                ->first();
         }
-        return view('front.pages.profile', compact('customer'));
+        return view('front.pages.profile', compact('user'));
     }
 
     public function changeProfilePicture(Request $request)
     {
-        $customer = Customer::findOrFail(auth('customer')->id());
-        $path = 'images/users/customers/';
-        $file = $request->file('customerProfilePictureFile');
-        $old_picture = $customer->getAttributes()['picture'];
-        $file_path = $path . $old_picture;
-        $filename = 'CUSTOMER_IMG_' . rand(2, 1000) . $customer->id . time() . uniqid() . '.jpg';
+        $user = Auth::user();
+        if ($user && $user->role === 'customer') {
+            $path = 'images/users/customers/';
+            $file = $request->file('customerProfilePictureFile');
+            $old_picture = $user->picture;
+            $file_path = $path . $old_picture;
+            $filename = 'CUSTOMER_IMG_' . rand(2, 1000) . $user->id . time() . uniqid() . '.jpg';
 
-        $upload = $file->move(public_path($path), $filename);
+            $upload = $file->move(public_path($path), $filename);
 
-        if ($upload) {
-            if ($old_picture != null && File::exists(public_path($file_path))) {
-                File::delete(public_path($file_path));
+            if ($upload) {
+                if ($old_picture != null && File::exists(public_path($file_path))) {
+                    File::delete(public_path($file_path));
+                }
+                $user->update(['picture' => $filename]);
+                return response()->json(['status' => 1, 'msg' => 'Your profile picture has been successfully uploaded']);
+            } else {
+                return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
             }
-            $customer->update(['picture' => $filename]);
-            return response()->json(['status' => 1, 'msg' => 'Your profile picture has been successfully uploaded']);
         } else {
-            return response()->json(['status' => 0, 'msg' => 'Something went wrong.']);
+            return response()->json(['status' => 0, 'msg' => 'Unauthorized access.']);
         }
     }
 
     //crud cust acc
     public function index()
     {
-        $customer = Customer::all();
-        return view('back.pages.admin.manage-users.customer.cust-list', compact('customer'));
+        $customer = User::where('role', 'customer')->get();
+        $data = [
+            'pageTitle' => "List Customer",
+            'customer' => $customer,
+        ];
+        return view('back.pages.admin.manage-users.customer.cust-list', $data);
     }
     public function create()
     {
@@ -369,11 +410,11 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|min:5|unique:customers,name',
-            'username' => 'required|min:5|unique:customers,username|regex:/^\S*$/',
-            'email' => 'required|email|unique:customers,email',
+            'name' => 'required|min:5|unique:users,name',
+            'username' => 'required|min:5|unique:users,username|regex:/^\S*$/',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:5|max:45',
-            'handphone' => 'required|min:9|max:15',
+            'handphone' => 'required|numeric|min:9',
             'address' => 'required|string|max:255',
             'password_confirmation' => 'required|min:5|max:45|same:password',
         ], [
@@ -381,7 +422,6 @@ class CustomerController extends Controller
             'name.min' => ':Attribute must be at least 5 characters.',
             'name.unique' => ':Attribute has already been taken.',
             'username.regex' => ':Attribute may only contain letters, numbers, and underscores.',
-            'username.max' => ':Attribute must not exceed 255 characters.',
             'username.required' => ':Attribute is required.',
             'username.min' => ':Attribute must be at least 5 characters.',
             'username.unique' => ':Attribute has already been taken.',
@@ -401,17 +441,22 @@ class CustomerController extends Controller
             'address.string' => ':Attribute must be a string.',
             'address.max' => ':Attribute may not be greater than 255 characters.',
         ]);
-        $customer = new Customer();
+        $user = new User();
 
-        $customer->name = $validatedData['name'];
-        $customer->username = $validatedData['username'];
-        $customer->email = $validatedData['email'];
-        $customer->password = Hash::make($validatedData['password']);
-        $customer->handphone = $validatedData['handphone'];
-        $customer->address = $validatedData['address'];
-        $saved = $customer->save();
+        $user->name = $validatedData['name'];
+        $user->username = $validatedData['username'];
+        $user->email = $validatedData['email'];
+        $user->password = Hash::make($validatedData['password']);
+        $user->handphone = $validatedData['handphone'];
+        $user->address = $validatedData['address'];
+        $user->role = 'customer';
+        $saved = $user->save();
 
         if ($saved) {
+            $customer = new Customer();
+            $customer->user_id = $user->id;
+            $customer->verified = 0;
+            $customer->save();
             return redirect()->route('admin.user.customer.index')->with('success', '<b>' . ucfirst($validatedData['name']) . '</b> user has been added');
         } else {
             return redirect()->route('admin.user.customer.create')->with('fail', 'something went wrong, try again');
@@ -424,7 +469,7 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $customer_id = $id;
-        $customer = Customer::findOrFail($customer_id);
+        $customer = User::findOrFail($customer_id);
         $data = [
             'pageTitle' => 'Edit Customer User',
             'customer' => $customer
@@ -434,11 +479,11 @@ class CustomerController extends Controller
     public function update(Request $request, string $id)
     {
         $customer_id = $id;
-        $customer = Customer::findOrFail($customer_id);
+        $customer = User::findOrFail($customer_id);
 
         $request->validate([
-            'name' => 'required|min:5|unique:customers,name,' . $customer_id,
-            'username' => 'required|min:5|unique:customers,username,' . $customer_id . '|regex:/^\S*$/',
+            'name' => 'required|min:5|unique:users,name,' . $customer_id,
+            'username' => 'required|min:5|unique:users,username,' . $customer_id . '|regex:/^\S*$/',
             'handphone' => 'required|min:9|max:15',
             'address' => 'required|string|max:255',
         ], [
@@ -470,7 +515,7 @@ class CustomerController extends Controller
     public function destroy(string $id)
     {
         $customer_id = $id;
-        $customer = Customer::findOrFail($customer_id);
+        $customer = User::findOrFail($customer_id);
         $customer_name = $customer->name;
 
         $delete = $customer->delete();

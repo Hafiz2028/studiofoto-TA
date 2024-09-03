@@ -2,9 +2,9 @@
         <div style="position: relative; display: inline-block;">
             <div style="display: flex; align-items: center;">
                 <a href="#" style="text-decoration: none; color: #333;" onclick="toggleDropdown(event)">
-                    <img src="{{ auth()->guard('customer')->user()->picture }}" alt="User Picture"
+                    <img src="{{ auth()->user()->picture }}" alt="User Picture"
                         style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 5px;">
-                    <span>{{ auth()->guard('customer')->user()->name }}</span>
+                    <span>{{ auth()->user()->name }}</span>
                     <span class="arrow_carrot-down" style="margin-left: 5px;"></span>
                 </a>
             </div>

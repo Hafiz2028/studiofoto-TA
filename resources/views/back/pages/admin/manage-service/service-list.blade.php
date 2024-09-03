@@ -18,8 +18,6 @@
                         </li>
                     </ol>
                 </nav>
-                <br>
-                <p>List jenis layanan pada Foto Studio</p>
             </div>
         </div>
     </div>

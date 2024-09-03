@@ -2,25 +2,27 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class CustomerHeaderProfileInfo extends Component
 {
-    public $customer;
+    public $user;
 
     public $listeners = [
         'updateCustomerHeaderInfo' => '$refresh'
     ];
     public function mount()
     {
-        if (Auth::guard('customer')->check()) {
-            $customer = Customer::find(auth()->id());
+        if (Auth::check()) {
+            $userId = Auth::id();
 
-            if ($customer) {
-                $this->customer = $customer;
-            }
+            $this->user = User::findOrFail($userId);
+
+            // if ($customer) {
+            //     $this->customer = $customer;
+            // }
         }
     }
     public function render()

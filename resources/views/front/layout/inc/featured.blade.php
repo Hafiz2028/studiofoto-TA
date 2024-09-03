@@ -47,7 +47,7 @@
                                         @endif
                                     </li>
                                     <li>
-                                        @if (auth()->guard('customer')->check())
+                                        @if (auth()->check() && auth()->user()->role === 'customer')
                                             <a href="{{ route('customer.detail-venue', $venue->id) }}">
                                                 <i class="fas fa-info" data-toogle="tooltip" title="Detail Studio Foto"
                                                     data-placement="auto"></i></a>
@@ -73,7 +73,7 @@
                                 </ul>
                             </div>
                             <div class="featured__item__text">
-                                @if (auth()->guard('customer')->check())
+                                @if (auth()->check() && auth()->user()->role === 'customer')
                                     <h6><a
                                             href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
                                     </h6>

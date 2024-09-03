@@ -46,6 +46,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.min.js"></script>
@@ -72,7 +73,7 @@
     <!-- Header Section End -->
 
     <!-- Hero Section Begin -->
-    @if (Request::is('/'))
+    @if (Request::is('/') || Request::is('/customer'))
         @include('front.layout.inc.hero', ['class' => 'hero'])
     @else
         {{-- @include('front.layout.inc.hero', ['class' => 'hero hero-normal']) --}}
@@ -146,7 +147,23 @@
     {{-- tambahan --}}
     <!-- Lightbox2 JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        window.addEventListener('showToastr', function(event) {
+            toastr.remove();
+            if (event.detail[0].type === 'info') {
+                toastr.info(event.detail[0].message);
+            } else if (event.detail[0].type === 'success') {
+                toastr.success(event.detail[0].message);
+            } else if (event.detail[0].type === 'error') {
+                toastr.error(event.detail[0].message);
+            } else if (event.detail[0].type === 'warning') {
+                toastr.warning(event.detail[0].message);
+            } else {
+                return false;
+            }
+        });
+    </script>
     @livewireScripts
     @stack('scripts')
 

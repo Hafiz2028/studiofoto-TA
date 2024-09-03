@@ -1,13 +1,13 @@
-<p>Dear {{$owner->name}}</p>
+<p>Dear {{ $user->name }}</p>
 <br>
 <p>
     Your password on <b>FotoYuk</b> has been changed successfully.
     Here are your new login credentials:
     <br>
     <br>
-    <b>Login ID : </b>{{$owner->username}} or {{$owner->email}}
+    <b>Login ID : </b>{{ $user->username }} or {{ $user->email }}
     <br>
-    <b>Password : </b>{{$new_password}}
+    <b>Password : </b>{{ $new_password }}
 </p>
 <br>
 Please, keep your credentials confidential. Your username and password are your own credentials and you should

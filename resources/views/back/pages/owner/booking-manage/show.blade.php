@@ -54,7 +54,6 @@
                         @else
                             <span class="badge badge-danger ">Tidak Valid</span>
                         @endif
-
                         @if ($rent->rent_status != 4)
                             @if ($rent->dp_payment != null)
                                 <span class="badge badge-success"><i class="icon-copy dw dw-money-2"></i>
@@ -88,7 +87,6 @@
                                     class="btn btn-primary"><i class="icon-copy dw dw-money-1"></i>
                                     Pelunasan</a>
                             @endif
-
                             @if ($rent->dp_payment == null)
                                 <a href="javascript:void(0);" class="btn btn-success cekPelunasanBtn"><i
                                         class="icon-copy dw dw-photo-camera-1"></i>
@@ -98,7 +96,12 @@
                                         class="icon-copy dw dw-photo-camera-1"></i>
                                     Mulai Foto</a>
                             @endif
-
+                        @endif
+                        @if ($rent->rent_status == 0)
+                            <a href="javascript:;" onclick="printInvoice()" class="btn btn-outline-info"><i
+                                    class="icon-copy dw dw-print"></i>
+                                Cetak Invoice</a>
+                            @include('back.pages.owner.booking-manage.invoice')
                         @endif
                         @if ($rent->rent_status == 6)
                             <a href="javascript:;" onclick="printInvoice()" class="btn btn-outline-info"><i
@@ -172,8 +175,8 @@
                                 @endif
                                 Dengan Total Harga <b>Rp{{ number_format($rent->total_price, 0, ',', '.') }}</b>
                                 <br> --}}
-                                Berikut Detail Dari Jadwal Booking & Paket
-                                yang dipesan :
+                            Berikut Detail Dari Jadwal Booking & Paket
+                            yang dipesan :
                             </p>
                             <table class="table table-bordered">
                                 <tr>
@@ -340,7 +343,8 @@
                                     @if ($dpPayment)
                                         <div class="text-center">
                                             <label><strong>Bukti Pembayaran DP</strong></label><br>
-                                            <label>Dibayar pada pukul {{ \Carbon\Carbon::parse($rent->dp_price_date)->format('H:i:s d M Y') }}</label><br>
+                                            <label>Dibayar pada pukul
+                                                {{ \Carbon\Carbon::parse($rent->dp_price_date)->format('H:i:s d M Y') }}</label><br>
                                             <img class="img-fluid"
                                                 src="{{ asset('images/venues/Bukti_Pembayaran/' . $dpPayment->image) }}"
                                                 alt="Bukti Pembayaran DP" style="max-width: 100%; max-height: 500px;">
@@ -353,7 +357,8 @@
                                         @if ($fullPayment)
                                             <div class="text-center">
                                                 <label><strong>Bukti Pembayaran Lunas</strong></label><br>
-                                                <label>Dibayar pada pukul {{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</label><br>
+                                                <label>Dibayar pada pukul
+                                                    {{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</label><br>
                                                 <img class="img-fluid"
                                                     src="{{ asset('images/venues/Bukti_Pembayaran/' . $fullPayment->image) }}"
                                                     alt="Bukti Pembayaran DP" style="max-width: 100%; max-height: 500px;">
@@ -368,7 +373,8 @@
                                     @if ($fullPayment)
                                         <div class="text-center">
                                             <label><strong>Bukti Pembayaran Lunas</strong></label><br>
-                                            <label>Dibayar pada pukul {{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</label><br>
+                                            <label>Dibayar pada pukul
+                                                {{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</label><br>
                                             <img class="img-fluid"
                                                 src="{{ asset('images/venues/Bukti_Pembayaran/' . $fullPayment->image) }}"
                                                 alt="Bukti Pembayaran Lunas" style="max-width: 100%; max-height: 500px;">

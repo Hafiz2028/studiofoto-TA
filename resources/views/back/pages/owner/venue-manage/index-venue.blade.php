@@ -30,10 +30,10 @@
                     <div class="clearfix">
                         <div class="pull-left">
                             <h5 class="h4 text">List Venue Owner <strong
-                                    style="color: #0011c9;">{{ ucwords($owner->name) }}</strong></h5>
+                                    style="color: #0011c9;">{{ ucwords($user->name) }}</strong></h5>
                         </div>
                         <div class="pull-right">
-                            @if ($owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
+                            @if ($user->owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
                                 <a style="float:right; margin-right:5px;" href="{{ route('owner.venue.create') }}"
                                     class="btn btn-primary" type="button">Add Venue
                                 </a>
@@ -54,7 +54,7 @@
                                 <center>Silahkan tambahkan terlebih dahulu venue yang ingin anda buat</center>
                             </p>
                             <center>
-                                @if ($owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
+                                @if ($user->owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
                                     <a href="{{ route('owner.venue.create') }}" class="btn btn-primary">Add Venue
                                     </a>
                                 @else

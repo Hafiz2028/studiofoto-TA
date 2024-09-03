@@ -4,9 +4,9 @@
     <div class="page-header">
         <div class="row">
             <div class="col-md-12 col-sm-12">
-                <div class="pull-left"> 
+                <div class="pull-left">
                     <div class="title">
-                        <h4>Welcome, {{ ucwords(strtolower($owner->name)) }} </h4>
+                        <h4>Welcome, {{ ucwords(strtolower($user->name)) }} </h4>
                     </div>
                 </div>
                 <div class="pull-right">
@@ -21,7 +21,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
-            var ownerID = "{{ Auth::guard('owner')->user()->id }}";
+            var ownerID = "{{ $owner->id }}";
             var today = new Date();
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -114,9 +114,81 @@
             calendar.render();
         });
     </script>
-    <h3 class="px-0 mb-3">Venue</h3>
+    <div class="row p-0">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
+            <div class="card-box height-100-p widget-style3 bg-secondary">
+                <div class="d-flex flex-wrap">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-white">{{ $rents->count() }}</div>
+                        <div class="font-14 text-white weight-500">
+                            Total Booking
+                        </div>
+                    </div>
+                    <div class="widget-icon bg-white">
+                        <div class="icon text-secondary">
+                            <i class="icon-copy dw dw-calendar1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
+            <div class="card-box height-100-p widget-style3 bg-info">
+                <div class="d-flex flex-wrap">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 0)->count() }}
+                        </div>
+                        <div class="font-14 text-white weight-500">
+                            Booking Diajukan
+                        </div>
+                    </div>
+                    <div class="widget-icon bg-white">
+                        <div class="icon text-info">
+                            <i class="icon-copy dw dw-question"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
+            <div class="card-box height-100-p widget-style3 bg-success">
+                <div class="d-flex flex-wrap">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 1)->count() }}
+                        </div>
+                        <div class="font-14 text-white weight-500">
+                            Berhasil Dibooking
+                        </div>
+                    </div>
+                    <div class="widget-icon bg-white">
+                        <div class="icon text-success">
+                            <i class="icon-copy dw dw-checked"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
+            <div class="card-box height-100-p widget-style3 bg-primary">
+                <div class="d-flex flex-wrap">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 2)->count() }}
+                        </div>
+                        <div class="font-14 text-white weight-500">
+                            Booking Selesai
+                        </div>
+                    </div>
+                    <div class="widget-icon bg-white">
+                        <div class="icon text-primary">
+                            <i class="icon-copy fa fa-calendar-check-o" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row p-0 ">
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-primary">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
@@ -133,13 +205,13 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-success">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
                         <div class="weight-700 font-24 text-white">{{ $venues->where('status', 1)->count() }}</div>
                         <div class="font-14 text-white weight-500">
-                            Aktif
+                            Venue Aktif
                         </div>
                     </div>
                     <div class="widget-icon bg-white">
@@ -150,13 +222,13 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-20">
             <div class="card-box height-100-p widget-style3 bg-info">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
                         <div class="weight-700 font-24 text-white">{{ $venues->where('status', 0)->count() }}</div>
                         <div class="font-14 text-white weight-500">
-                            Belum Dikonfirmasi
+                            Venue Belum Dikonfirmasi
                         </div>
                     </div>
                     <div class="widget-icon bg-white">
@@ -167,201 +239,39 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 mb-20">
-            <div class="card-box height-100-p widget-style3 bg-danger">
-                <div class="d-flex flex-wrap">
-                    <div class="widget-data">
-                        <div class="weight-700 font-24 text-white">{{ $venues->where('status', 2)->count() }}</div>
-                        <div class="font-14 text-white weight-500">
-                            Ditolak
-                        </div>
-                    </div>
-                    <div class="widget-icon bg-white">
-                        <div class="icon text-danger">
-                            <i class="icon-copy dw dw-cancel"></i>
+    </div>
+    <div class="row p-0">
+        <div class="col-md-12 col-sm-12 col-lg-12">
+            <div class="pd-10 card-box mb-30">
+                <div class="clearfix mb-4">
+                    <div class="pull-right">
+                        <div class="badge-container">
+                            <span class="badge badge-info" data-toggle="tooltip" data-placement="auto"
+                                title="Jadwal Booking sedang diajukan">Diajukan</span>
+                            <span class="badge badge-success" data-toggle="tooltip" data-placement="auto"
+                                title="Jadwal berhasil dibooking">Dibooking</span>
+                            <span class="badge badge-primary" data-toggle="tooltip" data-placement="auto"
+                                title="Pemotretan telah selesai">Selesai</span>
+                            <span class="badge badge-danger" data-toggle="tooltip" data-placement="auto"
+                                title="Jadwal Booking ditolak">Ditolak</span>
+                            <span class="badge badge-secondary" data-toggle="tooltip" data-placement="auto"
+                                title="Jadwal Booking telah expired">Expired</span>
+                            <span class="badge badge-warning" data-toggle="tooltip" data-placement="auto"
+                                title="Belum membayar DP">Belum Bayar</span>
+                            <span class="badge badge-dark" data-toggle="tooltip" data-placement="auto"
+                                title="Sedang dalam proses pemotretan">Sedang Foto</span>
+                            <span class="badge badge-danger" data-toggle="tooltip" data-placement="auto"
+                                title="Jadwal Booking Dibatalkan">Dibatalkan</span>
                         </div>
                     </div>
                 </div>
+                <div id='calendar'></div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-9 p-0">
-            <div class="col-md-12 col-sm-12 col-lg-12">
-                <div class="pd-10 card-box mb-30">
-                    <div class="clearfix mb-4">
-                        <div class="pull-right">
-                            <div class="badge-container">
-                                <span class="badge badge-info" data-toggle="tooltip" data-placement="auto"
-                                    title="Jadwal Booking sedang diajukan">Diajukan</span>
-                                <span class="badge badge-success" data-toggle="tooltip" data-placement="auto"
-                                    title="Jadwal berhasil dibooking">Dibooking</span>
-                                <span class="badge badge-primary" data-toggle="tooltip" data-placement="auto"
-                                    title="Pemotretan telah selesai">Selesai</span>
-                                <span class="badge badge-danger" data-toggle="tooltip" data-placement="auto"
-                                    title="Jadwal Booking ditolak">Ditolak</span>
-                                <span class="badge badge-secondary" data-toggle="tooltip" data-placement="auto"
-                                    title="Jadwal Booking telah expired">Expired</span>
-                                <span class="badge badge-warning" data-toggle="tooltip" data-placement="auto"
-                                    title="Belum membayar DP">Belum Bayar</span>
-                                <span class="badge badge-dark" data-toggle="tooltip" data-placement="auto"
-                                    title="Sedang dalam proses pemotretan">Sedang Foto</span>
-                                <span class="badge badge-danger" data-toggle="tooltip" data-placement="auto"
-                                    title="Jadwal Booking Dibatalkan">Dibatalkan</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div id='calendar'></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 p-0">
-            <h3 class="mb-3 p-0 pl-3">Booking</h3>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-info">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->count() }}</div>
-                            <div class="font-14 text-white weight-500">
-                                Total Booking
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-info">
-                                <i class="icon-copy dw dw-calendar1"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-info">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 0)->count() }}
-                            </div>
-                            <div class="font-14 text-white weight-500">
-                                Diajukan
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-info">
-                                <i class="icon-copy dw dw-question"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-success">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 1)->count() }}
-                            </div>
-                            <div class="font-14 text-white weight-500">
-                                Dibooking
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-success">
-                                <i class="icon-copy dw dw-checked"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-primary">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 2)->count() }}
-                            </div>
-                            <div class="font-14 text-white weight-500">
-                                Selesai
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-primary">
-                                <i class="icon-copy fa fa-calendar-check-o" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-danger">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 3)->count() }}
-                            </div>
-                            <div class="font-14 text-white weight-500">
-                                Ditolak
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-danger">
-                                <i class="icon-copy dw dw-cancel"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-secondary">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 4)->count() }}
-                            </div>
-                            <div class="font-14 text-white weight-500">
-                                Expired
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-secondary">
-                                <i class="icon-copy dw dw-calendar-8"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-warning">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-dark">{{ $rents->where('rent_status', 5)->count() }}
-                            </div>
-                            <div class="font-14 text-dark weight-500">
-                                Belum Bayar
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-dark">
-                            <div class="icon text-warning">
-                                <i class="icon-copy dw dw-money-1"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-20">
-                <div class="card-box height-100-p widget-style3 bg-danger">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-white">{{ $rents->where('rent_status', 6)->count() }}
-                            </div>
-                            <div class="font-14 text-white weight-500">
-                                Dibatalkan
-                            </div>
-                        </div>
-                        <div class="widget-icon bg-white">
-                            <div class="icon text-danger">
-                                <i class="icon-copy fa fa-calendar-times-o" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
+
 @endsection
 @push('scripts')
     {{-- cek jadwal expired --}}

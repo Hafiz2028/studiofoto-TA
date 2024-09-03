@@ -28,7 +28,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="">Email</label>
-                                        <input type='text' class="form-control" wire:model='email' placeholder='Enter Email'>
+                                        <input type='text' class="form-control" wire:model='email' placeholder='Enter Email' readonly>
                                         @error('email')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror

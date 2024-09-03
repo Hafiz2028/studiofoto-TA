@@ -29,7 +29,7 @@
                     </div>
                 </div> --}}
                 <!--first-banner begin-->
-                @includeWhen(Request::is('/'), 'front.layout.inc.first-banner')
+                @includeWhen(Request::is('/') || Request::is('/customer'), 'front.layout.inc.first-banner')
                 <!--first-banner end-->
             </div>
         </div>

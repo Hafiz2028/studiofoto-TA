@@ -320,11 +320,10 @@
                                     <div class="col-md-6 col-lg-12">
                                         <div class="form-group">
                                             <label><strong>Upload Foto Venue</strong></label>
-
                                             <div class="d-flex mb-2" style="max-width: 100%; overflow-x: auto;">
                                                 @foreach ($venueImages as $index => $image)
                                                     <div class="mr-2 position-relative">
-                                                        @if ($index != 0 && $image)
+                                                        @if ($index != 0)
                                                             <button
                                                                 class="btn btn-outline-danger btn-sm position-absolute"
                                                                 style="top: 5px; right: 5px;" type="button"
@@ -332,7 +331,7 @@
                                                                 &times;
                                                             </button>
                                                         @endif
-                                                        @if ($image && in_array($image->guessExtension(), ['jpg', 'jpeg', 'png', 'gif']))
+                                                        @if ($image)
                                                             <img src="{{ $image->temporaryUrl() }}" alt="Preview"
                                                                 style="width: 150px; height: auto;">
                                                         @else
@@ -343,29 +342,22 @@
                                                     </div>
                                                 @endforeach
                                             </div>
-
-                                            <!-- Input file untuk gambar -->
                                             @for ($i = 0; $i < count($venueImages); $i++)
                                                 <input type="file"
                                                     class="form-control mb-2 @error('venueImages.' . $i) is-invalid @enderror"
-                                                    name="venueImages.{{ $i }}"
                                                     wire:model="venueImages.{{ $i }}" required
                                                     style="width: 100%;">
                                                 @error('venueImages.' . $i)
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             @endfor
-
-                                            <!-- Jika tidak ada foto, tampilkan satu input file -->
                                             @if (count($venueImages) == 0)
-                                                <input type="file" class="form-control mb-2" name="venueImages.0"
+                                                <input type="file" class="form-control mb-2"
                                                     wire:model="venueImages.0" required style="width: 100%;">
                                             @endif
-
                                             <!-- Tombol untuk menambah foto -->
                                             <button class="btn btn-outline-primary m-3" type="button"
                                                 wire:click="addImage">Tambah Foto</button>
-
                                         </div>
                                     </div>
                                 </div>
@@ -454,13 +446,15 @@
         <div class="actions-buttons d-flex justify-content-between bg-white pt-2 pb-2">
             @if ($currentStep == 1)
                 <div></div>
-                <button type="submit" class="btn btn-primary btn-lg">{{ $venue && $venue->exists ? 'Update' : 'Submit' }}</button>
+                <button type="submit"
+                    class="btn btn-primary btn-lg">{{ $venue && $venue->exists ? 'Update' : 'Submit' }}</button>
                 <button type="button" class="btn btn-outline-success" wire:click="increaseStep()">Next</button>
             @endif
 
             @if ($currentStep == 2 || $currentStep == 3 || $currentStep == 4 || $currentStep == 5)
                 <button type="button" class="btn btn-outline-secondary" wire:click="decreaseStep()">Back</button>
-                <button type="submit" class="btn btn-primary btn-lg">{{ $venue && $venue->exists ? 'Update' : 'Submit' }}</button>
+                <button type="submit"
+                    class="btn btn-primary btn-lg">{{ $venue && $venue->exists ? 'Update' : 'Submit' }}</button>
             @endif
 
             @if ($currentStep == 2 || $currentStep == 3 || $currentStep == 4)

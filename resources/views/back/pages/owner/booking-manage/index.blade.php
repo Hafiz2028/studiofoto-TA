@@ -167,13 +167,13 @@
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                                                     <a href="{{ route('owner.booking.show', $rent->id) }}"
-                                                        class="dropdown-item text-info" data-toggle="tooltip"
-                                                        data-placement="auto" title="Detail Booking"
+                                                        class="dropdown-item text-info detail-schedule"
+                                                        data-toggle="tooltip" data-placement="auto" title="Detail Booking"
                                                         data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
                                                             class="dw dw-eye"></i> Detail</a>
-                                                    {{-- <script>
+                                                    <script>
                                                         const editUrlBase = "{{ route('owner.booking.edit', ':id') }}";
-                                                    </script> --}}
+                                                    </script>
                                                     @if ($rent->rent_status >= 0 && $rent->rent_status <= 7)
                                                         @if ($rent->rent_status == 0)
                                                             <a href="" class="dropdown-item text-success"
@@ -338,7 +338,7 @@
                                                         </p>
                                                         <div class="form-group">
                                                             <label for="batalReason{{ $rent->id }}">Berikan
-                                                                alasan Jadwal Booking Ditolak:</label>
+                                                                alasan Jadwal Booking Dibatalkan:</label>
                                                             <textarea id="batalReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
                                                         </div>
                                                     </div>
@@ -470,6 +470,17 @@
                             setTimeout(function() {
                                 window.location.href = editUrl;
                             }, 1000);
+                        }
+                    });
+                });
+            });
+            document.querySelectorAll('.detail-schedule').forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const rentId = this.getAttribute('data-rent-id');
+                    checkExpiredSchedule(function(isExpired) {
+                        if (!isExpired) {
+                            window.location.href = button.getAttribute('href');
                         }
                     });
                 });

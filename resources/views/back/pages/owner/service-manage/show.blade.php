@@ -10,7 +10,7 @@
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
-                        @if (auth()->guard('owner')->check())
+                        @if (auth()->check() && auth()->user()->role === 'owner')
                             <li class="breadcrumb-item">
                                 <a href="{{ route('owner.home') }}">Home</a>
                             </li>
@@ -24,7 +24,7 @@
                                 Detail Service
                             </li>
                         @endif
-                        @if (auth()->guard('admin')->check())
+                        @if (auth()->check() && auth()->user()->role === 'admin')
                             <li class="breadcrumb-item">
                                 <a href="{{ route('admin.home') }}">Home</a>
                             </li>
@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    @if (auth()->guard('owner')->check())
+    @if (auth()->check() && auth()->user()->role === 'owner')
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="card-box p-2">
@@ -162,7 +162,7 @@
                                         <th class="table-plus">#</th>
                                         <th>Nama Paket</th>
                                         <th>Metode Pembayaran</th>
-                                        @if (auth()->guard('owner')->check())
+                                        @if (auth()->check() && auth()->user()->role === 'owner')
                                             <th class="datatable-nosort">Action</th>
                                         @endif
                                     </tr>
@@ -200,7 +200,7 @@
                                                             Diatur</span>
                                                     @endif
                                                 </td>
-                                                @if (auth()->guard('owner')->check())
+                                                @if (auth()->check() && auth()->user()->role === 'owner')
                                                     <td>
                                                         <div class="dropdown">
                                                             <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"

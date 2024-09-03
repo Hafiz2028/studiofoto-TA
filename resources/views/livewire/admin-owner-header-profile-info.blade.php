@@ -1,13 +1,13 @@
 <div>
 
-    @if (Auth::guard('admin')->check())
-        <div class="user-info-dropdown">
+    @if (auth()->check() && auth()->user()->role === 'admin')
+        <div class="user-info-dropdown"> 
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     <span class="user-icon">
-                        <img src="{{ $admin->picture }}" alt="" />
+                        <img src="{{ $user->picture }}" alt="" />
                     </span>
-                    <span class="user-name">{{ $admin->name }}</span>
+                    <span class="user-name">{{ $user->name }}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                     <a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="dw dw-user1"></i> Profile</a>
@@ -25,14 +25,14 @@
                 </div>
             </div>
         </div>
-    @elseif(Auth::guard('owner')->check())
+    @elseif(auth()->check() && auth()->user()->role === 'owner')
         <div class="user-info-dropdown">
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     <span class="user-icon">
-                        <img src="{{ $owner->picture }}" alt="" />
+                        <img src="{{ $user->picture }}" alt="" />
                     </span>
-                    <span class="user-name">{{ $owner->name }}</span>
+                    <span class="user-name">{{ $user->name }}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                     <a class="dropdown-item" href="{{ route('owner.profile') }}"><i class="dw dw-user1"></i> Profile</a>

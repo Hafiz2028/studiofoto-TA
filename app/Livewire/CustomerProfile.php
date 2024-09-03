@@ -12,7 +12,7 @@ class CustomerProfile extends Component
     public $tab = null;
     public $tabname = 'personal_details';
     protected $queryString = ['tab' => ['keep' => true]];
-    public $name, $email, $username, $customer_id, $handphone, $address, $ktp;
+    public $name, $email, $username, $user_id, $handphone, $address;
     public $current_password, $new_password, $new_password_confirmation;
 
     public function selectTab($tab)
@@ -23,30 +23,35 @@ class CustomerProfile extends Component
     {
         $this->tab = request()->tab ? request()->tab : $this->tabname;
 
-        if (Auth::guard('customer')->check()) {
-            $customer = Customer::findOrFail(auth()->id());
-            $this->customer_id = $customer->id;
-            $this->name = $customer->name;
-            $this->email = $customer->email;
-            $this->username = $customer->username;
-            $this->handphone = $customer->handphone;
-            $this->address = $customer->address;
-            $this->ktp = $customer->ktp;
+        if (Auth::check()) {
+            $user = Auth::user();
+            $this->user_id = $user->id;
+            $this->name = $user->name;
+            $this->email = $user->email;
+            $this->username = $user->username;
+            $this->handphone = $user->handphone;
+            $this->address = $user->address;
         }
     }
     public function updateCustomerPersonalDetails()
     {
         $this->validate([
             'name' => 'required|min:5',
-            'username' => 'required|min:3|unique:customers,username,' . $this->customer_id,
+            'username' => 'required|min:3|unique:users,username,' . $this->user_id,
         ]);
-        $customer = Customer::findOrFail(auth('customer')->id());
-        $customer->name = $this->name;
-        $customer->username = $this->username;
-        $customer->handphone = $this->handphone;
-        $customer->address = $this->address;
-        $update = $customer->save();
-
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'customer') {
+                $user->id = $this->user_id;
+                $user->name = $this->name;
+                $user->username = $this->username;
+                $user->handphone = $this->handphone;
+                $user->address = $this->address;
+                $update = $user->save();
+            } else {
+                return redirect()->route('customer.profile')->with('fail', 'Bukan pengguna Customer.');
+            }
+        }
         if ($update) {
             return redirect()->route('customer.profile')->with('success', 'Your personal details have been updated');
             $this->dispatch('updateCustomerHeaderInfo');
@@ -65,8 +70,10 @@ class CustomerProfile extends Component
     {
         $this->validate([
             'current_password' => [
-                'required', function ($attribute, $value, $fail) {
-                    if (!Hash::check($value, Customer::find(auth('customer')->id())->password)) {
+                'required',
+                function ($attribute, $value, $fail) {
+                    $user = auth()->user();
+                    if (!Hash::check($value, $user->password)) {
                         return $fail(__('The current password is incorrect'));
                     }
                 }
@@ -74,14 +81,14 @@ class CustomerProfile extends Component
             'new_password' => 'required|min:5|max:45|confirmed'
         ]);
 
-        $query = Customer::findOrFail(auth('customer')->id())->update([
+        $user = auth()->user();
+        $query = $user->update([
             'password' => Hash::make($this->new_password)
         ]);
         if ($query) {
             //send notification
-            $_customer = Customer::findOrFail($this->customer_id);
             $data = array(
-                'customer' => $_customer,
+                'user' => $user,
                 'new_password' => $this->new_password
             );
 
@@ -90,8 +97,8 @@ class CustomerProfile extends Component
             $mailConfig = array(
                 'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
                 'mail_from_name' => env('EMAIL_FROM_NAME'),
-                'mail_recipient_email' => $_customer->email,
-                'mail_recipient_name' => $_customer->name,
+                'mail_recipient_email' => $user->email,
+                'mail_recipient_name' => $user->name,
                 'mail_subject' => 'Password Changed',
                 'mail_body' => $mail_body
             );
@@ -106,8 +113,10 @@ class CustomerProfile extends Component
     }
     public function render()
     {
-        return view('livewire.customer-profile', [
-            'customer' => Customer::findOrFail(auth('customer')->id())
-        ]);
+        $user = Auth::user();
+        if ($user && $user->role === 'customer') {
+            return view('livewire.customer-profile', ['user' => $user]);
+        }
+        return view('livewire.customer-profile', ['user' => null]);
     }
 }

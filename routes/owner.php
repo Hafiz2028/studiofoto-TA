@@ -11,7 +11,7 @@ use App\Http\Controllers\TransactionController;
 
 
 Route::prefix('owner')->name('owner.')->group(function () {
-    Route::middleware(['guest:owner', 'PreventBackHistory'])->group(function () {
+    Route::middleware(['guest', 'PreventBackHistory'])->group(function () {
         Route::controller(OwnerController::class)->group(function () {
             Route::get('/login', 'login')->name('login');
             Route::post('/login_handler', 'loginHandler')->name('login-handler');
@@ -25,7 +25,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
             Route::post('/reset-password-handler', 'resetPasswordHandler')->name('reset-password-handler');
         });
     });
-    Route::middleware(['auth:owner', 'PreventBackHistory'])->group(function () {
+    Route::middleware(['auth', 'role:owner', 'PreventBackHistory'])->group(function () {
         //route saat admin autentikasi
         Route::controller(OwnerController::class)->group(function () {
             Route::get('/', 'home')->name('home');
@@ -35,7 +35,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
             Route::post('/change-ktp-image', 'changeKtpImage')->name('change-ktp-image');
             Route::post('/change-logo-image', 'changeLogoImage')->name('change-logo-image');
         });
-        //sidebar route
+        //sidebar route 
         //menu venue's manage
         Route::resource('venue', VenueController::class);
         Route::get('/venue/districts', [VenueController::class, 'getDistricts'])->name('districts');

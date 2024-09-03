@@ -13,21 +13,13 @@ class Customer extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $guard = "customer";
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'username',
-        'email',
-        'password',
-        'handphone',
-        'address',
-        'picture',
+        'user_id',
         'email_verified_at',
         'verified',
     ];
@@ -49,15 +41,14 @@ class Customer extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function getPictureAttribute($value)
     {
-        if ($value) {
-            return asset('/images/users/customers/' . $value);
-        } else {
-            return asset('/images/users/default-avatar.png');
-        }
+        return $value ? asset('/images/users/customers/' . $value) : asset('/images/users/default-avatar.png');
     }
     public function rents()
     {

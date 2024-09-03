@@ -1,6 +1,6 @@
-<p>Dear {{$admin->name}}</p>
+<p>Dear {{$user->name}}</p>
 <p>
-    We are received a request to reset the password for FotoYuk account associated with {{ $admin->email }}.
+    We are received a request to reset the password for FotoYuk account associated with {{ $user->email }}.
     You can reset your password by clicking the button below:
     <br>
     <br>

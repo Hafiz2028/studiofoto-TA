@@ -5,32 +5,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3">
-                    {{-- <div class="hero__categories">
-                        <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>Service Event Type</span>
-                        </div>
-                        <ul>
-                            @if (count(get_service_types()) > 0)
-                                @foreach (get_service_types() as $service_type)
-                                    <li data-filter=".{{ $service_type->service_slug }}"><a
-                                            href="#featured-section">{{ $service_type->service_name }}</a></li>
-                                @endforeach
-                            @else
-                                <li><a class="text-danger" href="#">No Service Event</a></li>
-                            @endif
-                        </ul>
-                    </div> --}}
                 </div>
                 <div class="col-lg-9">
                     <div class="hero__search">
                         <div class="hero__search__form" style="width: 100%">
-                            <form action="#">
-                                {{-- <div class="hero__search__categories">
-                                All Categories
-                                <span class="arrow_carrot-down"></span>
-                            </div> --}}
-                                <input type="text" placeholder="Find Photo Studio...">
+                            <form id="searchForm" action="{{ url()->current() }}" method="GET">
+                                <input type="text" id="searchInput"name="search" value="{{ request('search') }}"
+                                    placeholder="Find Photo Studio...">
                                 <button type="submit" class="site-btn">SEARCH</button>
                             </form>
                         </div>
@@ -69,43 +50,35 @@
                         <h4>Lokasi Studio Terdaftar</h4>
                         <ul>
                             <li class="{{ empty(request('district_id')) && empty(request('village_id')) ? 'active' : '' }}">
-                                <a href="{{ url()->current() }}#venueSection">Semua Studio Foto ({{ $totalVenuesCount }})</a>
+                                <a href="{{ url()->current() }}#venueSection">Semua Studio Foto
+                                    ({{ $totalVenuesCount }})</a>
                             </li>
                             @foreach ($districts as $districtName => $villages)
                                 @php
-                                    $activeDistrict = false;
+                                    $districtId = $villages->first()->district_id; // Ambil district_id dari salah satu village
+                                    $districtName = $villages->first()->district->name;
+                                    $activeDistrict = request('district_id') == $districtId;
                                     $activeVillage = false;
-
-                                    if (request('district_id') == $villages->first()->district_id) {
-                                        $activeDistrict = true;
-                                    }
-
-                                    foreach ($villages as $village) {
-                                        if (request('village_id') == $village->id) {
-                                            $activeDistrict = true;
-                                            $activeVillage = true;
-                                            break;
-                                        }
-                                    }
                                 @endphp
-                                <li
-                                    class="has-submenu {{ $activeDistrict && $activeDistrict == $villages->first()->district_id ? 'active' : '' }}">
-                                    <a
-                                        href="{{ url()->current() }}?district_id={{ $villages->first()->district_id }}#venueSection">
+                                <li class="has-submenu {{ $activeDistrict ? 'active' : '' }}">
+                                    <a href="{{ url()->current() }}?district_id={{ $districtId }}#venueSection">
                                         {{ ucwords(strtolower($districtName)) }}
                                         ({{ $districtVenuesCount[$districtName] ?? 0 }})
                                     </a>
                                     @if ($villages->isNotEmpty())
                                         <ul class="submenu">
                                             @foreach ($villages as $village)
-                                                <li
-                                                    class="{{ $activeVillage && request('village_id') == $village->id ? 'active' : '' }}">
-                                                    <a
-                                                        href="{{ url()->current() }}?village_id={{ $village->id }}#venueSection">
-                                                        {{ ucwords(strtolower($village->name)) }}
-                                                        ({{ $villageVenuesCount[$village->id] ?? 0 }})
-                                                    </a>
-                                                </li>
+                                                @if (($villageVenuesCount[$village->id] ?? 0) > 0)
+                                                    {{-- Hanya tampilkan jika jumlah venue > 0 --}}
+                                                    <li
+                                                        class="{{ $activeVillage && request('village_id') == $village->id ? 'active' : '' }}">
+                                                        <a
+                                                            href="{{ url()->current() }}?village_id={{ $village->id }}#venueSection">
+                                                            {{ ucwords(strtolower($village->name)) }}
+                                                            ({{ $villageVenuesCount[$village->id] ?? 0 }})
+                                                        </a>
+                                                    </li>
+                                                @endif
                                             @endforeach
                                         </ul>
                                     @endif
@@ -141,104 +114,111 @@
                                     <h6><span>{{ $venues->total() }}</span> Venue ditemukan</h6>
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-3">
-                                {{-- <div class="filter__option">
-                                    <span class="icon_grid-2x2"></span>
-                                    <span class="icon_ul"></span>
-                                </div> --}}
-                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        @if ($venues->isEmpty())
-                            <div class="col-lg-12">
-                                <div class="alert alert-warning text-center" role="alert">
-                                    Tidak ada studio foto yang tersedia di lokasi ini.
+                    <div id="productContainer">
+                        <div class="row">
+                            @if ($venues->isEmpty())
+                                <div class="col-lg-12">
+                                    <div class="alert alert-warning text-center" role="alert">
+                                        Tidak ada studio foto yang tersedia di lokasi ini.
+                                    </div>
                                 </div>
-                            </div>
-                        @else
-                            @foreach ($venues as $venue)
-                                <div class="col-lg-4 col-md-6 col-sm-6">
-                                    <div class="product__item">
-                                        <div class="product__item__pic set-bg"
-                                            @if ($venue->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
+                            @else
+                                @foreach ($venues as $venue)
+                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                        <div class="product__item" data-name="{{ $venue->name }}">
+                                            <div class="product__item__pic set-bg"
+                                                @if ($venue->venueImages->isNotEmpty()) data-setbg="/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}"
                                 alt="{{ $venue->venueImages->first()->image }}"
                                 style="background-image: url('/images/venues/Venue_Image/{{ $venue->venueImages->first()->image }}');"
                                 @else
                                     data-setbg="/images/venues/Venue_Image/default-venue.png"
                                     alt="Tidak Ada Gambar Venue" @endif>
-                                            <ul class="product__item__pic__hover">
-                                                <li>
-                                                    @if (filter_var($venue->map_link, FILTER_VALIDATE_URL))
-                                                        <a href="{{ $venue->map_link }}" target="_blank"
-                                                            onclick="return openLink(event, '{{ $venue->map_link }}')">
-                                                            <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
-                                                                title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                <ul class="product__item__pic__hover">
+                                                    <li>
+                                                        @if (filter_var($venue->map_link, FILTER_VALIDATE_URL))
+                                                            <a href="{{ $venue->map_link }}" target="_blank"
+                                                                onclick="return openLink(event, '{{ $venue->map_link }}')">
+                                                                <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                                    title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                            </a>
+                                                        @else
+                                                            <a href="#" onclick="swalAlert(); return false;">
+                                                                <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
+                                                                    title="Lihat Lokasi di Maps" aria-hidden="true"></i>
+                                                            </a>
+                                                        @endif
+                                                    </li>
+                                                    <li>
+                                                        @if (auth()->check() && auth()->user()->role === 'customer')
+                                                            <a href="{{ route('customer.detail-venue', $venue->id) }}">
+                                                                <i class="fas fa-info" data-toogle="tooltip"
+                                                                    title="Detail Studio Foto"
+                                                                    data-placement="auto"></i></a>
+                                                        @else
+                                                            <a
+                                                                href="{{ route('customer.detail-venue-not-login', $venue->id) }}">
+                                                                <i class="fas fa-info" data-toogle="tooltip"
+                                                                    title="Detail Studio Foto"
+                                                                    data-placement="auto"></i></a>
+                                                        @endif
+                                                    </li>
+                                                    <li>
+                                                        @php
+                                                            $phone_number = $venue->phone_number;
+                                                            if (substr($phone_number, 0, 2) == '08') {
+                                                                $phone_number = '628' . substr($phone_number, 2);
+                                                            }
+                                                        @endphp
+                                                        <a href="https://wa.me/{{ $phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
+                                                            target="_blank" data-toogle="tooltip"
+                                                            title="Chat pihak Studio Foto" data-placement="auto">
+                                                            <i class="fab fa-whatsapp" style="font-size:6mm;"></i>
                                                         </a>
-                                                    @else
-                                                        <a href="#" onclick="swalAlert(); return false;">
-                                                            <i class="icon-copy fa fa-map-marker" data-toggle="tooltip"
-                                                                title="Lihat Lokasi di Maps" aria-hidden="true"></i>
-                                                        </a>
-                                                    @endif
-                                                </li>
-                                                <li>
-                                                    @if (auth()->guard('customer')->check())
-                                                        <a href="{{ route('customer.detail-venue', $venue->id) }}">
-                                                            <i class="fas fa-info" data-toogle="tooltip"
-                                                                title="Detail Studio Foto" data-placement="auto"></i></a>
-                                                    @else
-                                                        <a
-                                                            href="{{ route('customer.detail-venue-not-login', $venue->id) }}">
-                                                            <i class="fas fa-info" data-toogle="tooltip"
-                                                                title="Detail Studio Foto" data-placement="auto"></i></a>
-                                                    @endif
-                                                </li>
-                                                <li>
-                                                    @php
-                                                        $phone_number = $venue->phone_number;
-                                                        if (substr($phone_number, 0, 2) == '08') {
-                                                            $phone_number = '628' . substr($phone_number, 2);
-                                                        }
-                                                    @endphp
-                                                    <a href="https://wa.me/{{ $phone_number }}?text={{ urlencode('Halo, saya ingin booking jadwal studio foto.') }}"
-                                                        target="_blank" data-toogle="tooltip" title="Chat pihak Studio Foto"
-                                                        data-placement="auto">
-                                                        <i class="fab fa-whatsapp" style="font-size:6mm;"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="product__item__text">
-                                            @if (auth()->guard('customer')->check())
-                                                <h6><a
-                                                        href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
-                                                </h6>
-                                            @else
-                                                <h6><a
-                                                        href="{{ route('customer.detail-venue-not-login', $venue->id) }}">{{ $venue->name }}</a>
-                                                </h6>
-                                            @endif
-                                            <h5 style="font-size: 16px; color: #333; margin-top: 10px; text-align:left;">
-                                                <span
-                                                    style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
-                                                    from</span> Rp.
-                                                {{ number_format($venue->min_price ?? 0, 2, ',', '.') }}
-                                            </h5>
-                                            {{-- <h6 style="text-align: left;"> {{$phone_number}}</h6> --}}
-                                            <p class="mt-2" style="text-align: left;">
-                                                {{ ucwords(strtolower($venue->address)) }},
-                                                {{ ucwords(strtolower($venue->village->district->name)) }},
-                                                {{ ucwords(strtolower($venue->village->name)) }},
-                                            </p>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="product__item__text">
+                                                @if (auth()->check() && auth()->user()->role === 'customer')
+                                                    <h6><a
+                                                            href="{{ route('customer.detail-venue', $venue->id) }}">{{ $venue->name }}</a>
+                                                    </h6>
+                                                @else
+                                                    <h6><a
+                                                            href="{{ route('customer.detail-venue-not-login', $venue->id) }}">{{ $venue->name }}</a>
+                                                    </h6>
+                                                @endif
+                                                <h5
+                                                    style="font-size: 16px; color: #333; margin-top: 10px; text-align:left;">
+                                                    <span
+                                                        style="display: inline-block; font-size: 12px; vertical-align: super; font-weight: normal;">Start
+                                                        from</span> Rp.
+                                                    {{ number_format($venue->min_price ?? 0, 2, ',', '.') }}
+                                                </h5>
+                                                {{-- <h6 style="text-align: left;"> {{$phone_number}}</h6> --}}
+                                                <p class="mt-2" style="text-align: left;">
+                                                    {{ ucwords(strtolower($venue->address)) }},
+                                                    {{ ucwords(strtolower($venue->village->name)) }},
+                                                    {{ ucwords(strtolower($venue->village->district->name)) }}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
-                        @endif
+                                @endforeach
+                            @endif
+                        </div>
                     </div>
                     <div class="product__pagination">
-                        {{ $venues->links() }}
+                        @if ($venues->lastPage() > 1)
+                            @for ($i = 1; $i <= $venues->lastPage(); $i++)
+                                <a href="{{ $venues->url($i) }}"
+                                    class="{{ $venues->currentPage() == $i ? 'active' : '' }}">{{ $i }}</a>
+                            @endfor
+                            @if ($venues->hasMorePages())
+                                <a href="{{ $venues->nextPageUrl() }}"><i class="fas fa-long-arrow-alt-right"></i></a>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
@@ -366,6 +346,24 @@
 @endpush
 @push('scripts')
     <script>
+        $(function() {
+            $("#searchInput").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ url('/api/venue-suggestions') }}",
+                        dataType: "json",
+                        data: {
+                            query: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
         $(document).ready(function() {
             $('[data-toggle="tooltip"]').tooltip();
         });
@@ -407,16 +405,6 @@
         });
     </script>
     <script>
-        function swalAlert() {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Link tidak valid',
-                text: 'Link Lokasi dari Studio Foto tidak Valid',
-                showConfirmButton: true
-            });
-        }
-    </script>
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
             var sortIcons = document.querySelectorAll('#sortBy i');
 
@@ -437,5 +425,15 @@
                 document.querySelector(window.location.hash).scrollIntoView();
             }
         });
+    </script>
+    <script>
+        function swalAlert() {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Link tidak valid',
+                text: 'Link Lokasi dari Studio Foto tidak Valid',
+                showConfirmButton: true
+            });
+        }
     </script>
 @endpush

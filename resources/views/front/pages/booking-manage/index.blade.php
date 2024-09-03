@@ -66,7 +66,7 @@
                         <tbody class="table-border-bottom-0" id="sortable_services">
                             @if (!$rents->count() > 0)
                                 <tr>
-                                    <td colspan="7">
+                                    <td colspan="8">
                                         <div class="alert alert-info text-center">Tidak Ada Venue yang Dibooking.</div>
                                     </td>
                                 </tr>

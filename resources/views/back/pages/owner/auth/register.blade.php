@@ -42,6 +42,16 @@
                 @enderror
             </div>
             <div class="form-group">
+                <label for="">No HP</label>
+                <input type="number" class="form-control" name="handphone" placeholder="Enter Phone Number..."
+                    value="{{ old('handphone') }}">
+                @error('handphone')
+                    <span class="text-danger ml-2">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
+            <div class="form-group">
                 <label for="">Password</label>
                 <input type="password" class="form-control" name="password" placeholder="Enter Password..."
                     value="{{ old('password') }}" id="show_hide_password">

@@ -1,7 +1,7 @@
-<p>Dear {{ $customer->name }}</p>
+<p>Dear {{ $user->name }}</p>
 <p>
     We are receiving this email because you requested to reset your password for <b>FotoYuk</b> account associated with
-    {{ $customer->email }}.
+    {{ $user->email }}.
 </p>
 <p>You can reset your password by clicking the link below: <br> <br>
     <a href="{{ $actionLink }}" target="_blank">{{ $actionLink }}</a><br>
