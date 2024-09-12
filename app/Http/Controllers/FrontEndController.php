@@ -38,7 +38,7 @@ class FrontEndController extends Controller
 
         return view('front.pages.home', $data);
     }
-    function get_venues_with_min_price()
+    public function getVenuesWithMinPrice()
     {
         $venues = Venue::where('status', 1)->orderBy('id', 'ASC')->get();
 
@@ -74,7 +74,7 @@ class FrontEndController extends Controller
             $sortDirection = 'asc';
         }
         // Use the helper function to get venues with the correct min_price
-        $venues = get_venues_with_min_price();
+        $venues = $this->getVenuesWithMinPrice();
 
         // Filter venues based on status and search criteria
         $query = $venues->filter(function ($venue) {
