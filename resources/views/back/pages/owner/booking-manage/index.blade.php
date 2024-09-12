@@ -44,318 +44,331 @@
                                 Jadwal</a>
                         </div>
                     </div>
-                    <table class="data-table table stripe hover nowrap">
-                        <thead>
-                            <tr>
-                                <th class="table-plus">#</th>
-                                <th>Tanggal</th>
-                                <th>Nama</th>
-                                <th>Venue</th>
-                                <th>No HP / WA</th>
-                                <th>Jadwal Foto</th>
-                                <th>Status</th>
-                                <th>Pembayaran</th>
-                                <th class="datatable-nosort">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0" id="sortable_services">
-                            @if (!$rents->count() > 0)
+                    <div class="table-responsive">
+                        <table class="data-table table stripe hover nowrap">
+                            <thead>
                                 <tr>
-                                    <td colspan="10">
-                                        <div class="alert alert-info text-center">Tidak Ada Venue yang Dibooking.</div>
-                                    </td>
+                                    <th class="table-plus">#</th>
+                                    <th>Tanggal</th>
+                                    <th>Nama</th>
+                                    <th>Venue</th>
+                                    <th>No HP / WA</th>
+                                    <th>Jadwal Foto</th>
+                                    <th>Status</th>
+                                    <th>Pembayaran</th>
+                                    <th class="datatable-nosort">Actions</th>
                                 </tr>
-                            @else
-                                @foreach ($rents as $rent)
-                                    <tr id="rent-{{ $rent->id }}">
-                                        <td class="table-plus">{{ $loop->iteration }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</td>
-                                        <td>{{ $rent->name }}
-                                        </td>
-                                        <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}
-                                        </td>
-                                        <td>
-                                            @php
-                                                $no_hp = $rent->no_hp;
-                                                if (substr($no_hp, 0, 2) == '08') {
-                                                    $no_hp = '628' . substr($no_hp, 2);
-                                                }
-                                            @endphp
-                                            <a href="https://wa.me/{{ $no_hp }}" target="_blank"
-                                                data-toggle="tooltip" title="Chat Tenant {{ $rent->name }}"
-                                                data-placement="auto" style="text-decoration: underline; color: blue;">
-                                                {{ $no_hp }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            @if ($rent->formatted_schedule == null)
-                                                <div class="badge badge-danger">Tidak ada</div>
-                                            @else
-                                                {{ $rent->formatted_schedule }}
-                                            @endif
-                                        </td>
-                                        <td style="text-align: center;">
-                                            @if ($rent->formatted_schedule == null)
-                                                <span class="badge badge-danger">Jadwal Salah</span>
-                                            @else
-                                                @if ($rent->rent_status == 0)
-                                                    <span class="badge badge-info "><i class="icon-copy dw dw-question"></i>
-                                                        Diajukan</span>
-                                                @elseif ($rent->rent_status == 1)
-                                                    <span class="badge badge-success "><i
-                                                            class="icon-copy dw dw-checked"></i> Dibooking</span>
-                                                @elseif ($rent->rent_status == 2)
-                                                    <span class="badge badge-primary "><i
-                                                            class="icon-copy fa fa-calendar-check-o" aria-hidden="true"></i>
-                                                        Selesai</span>
-                                                @elseif ($rent->rent_status == 3)
-                                                    <span class="badge badge-danger "><i class="icon-copy dw dw-cancel"></i>
-                                                        Ditolak</span>
-                                                @elseif ($rent->rent_status == 4)
-                                                    <span class="badge badge-secondary "><i
-                                                            class="icon-copy dw dw-calendar-8"></i> Expired</span>
-                                                @elseif ($rent->rent_status == 5)
-                                                    <span class="badge badge-warning "><i
-                                                            class="icon-copy dw dw-money-1"></i> Belum Bayar</span>
-                                                @elseif ($rent->rent_status == 6)
-                                                    <span class="badge badge-dark "><i class="icon-copy fa fa-camera-retro"
-                                                            aria-hidden="true"></i>
-                                                        Sedang Foto</span>
-                                                @elseif ($rent->rent_status == 7)
-                                                    <span class="badge badge-danger "><i
-                                                            class="icon-copy fa fa-calendar-times-o" aria-hidden="true"></i>
-                                                        Dibatalkan</span>
-                                                @else
-                                                    <span class="badge badge-danger ">Tidak Valid</span>
-                                                @endif
-                                            @endif
-                                        </td>
-                                        <td style="text-align: center;">
-                                            @if ($rent->rent_status != 4)
-                                                @if ($rent->dp_payment != null)
-                                                    <span class="badge badge-success"><i
-                                                            class="icon-copy dw dw-money-2"></i>
-                                                        Lunas</span>
-                                                @else
-                                                    @if ($rent->dp_price == $rent->total_price)
-                                                        <span class="badge badge-success"><i
-                                                                class="icon-copy dw dw-money-2"></i> Lunas</span>
-                                                    @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
-                                                        <span class="badge badge-warning "><i
-                                                                class="icon-copy dw dw-money-2"></i>
-                                                            Dp (Rp
-                                                            {{ number_format($rent->dp_price) }})</span>
-                                                    @elseif ($rent->dp_price == null)
-                                                        <span class="badge badge-danger "><i
-                                                                class="icon-copy dw dw-question"></i> Dp (0)</span>
-                                                    @else
-                                                        <span class="badge badge-danger "><i
-                                                                class="icon-copy dw dw-cancel"></i>
-                                                            Tidak Valid</span>
-                                                    @endif
-                                                @endif
-                                            @else
-                                                <span class="badge badge-secondary "><i
-                                                        class="icon-copy dw dw-calendar-8"></i> Expired</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
-                                                    href="#" role="button" data-toggle="dropdown">
-                                                    <i class="dw dw-more"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                                    <a href="{{ route('owner.booking.show', $rent->id) }}"
-                                                        class="dropdown-item text-info detail-schedule"
-                                                        data-toggle="tooltip" data-placement="auto" title="Detail Booking"
-                                                        data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                            class="dw dw-eye"></i> Detail</a>
-                                                    <script>
-                                                        const editUrlBase = "{{ route('owner.booking.edit', ':id') }}";
-                                                    </script>
-                                                    @if ($rent->rent_status >= 0 && $rent->rent_status <= 7)
-                                                        @if ($rent->rent_status == 0)
-                                                            <a href="" class="dropdown-item text-success"
-                                                                data-toggle="modal"
-                                                                data-target="#acceptModal{{ $rent->id }}"
-                                                                data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                                    class="icon-copy dw dw-checked"></i> Accept</a>
-                                                            <a href="" class="dropdown-item text-danger"
-                                                                data-toggle="modal"
-                                                                data-target="#rejectModal{{ $rent->id }}"
-                                                                data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                                    class="icon-copy dw dw-cancel"></i> Reject</a>
-                                                        @endif
-                                                        @if ($rent->rent_status == 1)
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item text-primary edit-schedule"
-                                                                data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
-                                                                data-placement="auto" title="Edit Jadwal">
-                                                                <i class="dw dw-edit2"></i> Edit
-                                                            </a>
-                                                            <a href="" class="dropdown-item text-danger"
-                                                                data-toggle="modal"
-                                                                data-target="#batalModal{{ $rent->id }}"
-                                                                data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                                    class="icon-copy dw dw-cancel"></i> Cancel</a>
-                                                        @endif
-                                                        @if ($rent->rent_status == 5)
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item text-primary edit-schedule"
-                                                                data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
-                                                                data-placement="auto" title="Edit Jadwal">
-                                                                <i class="dw dw-edit2"></i> Edit
-                                                            </a>
-                                                            <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
-                                                                class="dropdown-item text-warning" data-toggle="tooltip"
-                                                                data-placement="auto" title="Pembayaran Awal"
-                                                                data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                                    class="icon-copy dw dw-money-1"></i> Down Payment</a>
-                                                        @endif
-                                                        @if ($rent->rent_status == 3 || $rent->rent_status == 4 || $rent->rent_status == 5 || $rent->rent_status == 7)
-                                                            <a href="javascript:;"
-                                                                class="dropdown-item text-danger deleteBookingBtn"
-                                                                data-rent-id="{{ $rent->id }}" data-toggle="tooltip"
-                                                                data-rent-name="{{ $rent->name }}"
-                                                                data-placement="auto" title="Hapus Booking"
-                                                                data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
-                                                                    class="icon-copy dw dw-delete-3"></i> Delete</a>
-                                                        @endif
-                                                    @else
-                                                        <div class="alert alert-danger">Tidak Valid</div>
-                                                    @endif
-                                                </div>
-                                            </div>
+                            </thead>
+                            <tbody class="table-border-bottom-0" id="sortable_services">
+                                @if (!$rents->count() > 0)
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="alert alert-info text-center">Tidak Ada Venue yang Dibooking.</div>
                                         </td>
                                     </tr>
-                                    {{-- Acc Modal --}}
-                                    <div class="modal fade" id="acceptModal{{ $rent->id }}" tabindex="-1"
-                                        role="dialog" aria-labelledby="acceptModalLabel{{ $rent->id }}"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-success text-white">
-                                                    <h5 class="modal-title text-white"
-                                                        id="acceptModalLabel{{ $rent->id }}">
-                                                        Approve Booking</h5>
-                                                    <button type="button" class="close text-white" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
+                                @else
+                                    @foreach ($rents as $rent)
+                                        <tr id="rent-{{ $rent->id }}">
+                                            <td class="table-plus">{{ $loop->iteration }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</td>
+                                            <td>{{ $rent->name }}
+                                            </td>
+                                            <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $no_hp = $rent->no_hp;
+                                                    if (substr($no_hp, 0, 2) == '08') {
+                                                        $no_hp = '628' . substr($no_hp, 2);
+                                                    }
+                                                @endphp
+                                                <a href="https://wa.me/{{ $no_hp }}" target="_blank"
+                                                    data-toggle="tooltip" title="Chat Tenant {{ $rent->name }}"
+                                                    data-placement="auto" style="text-decoration: underline; color: blue;">
+                                                    {{ $no_hp }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                @if ($rent->formatted_schedule == null)
+                                                    <div class="badge badge-danger">Tidak ada</div>
+                                                @else
+                                                    {{ $rent->formatted_schedule }}
+                                                @endif
+                                            </td>
+                                            <td style="text-align: center;">
+                                                @if ($rent->formatted_schedule == null)
+                                                    <span class="badge badge-danger">Jadwal Salah</span>
+                                                @else
+                                                    @if ($rent->rent_status == 0)
+                                                        <span class="badge badge-info "><i
+                                                                class="icon-copy dw dw-question"></i>
+                                                            Diajukan</span>
+                                                    @elseif ($rent->rent_status == 1)
+                                                        <span class="badge badge-success "><i
+                                                                class="icon-copy dw dw-checked"></i> Dibooking</span>
+                                                    @elseif ($rent->rent_status == 2)
+                                                        <span class="badge badge-primary "><i
+                                                                class="icon-copy fa fa-calendar-check-o"
+                                                                aria-hidden="true"></i>
+                                                            Selesai</span>
+                                                    @elseif ($rent->rent_status == 3)
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy dw dw-cancel"></i>
+                                                            Ditolak</span>
+                                                    @elseif ($rent->rent_status == 4)
+                                                        <span class="badge badge-secondary "><i
+                                                                class="icon-copy dw dw-calendar-8"></i> Expired</span>
+                                                    @elseif ($rent->rent_status == 5)
+                                                        <span class="badge badge-warning "><i
+                                                                class="icon-copy dw dw-money-1"></i> Belum Bayar</span>
+                                                    @elseif ($rent->rent_status == 6)
+                                                        <span class="badge badge-dark "><i
+                                                                class="icon-copy fa fa-camera-retro" aria-hidden="true"></i>
+                                                            Sedang Foto</span>
+                                                    @elseif ($rent->rent_status == 7)
+                                                        <span class="badge badge-danger "><i
+                                                                class="icon-copy fa fa-calendar-times-o"
+                                                                aria-hidden="true"></i>
+                                                            Dibatalkan</span>
+                                                    @else
+                                                        <span class="badge badge-danger ">Tidak Valid</span>
+                                                    @endif
+                                                @endif
+                                            </td>
+                                            <td style="text-align: center;">
+                                                @if ($rent->rent_status != 4)
+                                                    @if ($rent->dp_payment != null)
+                                                        <span class="badge badge-success"><i
+                                                                class="icon-copy dw dw-money-2"></i>
+                                                            Lunas</span>
+                                                    @else
+                                                        @if ($rent->dp_price == $rent->total_price)
+                                                            <span class="badge badge-success"><i
+                                                                    class="icon-copy dw dw-money-2"></i> Lunas</span>
+                                                        @elseif ($rent->dp_price < $rent->total_price && $rent->dp_price != null)
+                                                            <span class="badge badge-warning "><i
+                                                                    class="icon-copy dw dw-money-2"></i>
+                                                                Dp (Rp
+                                                                {{ number_format($rent->dp_price) }})</span>
+                                                        @elseif ($rent->dp_price == null)
+                                                            <span class="badge badge-danger "><i
+                                                                    class="icon-copy dw dw-question"></i> Dp (0)</span>
+                                                        @else
+                                                            <span class="badge badge-danger "><i
+                                                                    class="icon-copy dw dw-cancel"></i>
+                                                                Tidak Valid</span>
+                                                        @endif
+                                                    @endif
+                                                @else
+                                                    <span class="badge badge-secondary "><i
+                                                            class="icon-copy dw dw-calendar-8"></i> Expired</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                        href="#" role="button" data-toggle="dropdown">
+                                                        <i class="dw dw-more"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                                        <a href="{{ route('owner.booking.show', $rent->id) }}"
+                                                            class="dropdown-item text-info detail-schedule"
+                                                            data-toggle="tooltip" data-placement="auto"
+                                                            title="Detail Booking"
+                                                            data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                class="dw dw-eye"></i> Detail</a>
+                                                        <script>
+                                                            const editUrlBase = "{{ route('owner.booking.edit', ':id') }}";
+                                                        </script>
+                                                        @if ($rent->rent_status >= 0 && $rent->rent_status <= 7)
+                                                            @if ($rent->rent_status == 0)
+                                                                <a href="" class="dropdown-item text-success"
+                                                                    data-toggle="modal"
+                                                                    data-target="#acceptModal{{ $rent->id }}"
+                                                                    data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                        class="icon-copy dw dw-checked"></i> Accept</a>
+                                                                <a href="" class="dropdown-item text-danger"
+                                                                    data-toggle="modal"
+                                                                    data-target="#rejectModal{{ $rent->id }}"
+                                                                    data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                        class="icon-copy dw dw-cancel"></i> Reject</a>
+                                                            @endif
+                                                            @if ($rent->rent_status == 1)
+                                                                <a href="javascript:void(0);"
+                                                                    class="dropdown-item text-primary edit-schedule"
+                                                                    data-rent-id="{{ $rent->id }}"
+                                                                    data-toggle="tooltip" data-placement="auto"
+                                                                    title="Edit Jadwal">
+                                                                    <i class="dw dw-edit2"></i> Edit
+                                                                </a>
+                                                                <a href="" class="dropdown-item text-danger"
+                                                                    data-toggle="modal"
+                                                                    data-target="#batalModal{{ $rent->id }}"
+                                                                    data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                        class="icon-copy dw dw-cancel"></i> Cancel</a>
+                                                            @endif
+                                                            @if ($rent->rent_status == 5)
+                                                                <a href="javascript:void(0);"
+                                                                    class="dropdown-item text-primary edit-schedule"
+                                                                    data-rent-id="{{ $rent->id }}"
+                                                                    data-toggle="tooltip" data-placement="auto"
+                                                                    title="Edit Jadwal">
+                                                                    <i class="dw dw-edit2"></i> Edit
+                                                                </a>
+                                                                <a href="{{ route('owner.booking.show-payment', ['booking' => $rent->id]) }}"
+                                                                    class="dropdown-item text-warning"
+                                                                    data-toggle="tooltip" data-placement="auto"
+                                                                    title="Pembayaran Awal"
+                                                                    data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                        class="icon-copy dw dw-money-1"></i> Down
+                                                                    Payment</a>
+                                                            @endif
+                                                            @if ($rent->rent_status == 3 || $rent->rent_status == 4 || $rent->rent_status == 5 || $rent->rent_status == 7)
+                                                                <a href="javascript:;"
+                                                                    class="dropdown-item text-danger deleteBookingBtn"
+                                                                    data-rent-id="{{ $rent->id }}"
+                                                                    data-toggle="tooltip"
+                                                                    data-rent-name="{{ $rent->name }}"
+                                                                    data-placement="auto" title="Hapus Booking"
+                                                                    data-schedule="{{ $rent->formatted_schedule ?? 'null' }}"><i
+                                                                        class="icon-copy dw dw-delete-3"></i> Delete</a>
+                                                            @endif
+                                                        @else
+                                                            <div class="alert alert-danger">Tidak Valid</div>
+                                                        @endif
+                                                    </div>
                                                 </div>
-                                                <div class="modal-body">
-                                                    Apakah anda yakin untuk Approve Jadwal dari
-                                                    <b>{{ $rent->name }}</b> Pada Pukul
-                                                    <b>{{ $rent->formatted_schedule }}</b> Tanggal
-                                                    <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b> ini?
+                                            </td>
+                                        </tr>
+                                        {{-- Acc Modal --}}
+                                        <div class="modal fade" id="acceptModal{{ $rent->id }}" tabindex="-1"
+                                            role="dialog" aria-labelledby="acceptModalLabel{{ $rent->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-success text-white">
+                                                        <h5 class="modal-title text-white"
+                                                            id="acceptModalLabel{{ $rent->id }}">
+                                                            Approve Booking</h5>
+                                                        <button type="button" class="close text-white"
+                                                            data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Apakah anda yakin untuk Approve Jadwal dari
+                                                        <b>{{ $rent->name }}</b> Pada Pukul
+                                                        <b>{{ $rent->formatted_schedule }}</b> Tanggal
+                                                        <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
+                                                        ini?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-danger"
+                                                            data-dismiss="modal">Cancel</button>
+                                                        <form id="approve-form"
+                                                            action="{{ route('owner.booking.approve-rent', ['id' => $rent->id]) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit" class="btn btn-outline-success">
+                                                                Approve
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-outline-danger"
-                                                        data-dismiss="modal">Cancel</button>
-                                                    <form id="approve-form"
-                                                        action="{{ route('owner.booking.approve-rent', ['id' => $rent->id]) }}"
+                                            </div>
+                                        </div>
+                                        {{-- Reject Modal --}}
+                                        <div class="modal fade" id="rejectModal{{ $rent->id }}" tabindex="-1"
+                                            role="dialog" aria-labelledby="rejectModalLabel{{ $rent->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title text-white"
+                                                            id="rejectModalLabel{{ $rent->id }}">
+                                                            Reject Jadwal Booking</h5>
+                                                        <button type="button" class="close text-white"
+                                                            data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <form
+                                                        action="{{ route('owner.booking.reject-rent', ['id' => $rent->id]) }}"
                                                         method="POST">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="btn btn-outline-success">
-                                                            Approve
-                                                        </button>
+                                                        <div class="modal-body">
+                                                            <p>Apakah anda yakin untuk Menolak Jadwal dari
+                                                                <b>{{ $rent->name }}</b> Pada Pukul
+                                                                <b>{{ $rent->formatted_schedule }}</b> Tanggal
+                                                                <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
+                                                                ini?
+                                                            </p>
+                                                            <div class="form-group">
+                                                                <label for="rejectReason{{ $rent->id }}">Berikan
+                                                                    alasan Jadwal Booking Ditolak:</label>
+                                                                <textarea id="rejectReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-outline-secondary"
+                                                                data-dismiss="modal">Cancel</button>
+                                                            <button type="submit"
+                                                                class="btn btn-outline-danger">Reject</button>
+                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    {{-- Reject Modal --}}
-                                    <div class="modal fade" id="rejectModal{{ $rent->id }}" tabindex="-1"
-                                        role="dialog" aria-labelledby="rejectModalLabel{{ $rent->id }}"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title text-white"
-                                                        id="rejectModalLabel{{ $rent->id }}">
-                                                        Reject Jadwal Booking</h5>
-                                                    <button type="button" class="close text-white" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <form
-                                                    action="{{ route('owner.booking.reject-rent', ['id' => $rent->id]) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <div class="modal-body">
-                                                        <p>Apakah anda yakin untuk Menolak Jadwal dari
-                                                            <b>{{ $rent->name }}</b> Pada Pukul
-                                                            <b>{{ $rent->formatted_schedule }}</b> Tanggal
-                                                            <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
-                                                            ini?
-                                                        </p>
-                                                        <div class="form-group">
-                                                            <label for="rejectReason{{ $rent->id }}">Berikan
-                                                                alasan Jadwal Booking Ditolak:</label>
-                                                            <textarea id="rejectReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
+                                        {{-- Batal Modal --}}
+                                        <div class="modal fade" id="batalModal{{ $rent->id }}" tabindex="-1"
+                                            role="dialog" aria-labelledby="batalModalLabel{{ $rent->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title text-white"
+                                                            id="batalModalLabel{{ $rent->id }}">
+                                                            Batalkan Jadwal Booking</h5>
+                                                        <button type="button" class="close text-white"
+                                                            data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <form
+                                                        action="{{ route('owner.booking.batal-rent', ['id' => $rent->id]) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <div class="modal-body">
+                                                            <p>Apakah anda yakin untuk Membatalkan Jadwal dari
+                                                                <b>{{ $rent->name }}</b> Pada Pukul
+                                                                <b>{{ $rent->formatted_schedule }}</b> Tanggal
+                                                                <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
+                                                                ini?
+                                                            </p>
+                                                            <div class="form-group">
+                                                                <label for="batalReason{{ $rent->id }}">Berikan
+                                                                    alasan Jadwal Booking Dibatalkan:</label>
+                                                                <textarea id="batalReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary"
-                                                            data-dismiss="modal">Cancel</button>
-                                                        <button type="submit"
-                                                            class="btn btn-outline-danger">Reject</button>
-                                                    </div>
-                                                </form>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-outline-secondary"
+                                                                data-dismiss="modal">Cancel</button>
+                                                            <button type="submit"
+                                                                class="btn btn-outline-danger">Confirm</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    {{-- Batal Modal --}}
-                                    <div class="modal fade" id="batalModal{{ $rent->id }}" tabindex="-1"
-                                        role="dialog" aria-labelledby="batalModalLabel{{ $rent->id }}"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title text-white"
-                                                        id="batalModalLabel{{ $rent->id }}">
-                                                        Batalkan Jadwal Booking</h5>
-                                                    <button type="button" class="close text-white" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <form
-                                                    action="{{ route('owner.booking.batal-rent', ['id' => $rent->id]) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <div class="modal-body">
-                                                        <p>Apakah anda yakin untuk Membatalkan Jadwal dari
-                                                            <b>{{ $rent->name }}</b> Pada Pukul
-                                                            <b>{{ $rent->formatted_schedule }}</b> Tanggal
-                                                            <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b>
-                                                            ini?
-                                                        </p>
-                                                        <div class="form-group">
-                                                            <label for="batalReason{{ $rent->id }}">Berikan
-                                                                alasan Jadwal Booking Dibatalkan:</label>
-                                                            <textarea id="batalReason{{ $rent->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary"
-                                                            data-dismiss="modal">Cancel</button>
-                                                        <button type="submit"
-                                                            class="btn btn-outline-danger">Confirm</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

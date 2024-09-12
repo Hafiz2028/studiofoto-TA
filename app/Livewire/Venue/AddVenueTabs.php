@@ -438,10 +438,10 @@ class AddVenueTabs extends Component
             if ($this->venue->imb) {
                 $rules['imb'] = 'nullable';
             } else {
-                $rules['imb'] = 'required|mimes:pdf|max:5000';
+                $rules['imb'] = 'required|mimes:pdf|max:2048';
                 $messages['imb.required'] = 'File IMB harus diunggah.';
                 $messages['imb.mimes'] = 'File IMB harus berupa file PDF.';
-                $messages['imb.max'] = 'Ukuran file IMB maksimal adalah 5 MB.';
+                $messages['imb.max'] = 'Ukuran file IMB maksimal adalah 2 MB.';
                 if ($this->imb && $this->imb->isValid()) {
                     $originalName = $this->imb->getClientOriginalName();
                 } else {
@@ -764,13 +764,14 @@ class AddVenueTabs extends Component
                 return;
             }
             $venue = Venue::create([
-                'owner_id' => $user->id,
+                'owner_id' => $user->owner->id,
                 'name' => $this->name,
                 'phone_number' => $this->phone_number,
                 'information' => $this->information,
                 'address' => $this->address,
                 'village_id' => $this->village_id,
                 'map_link' => $this->map_link,
+                'reject_note' => '-',
                 'imb' => $newImbName,
             ]);
             if (!$venue) {

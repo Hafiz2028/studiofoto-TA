@@ -71,10 +71,11 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label><strong>4. Surat Izin Mendirikan Bangunan (IMB) :</strong></label>
-                                    <br><small>Format file .pdf & max size 5mb</small>
+
                                     <input type="file" class="form-control @error('imb') is-invalid @enderror"
                                         name="imb" wire:model="imb"
                                         @if (!$this->venue->exists || !$this->venue->imb) required @endif>
+                                    <small> Format file .pdf & max size 2.048 kb</small>
                                     @if ($this->venue->exists && $this->venue->imb)
                                         <p>{{ $this->venue->imb }}</p>
                                     @endif

@@ -128,8 +128,7 @@
                                                         style="width: 100%; max-width: 200px; height: 281px;"
                                                         class="document-display mb-2" id="imbDocument">
                                                 @else
-                                                    <img src="/images/venues/IMB/default-surat.png"
-                                                        alt="Placeholder Image"
+                                                    <img src="/images/venues/IMB/default-surat.png" alt="Placeholder Image"
                                                         style="width: 100%; max-width: 200px; height: 281px;">
                                                 @endif
                                             </div>
@@ -149,7 +148,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-7 col-md-12 col-sm-12">
                     <div class="card card-primary shadow">
                         <div class="card-header bg-info text-white">
@@ -268,7 +266,8 @@
                                                                                                 Paket
                                                                                             </h6>
                                                                                             <hr>
-                                                                                            <div id="packageInfo">
+                                                                                            <div id="packageInfo"
+                                                                                                class="table-responsive">
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -362,6 +361,41 @@
 
 @endsection
 @push('stylesheets')
+    <style>
+        .modal-body {
+            max-height: calc(100vh - 200px);
+            /* Atur tinggi maksimum modal */
+            overflow-y: auto;
+            /* Tambahkan scroll jika konten lebih tinggi */
+        }
+
+        #packageInfo {
+            word-wrap: break-word;
+            /* Pembungkus kata */
+            overflow-wrap: break-word;
+            /* Pembungkus kata panjang */
+            white-space: normal;
+            /* Mengizinkan teks untuk membungkus ke baris berikutnya */
+            padding: 10px;
+            /* Padding */
+            background-color: #fff;
+            /* Latar belakang putih */
+            border-radius: 4px;
+            /* Radius sudut */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            /* Shadow */
+        }
+
+        .card-body {
+            padding: 1.25rem;
+            /* Padding untuk card body */
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            /* Tambahkan scroll horizontal jika tabel terlalu lebar */
+        }
+    </style>
 @endpush
 @push('scripts')
     {{-- detail paket --}}

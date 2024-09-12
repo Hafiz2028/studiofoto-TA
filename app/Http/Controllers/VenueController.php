@@ -16,7 +16,11 @@ class VenueController extends Controller
     {
         $user = Auth::user();
         if ($user && $user->role === 'owner') {
-            $venues = Venue::with('venueImages')->where('owner_id', $user->owner->id)->get();
+            $venues = Venue::with('venueImages')
+                ->where('owner_id', $user->owner->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
             return view('back.pages.owner.venue-manage.index-venue', compact('venues', 'user'));
         }
 

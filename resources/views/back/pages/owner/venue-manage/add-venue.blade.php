@@ -28,10 +28,6 @@
     </div>
     {{-- real --}}
     <div class="pd-20 card-box mb-30">
-        <div class="clearfix">
-            <h4 class="text-blue h4">Add New Venue</h4>
-        </div>
-        <br>
         @livewire('venue.add-venue-tabs')
     </div>
 @endsection

@@ -1,11 +1,11 @@
 @extends('back.layout.pages-layout')
-@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Add Event Service')
+@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Tambah Event Layanan')
 @section('content')
 
     <div class="page-header">
         <div class="clearfix">
             <div class="pull-left">
-                <h4 class="text-dark">Add Event Service</h4>
+                <h4 class="text-dark">Tambah Event Layanan</h4>
             </div>
         </div>
         <nav aria-label="breadcrumb" role="navigation">
@@ -20,7 +20,7 @@
                     <a href="{{ route('owner.venue.show', $venue->id) }}">Detail Venue</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
-                    Add Event Service
+                    Tambah Event Layanan
                 </li>
             </ol>
         </nav>
@@ -31,7 +31,7 @@
             <div class="pd-20 card-box mb-30">
                 <div class="clearfix">
                     <div class="pull-left">
-                        <h4 class="text-primary">Add Event Service</h4>
+                        <h4 class="text-primary">Tambah Event Layanan</h4>
                     </div>
                     <div class="pull-right">
                         <a href="{{ route('owner.venue.show', $venue->id) }}" class="btn btn-outline-info btn-sm">

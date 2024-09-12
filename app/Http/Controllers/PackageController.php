@@ -34,21 +34,23 @@ class PackageController extends Controller
 
     public function store(Request $request, $venueId, $serviceId)
     {
+        // dd($request->all());
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'information' => 'nullable|string',
+            'dp_percentage' => 'required|in:full_payment,dp,min_payment',
+            'time_status.*' => 'required|in:0,1,2,3',
+            'prices.*' => 'required|numeric',
+            'people_sums.*' => 'required|string',
+        ], [
+            'name.required' => 'Nama Paket Foto harus diisi.',
+            'prices.*.required' => 'Harga paket harus diisi.',
+            'prices.*.numeric' => 'Harga harus dalam bentuk angka',
+            'time_status.*.required' => 'Waktu Pemotretan harus diisi',
+            'people_sums.*.required' => 'Total orang harus diisi',
+            'people_sums.*.string' => 'Total orang harus dalam bentuk string',
+        ]);
         try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'information' => 'nullable|string',
-                'dp_percentage' => 'required|in:full_payment,dp,min_payment',
-                'time_status.*' => 'required|in:0,1,2,3',
-                'prices.*' => 'required|numeric',
-                'people_sums.*' => 'required|string',
-            ], [
-                'prices.*.required' => 'Harga paket harus diisi',
-                'prices.*.numeric' => 'Harga harus dalam bentuk angka',
-                'time_status.*.required' => 'Waktu Pemotretan harus diisi',
-                'people_sums.*.required' => 'Total orang harus diisi',
-                'people_sums.*.string' => 'Total orang harus dalam bentuk string',
-            ]);
             if ($validatedData['dp_percentage'] === 'min_payment') {
                 $prices = $validatedData['prices'];
                 $minPaymentInput = str_replace('.', '', $request->input('min_payment_input'));

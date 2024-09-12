@@ -1,11 +1,11 @@
 @extends('back.layout.pages-layout')
-@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Add Package')
+@section('pageTitle', isset($pageTitle) ? $pageTitle : 'Tambah Paket Foto')
 @section('content')
 
     <div class="page-header">
         <div class="clearfix">
             <div class="pull-left">
-                <h4 class="text-dark">Add Package</h4>
+                <h4 class="text-dark">Tambah Paket Foto</h4>
             </div>
         </div>
         <nav aria-label="breadcrumb" role="navigation">
@@ -24,7 +24,7 @@
                         Service</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
-                    Add Package
+                    Tambah Paket Foto
                 </li>
             </ol>
         </nav>
@@ -35,7 +35,7 @@
             <div class="pd-20 card-box mb-30">
                 <div class="clearfix">
                     <div class="pull-left">
-                        <h4 class="text-primary">Add Package</h4>
+                        <h4 class="text-primary">Tambah Paket Foto</h4>
                     </div>
                     <div class="pull-right">
                         <a href="{{ route('owner.venue.services.show', ['venue' => $venue->id, 'service' => $service->id]) }}"
@@ -52,7 +52,7 @@
                     <input type="hidden" name="venue_id" value="{{ $venue->id }}">
                     <input type="hidden" name="service_id" value="{{ $service->id }}">
                     @csrf
-                    <x-alert.form-alert />
+                    {{-- <x-alert.form-alert /> --}}
                     <div class="container">
                         <div class="row">
                             <div class="col-lg-6">
@@ -60,7 +60,7 @@
                                     <label for="name"><strong>1. Nama Paket Foto</strong></label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         id="name" name="name" placeholder="Contoh: Wisuda 1, Diamond 1"
-                                        value="{{ old('name') }}" required>
+                                        value="{{ old('name') }}">
                                     @error('name')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -188,7 +188,7 @@
                                                 </div>
                                                 <input type="text" id="price" name="prices[]"
                                                     class="form-control @error('prices.*') is-invalid @enderror"
-                                                    placeholder="Harga Paket..." value="{{ old('prices.0') }}" required>
+                                                    placeholder="Harga Paket..." value="{{ old('prices.0') }}">
                                                 @error('prices.*')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
@@ -197,9 +197,9 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="time_status">Maks Waktu Foto</label>
-                                                <select class="form-control" id="time_status" name="time_status[]"
-                                                    required>
-                                                    <option value="" disabled selected>Pilih Maksimal Waktu Foto...
+                                                <select class="form-control @error('time_status.*') is-invalid @enderror"
+                                                    id="time_status" name="time_status[]">
+                                                    <option value="" selected>Pilih Maksimal Waktu Foto...
                                                     </option>
                                                     <option value="0">30 Menit</option>
                                                     <option value="1">60 Menit</option>
@@ -217,7 +217,7 @@
                                                 <input type="text" id="people_sum" name="people_sums[]"
                                                     class="form-control @error('people_sums.*') is-invalid @enderror"
                                                     placeholder="e.g: 1, 1 - 5, 4 - 10..."
-                                                    value="{{ old('people_sums.0') }}" required>
+                                                    value="{{ old('people_sums.0') }}">
                                                 <div class="input-group-append">
                                                     <span class="input-group-text">Orang</span>
                                                 </div>
@@ -242,7 +242,7 @@
                         </div>
                     </div>
                 </form>
-                @if ($errors->any())
+                {{-- @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -250,7 +250,7 @@
                             @endforeach
                         </ul>
                     </div>
-                @endif
+                @endif --}}
             </div>
         </div>
     </div>
