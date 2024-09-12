@@ -358,6 +358,9 @@
                                     @if ($dpPayment)
                                         <div class="text-center">
                                             <label><strong>Bukti Pembayaran DP</strong></label><br>
+                                            <label>Pembayaran menggunakan<br>
+                                                <strong>{{ $rent->rentPayments->firstWhere('payment_type', 'DP')->paymentMethodDetail->paymentMethod->name }}
+                                                    ({{ $rent->rentPayments->firstWhere('payment_type', 'DP')->paymentMethodDetail->no_rek }})</strong></label><br>
                                             <label>Dibayar pada pukul
                                                 {{ \Carbon\Carbon::parse($rent->dp_price_date)->format('H:i:s d M Y') }}</label><br>
                                             <img class="img-fluid"
@@ -372,6 +375,9 @@
                                         @if ($fullPayment)
                                             <div class="text-center">
                                                 <label><strong>Bukti Pembayaran Lunas</strong></label><br>
+                                                <label>Pembayaran menggunakan<br>
+                                                    <strong>{{ $rent->rentPayments->firstWhere('payment_type', 'Lunas')->paymentMethodDetail->paymentMethod->name }}
+                                                        ({{ $rent->rentPayments->firstWhere('payment_type', 'Lunas')->paymentMethodDetail->no_rek }})</strong></label><br>
                                                 <label>Dibayar pada pukul
                                                     {{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</label><br>
                                                 <img class="img-fluid"
@@ -388,6 +394,9 @@
                                     @if ($fullPayment)
                                         <div class="text-center">
                                             <label><strong>Bukti Pembayaran Lunas</strong></label><br>
+                                            <label>Pembayaran menggunakan<br>
+                                                <strong>{{ $rent->rentPayments->firstWhere('payment_type', 'Lunas')->paymentMethodDetail->paymentMethod->name }}
+                                                    ({{ $rent->rentPayments->firstWhere('payment_type', 'Lunas')->paymentMethodDetail->no_rek }})</strong></label><br>
                                             <label>Dibayar pada pukul
                                                 {{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</label><br>
                                             <img class="img-fluid"

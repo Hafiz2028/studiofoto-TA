@@ -200,41 +200,37 @@ class OwnerController extends Controller
             $owner = Owner::where('user_id', $user->id)->first();
             if (!$owner->verified) {
                 Auth::logout();
+                $token = base64_encode(Str::random(64));
                 $verifyToken = VerificationToken::where('email', $user->email)->first();
-                if (!$verifyToken || $verifyToken->updated_at->lt(Carbon::now()->subMinutes(15))) {
-                    $token = base64_encode(Str::random(64));
-                    if (!$verifyToken) {
-                        VerificationToken::create([
-                            'user_type' => 'owner',
-                            'email' => $user->email,
-                            'token' => $token,
-                        ]);
-                    } else {
-                        $verifyToken->update(['token' => $token, 'updated_at' => $this->now->toDateTimeString()]);
-                    }
-                    $actionLink = route('owner.verify', ['token' => $token]);
-                    $data = [
-                        'action_link' => $actionLink,
-                        'owner_name' => $user->name,
-                        'owner_username' => $user->username,
-                        'owner_email' => $user->email,
-                    ];
-                    $mail_body = view('email-templates.owner-verify-template', $data)->render();
-                    $mailConfig = array(
-                        'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
-                        'mail_from_name' => env('EMAIL_FROM_NAME'),
-                        'mail_recipient_email' => $user->email,
-                        'mail_recipient_name' => $user->name,
-                        'mail_subject' => 'Verify Owner Account',
-                        'mail_body' => $mail_body,
-                    );
-                    if (sendEmail($mailConfig)) {
-                        return redirect()->route('owner.login')->with('fail', 'Your Account is not verified. We have sent a new verification link to your email. Please check your email and click on the link to verify your account.');
-                    } else {
-                        return redirect()->route('owner.login')->with('fail', 'Your Account is not verified. Something went wrong while sending verification link. Please contact support for assistance.');
-                    }
+                if (!$verifyToken) {
+                    VerificationToken::create([
+                        'user_type' => 'owner',
+                        'email' => $user->email,
+                        'token' => $token,
+                    ]);
                 } else {
-                    return redirect()->route('owner.login')->with('info', 'A verification link was sent to your email address within the last 15 minutes. Please check your email and verify your account.');
+                    $verifyToken->update(['token' => $token, 'updated_at' => $this->now->toDateTimeString()]);
+                }
+                $actionLink = route('owner.verify', ['token' => $token]);
+                $data = [
+                    'action_link' => $actionLink,
+                    'owner_name' => $user->name,
+                    'owner_username' => $user->username,
+                    'owner_email' => $user->email,
+                ];
+                $mail_body = view('email-templates.owner-verify-template', $data)->render();
+                $mailConfig = array(
+                    'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+                    'mail_from_name' => env('EMAIL_FROM_NAME'),
+                    'mail_recipient_email' => $user->email,
+                    'mail_recipient_name' => $user->name,
+                    'mail_subject' => 'Verify Owner Account',
+                    'mail_body' => $mail_body,
+                );
+                if (sendEmail($mailConfig)) {
+                    return redirect()->route('owner.login')->with('fail', 'Your Account is not verified. We have sent a new verification link to your email. Please check your email and click on the link to verify your account.');
+                } else {
+                    return redirect()->route('owner.login')->with('fail', 'Your Account is not verified. Something went wrong while sending verification link. Please contact support for assistance.');
                 }
                 return redirect()->route('owner.login')->with('info', 'We Send Verification Link to Your Email, please check your latest email and verfify your account.');
             } else {
