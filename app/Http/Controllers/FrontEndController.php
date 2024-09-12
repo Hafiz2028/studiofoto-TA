@@ -91,7 +91,7 @@ class FrontEndController extends Controller
                 return $venue->village_id == $villageId;
             });
         } elseif ($districtId) {
-            $villageIds = Village::where('district_id', $districtId)->pluck('id');
+            $villageIds = Village::where('district_id', $districtId)->pluck('id')->toArray();
             $query = $query->filter(function ($venue) use ($villageIds) {
                 return in_array($venue->village_id, $villageIds);
             });
@@ -103,7 +103,7 @@ class FrontEndController extends Controller
             }, SORT_REGULAR, $sortDirection === 'desc');
         } else if ($sortBy === 'name') {
             $query = $query->sortBy(function ($venue) {
-                return strtolower($venue->name); // Sort by lowercase name
+                return strtolower($venue->name);
             }, SORT_REGULAR, $sortDirection === 'desc');
         } else {
             $query = $query->sortBy($sortBy, SORT_REGULAR, $sortDirection === 'desc');
