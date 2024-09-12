@@ -66,7 +66,12 @@
                             <div class="badge badge-success"> Total Pemasukan: Rp{{ number_format($totalIncome) }} </div>
                         </div>
                         <div class="col-md-6 text-right">
-                            <a href="#" class="btn btn-outline-info mr-3" onclick="printTransactionData()">
+                            <a href="{{ route('owner.transaction.print', [
+                                'start_date' => request('start_date'),
+                                'end_date' => request('end_date'),
+                                'venue_selects' => request('venue_selects'),
+                            ]) }}"
+                                class="btn btn-outline-info mr-3">
                                 <i class="icon-copy dw dw-print"></i> Cetak Data Transaksi
                             </a>
                         </div>
@@ -166,118 +171,90 @@
             </div>
         </div>
     </div>
-    <script>
+    {{-- <script>
         function printTransactionData() {
-            var content = `
-            <h4 class="h4 text">Transaction Booking Studio Owner <span class="text-primary">{{ ucfirst(Auth::user()->name) }}</span></h4>
-            <table class="data-table table stripe hover nowrap">
-                <thead>
-                    <tr>
-                        <th class="table-plus">#</th>
-                        <th>Tanggal</th>
-                        <th>Jadwal</th>
-                        <th>Nama</th>
-                        <th>Venue</th>
-                        <th>Harga Paket</th>
-                        <th>Status</th>
-                        <th>Pembayaran</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!$rents->count() > 0)
+                var rents = @json($rents);
+                var totalIncome = @json($totalIncome);
+                var userName = '{{ addslashes(ucfirst(Auth::user()->name)) }}';
+
+                var content = `
+                    <h4 class="h4 text">Transaction Booking Studio Owner <span class="text-primary">${userName}</span></h4>
+                    <table class="data-table table stripe hover nowrap">
+                        <thead>
+                            <tr>
+                                <th class="table-plus">#</th>
+                                <th>Tanggal</th>
+                                <th>Jadwal</th>
+                                <th>Nama</th>
+                                <th>Venue</th>
+                                <th>Harga Paket</th>
+                                <th>Status</th>
+                                <th>Pembayaran</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                if (rents.length === 0) {
+                    content += `
                         <tr>
                             <td colspan="8">
                                 <div class="alert alert-info text-center">Tidak Ada Transaksi Booking.</div>
                             </td>
-                        </tr>
-                    @else
-                        @foreach ($rents as $rent)
-                            <tr>
-                                <td class="table-plus">{{ $loop->iteration }}</td>
-                                <td>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</td>
-                                <td>
-                                    @if ($rent->formatted_schedule == null)
-                                        <div class="badge badge-danger">Tidak ada</div>
-                                    @else
-                                        {{ $rent->formatted_schedule }}
-                                    @endif
-                                </td>
-                                <td>{{ $rent->name }}</td>
-                                <td>{{ $rent->servicePackageDetail->servicePackage->serviceEvent->venue->name }}</td>
-                                <td>Rp{{ number_format($rent->servicePackageDetail->price) }}</td>
-                                <td class="text-center">
-                                    @if ($rent->formatted_schedule == null)
-                                        Jadwal Salah
-                                    @else
-                                        @if ($rent->rent_status == 0)
-                                            Diajukan
-                                        @elseif ($rent->rent_status == 1)
-                                            Dibooking
-                                        @elseif ($rent->rent_status == 2)
-                                            Selesai
-                                        @elseif ($rent->rent_status == 3)
-                                            Ditolak
-                                        @elseif ($rent->rent_status == 4)
-                                            Expired
-                                        @elseif ($rent->rent_status == 5)
-                                            Belum Bayar
-                                        @elseif ($rent->rent_status == 6)
-                                            Sedang Foto
-                                        @elseif ($rent->rent_status == 7)
-                                            Dibatalkan
-                                        @else
-                                        Tidak valid
-                                        @endif
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if ($rent->dp_payment == null)
-                                        @if ($rent->dp_price == 0)
-                                            Tidak ada DP
-                                        @else
-                                            DP (Rp{{ number_format($rent->dp_price) }})
-                                        @endif
-                                    @else
-                                        Lunas (Rp{{ number_format($rent->dp_price) }})
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-            <div class="clearfix my-2">
-                <div class="pull-right">
-                    <h3>Total Pembayaran: Rp{{ number_format($totalIncome) }}</h3>
-                </div>
-            </div>
-            `;
+                        </tr>`;
+                } else {
+                    rents.forEach((rent, index) => {
+                        let formattedSchedule = rent.formatted_schedule ? rent.formatted_schedule : '<div class="badge badge-danger">Tidak ada</div>';
+                        let rentStatus = getStatusText(rent.rent_status, rent.formatted_schedule);
+                        let paymentStatus = getPaymentText(rent.dp_payment, rent.dp_price);
 
-            var printWindow = window.open('', '_blank');
-            printWindow.document.open();
-            printWindow.document.write(`
-            <html>
-            <head>
-                <title>Cetak Data Transaksi</title>
-                <style>
-                    body { font-family: Arial, sans-serif; }
-                    .badge { font-size: 12px; }
-                    .h4 { font-size: 18px; }
-                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                    table, th, td { border: 1px solid black; }
-                    th, td { padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; }
-                    .text-center { text-align: center; }
-                </style>
-            </head>
-            <body onload="window.print(); window.close();">
-                ${content}
-            </body>
-            </html>
-            `);
-            printWindow.document.close();
-        }
-    </script>
+                        content += `
+                        <tr>
+                            <td class="table-plus">${index + 1}</td>
+                            <td>${formatDate(rent.date)}</td>
+                            <td>${formattedSchedule}</td>
+                            <td>${rent.name}</td>
+                            <td>${rent.servicePackageDetail.servicePackage.serviceEvent.venue.name}</td>
+                            <td>Rp${formatCurrency(rent.servicePackageDetail.price)}</td>
+                            <td class="text-center">${rentStatus}</td>
+                            <td class="text-center">${paymentStatus}</td>
+                        </tr>`;
+                    });
+                }
+
+                content += `
+                    </tbody>
+                    </table>
+                    <div class="clearfix my-2">
+                        <div class="pull-right">
+                            <h3>Total Pembayaran: Rp${formatCurrency(totalIncome)}</h3>
+                        </div>
+                    </div>`;
+
+                var printWindow = window.open('', '_blank');
+                printWindow.document.open();
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Cetak Data Transaksi</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            .badge { font-size: 12px; }
+                            .h4 { font-size: 18px; }
+                            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                            table, th, td { border: 1px solid black; }
+                            th, td { padding: 8px; text-align: left; }
+                            th { background-color: #f2f2f2; }
+                            .text-center { text-align: center; }
+                        </style>
+                    </head>
+                    <body onload="window.print(); window.close();">
+                        ${content}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            }
+    </script> --}}
 @endsection
 {{-- @push('scripts') --}}
 

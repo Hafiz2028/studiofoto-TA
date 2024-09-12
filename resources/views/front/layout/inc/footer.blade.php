@@ -18,10 +18,9 @@
                     <h6 class="mb-3">Check Out FotoYuk Social Media</h6>
                     <div class="footer__widget__social">
                         <a href="https://www.instagram.com/apis_a_r" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
-                        <a href="https://twitter.com/" target="_blank"><i
-                                class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/hafiz-aulia" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/Hafiz2028" target="_blank"><i class="fab fa-github"></i></a>
+                        {{-- <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a> --}}
                     </div>
                 </div>
             </div>

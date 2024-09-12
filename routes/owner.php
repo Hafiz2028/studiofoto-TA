@@ -35,7 +35,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
             Route::post('/change-ktp-image', 'changeKtpImage')->name('change-ktp-image');
             Route::post('/change-logo-image', 'changeLogoImage')->name('change-logo-image');
         });
-        //sidebar route 
+        //sidebar route
         //menu venue's manage
         Route::resource('venue', VenueController::class);
         Route::get('/venue/districts', [VenueController::class, 'getDistricts'])->name('districts');
@@ -56,5 +56,6 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::patch('/booking/batal/{id}', [BookingController::class, 'batalRent'])->name('booking.batal-rent');
         Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
         Route::get('/transaction', [TransactionController::class, 'index'])->name('transaction.index');
+        Route::get('/print-transaction', [TransactionController::class, 'print'])->name('transaction.print');
     });
 });

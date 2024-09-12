@@ -95,7 +95,7 @@
                                 <a href="#" onclick="swalAlert(); return false;" target="_blank" data-toggle="tooltip"
                                     title="Lihat Lokasi di Maps" class="maps-link">
                                     <i class="fas fa-map-marked-alt"></i>
-                                </a> 
+                                </a>
                             @endif
                             @if (auth()->check() && auth()->user()->role === 'customer')
                                 <a href="{{ route('customer.booking.create') }}" class="primary-btn" data-toggle="modal"
@@ -227,13 +227,13 @@
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <ul class="ml-5"><b>Nama Pemilik</b>
-                                                <p>{{ ucwords(strtolower($venue->owner->name)) }}</p>
+                                                <p>{{ ucwords(strtolower($venue->owner->user->name)) }}</p>
                                             </ul>
                                             <ul class="ml-5"> <b>Nomor Hp Pemilik</b>
-                                                <p>{{ ucwords(strtolower($venue->owner->handphone)) }}</p>
+                                                <p>{{ ucwords(strtolower($venue->owner->user->handphone)) }}</p>
                                             </ul>
                                             <ul class="ml-5"> <b>Alamat Pemilik</b>
-                                                <p>{{ ucwords(strtolower($venue->owner->address)) }}</p>
+                                                <p>{{ ucwords(strtolower($venue->owner->user->address)) }}</p>
                                             </ul>
                                         </div>
                                         <div class="col-lg-6">

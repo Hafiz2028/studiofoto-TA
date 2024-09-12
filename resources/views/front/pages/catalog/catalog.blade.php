@@ -86,19 +86,8 @@
         font-size: 1.6rem;
         font-weight: bold;
         color: #333;
-        padding-left: 10px;
+        /* padding-left: 10px; */
     }
-
-    .catalog-content ul {
-        list-style-type: none;
-        padding-left: 20px;
-        margin-top: 10px;
-    }
-
-    .catalog-content ul li {
-        margin-bottom: 8px;
-    }
-
     .catalog-logo {
         margin-right: 20px;
     }
@@ -111,17 +100,29 @@
     .text-right {
         text-align: right;
     }
-
-    /* Style for horizontal layout */
-    .catalog-content ul.row {
-        display: flex;
-        flex-wrap: wrap;
+    .package-row-container {
+    display: flex;
+    gap: 20px; /* Jarak antara kolom kiri dan kanan */
+    margin-bottom: 20px; /* Jarak antara setiap baris package */
     }
 
-    .catalog-content ul.row li {
-        flex: 1 1 45%;
-        /* Adjust width as needed */
-        margin-right: 10px;
+    .left-column {
+        flex: 1; /* Kolom kiri mengambil ruang yang sesuai */
+    }
+
+    .right-column {
+        flex: 2; /* Kolom kanan juga mengambil ruang yang sama */
+    }
+
+    .package-label {
+        font-style:italic;
+        font-weight: bold;
+        margin-bottom: 5px;
+        margin-left: 5px;
+    }
+
+    .package-detail {
+        margin-bottom: 10px;
     }
 </style>
 <script>
@@ -133,79 +134,83 @@
                 method: 'GET',
                 success: function(data) {
                     console.log('Data yang diterima dari API:', data);
-
                     $('#venueName').text(data.venue);
                     $('#venueLogo').attr('src', data.logo);
-
                     let content = '';
                     data.service_events.forEach(serviceEvent => {
-                        content += `<h4>${serviceEvent.name}</h4>`;
+                        content += `<h3 class ="pl-0">${serviceEvent.name}</h3>`;
                         serviceEvent.service_packages.forEach(package => {
                             content +=
-                                `<div><strong>${package.name}</strong></div>`;
+                                `<div class="package-name"><h4>${package.name}</h4></div>`;
 
-                            // Add-On Packages
-                            if (package.addOnPackageDetails.length > 0) {
-                                content +=
-                                    `<div>Add-On Packages:</div><ul class="row">`;
-                                package.addOnPackageDetails.forEach(
-                                    addOn => {
-                                        content +=
-                                            `<li><span class="badge badge-info">${addOn.sum} ${addOn.name}</span></li>`;
-                                    });
-                                content += `</ul>`;
-                            }
+                                content += `
+                                <div class="package-row-container d-flex">
+                                    <!-- Kolom Kiri: Add-On Packages, Print Photos, Frame Photos -->
+                                    <div class="left-column">
+                                        <!-- Add-On Packages -->
+                                        ${package.addOnPackageDetails.length > 0 ? `
+                                        <div class="package-row">
+                                            <div class="package-label">Add-On Packages :</div>
+                                            <div class="package-detail">
+                                                ${package.addOnPackageDetails.map(addOn => `
+                                                    <span class="badge badge-info ml-1">${addOn.sum} ${addOn.name}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>` : ''}
 
-                            // Print Photos
-                            if (package.printPhotoDetails.length > 0) {
-                                content +=
-                                    `<div>Print Photos:</div><ul class="row">`;
-                                package.printPhotoDetails.forEach(
-                                    printPhotoDetail => {
-                                        content +=
-                                            `<li class="col-md-6"><span class="badge badge-info">Size ${printPhotoDetail.size}</span></li>`;
-                                    });
-                                content += `</ul>`;
-                            }
+                                        <!-- Print Photos -->
+                                        ${package.printPhotoDetails.length > 0 ? `
+                                        <div class="package-row">
+                                            <div class="package-label">Print Photos :</div>
+                                            <div class="package-detail">
+                                                ${package.printPhotoDetails.map(printPhotoDetail => `
+                                                    <span class="badge badge-info ml-1">Size ${printPhotoDetail.size}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>` : ''}
 
-                            // Frame Photos
-                            if (package.framePhotoDetails.length > 0) {
-                                content +=
-                                    `<div>Frame Photos:</div><ul class="row">`;
-                                package.framePhotoDetails.forEach(
-                                    framePhotoDetail => {
-                                        content +=
-                                            `<li class="col-md-6"><span class="badge badge-info">Size ${framePhotoDetail.size}</span></li>`;
-                                    });
-                                content += `</ul>`;
-                            }
+                                        <!-- Frame Photos -->
+                                        ${package.framePhotoDetails.length > 0 ? `
+                                        <div class="package-row">
+                                            <div class="package-label">Frame Photos :</div>
+                                            <div class="package-detail">
+                                                ${package.framePhotoDetails.map(framePhotoDetail => `
+                                                    <span class="badge badge-info ml-1">Size ${framePhotoDetail.size}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>` : ''}
+                                    </div>
 
-                            // Service Package Details
-                            content += `<div>Deskripsi Detail:</div><ul>`;
-                            package.details.forEach(detail => {
-                                let timeText = '';
-                                switch (detail.time) {
-                                    case 0:
-                                        timeText = '30 Menit';
-                                        break;
-                                    case 1:
-                                        timeText = '60 Menit';
-                                        break;
-                                    case 2:
-                                        timeText = '90 Menit';
-                                        break;
-                                    case 3:
-                                        timeText = '120 Menit';
-                                        break;
-                                    default:
-                                        timeText =
-                                            'Durasi tidak diketahui';
-                                        break;
-                                }
-                                content +=
-                                    `<li>${detail.description} <span class="badge badge-info">${timeText}</span>: Rp ${detail.price}</li>`;
-                            });
-                            content += `</ul>`;
+                                    <!-- Kolom Kanan: Deskripsi Detail -->
+                                    <div class="right-column">
+                                        <div class="package-label">Rincian Paket Foto:</div>
+                                        <ul class="pl-0 pt-0 mt-0">
+                                            ${package.details.map(detail => {
+                                                let timeText = '';
+                                                switch (detail.time) {
+                                                    case 0:
+                                                        timeText = '30 Menit';
+                                                        break;
+                                                    case 1:
+                                                        timeText = '60 Menit';
+                                                        break;
+                                                    case 2:
+                                                        timeText = '90 Menit';
+                                                        break;
+                                                    case 3:
+                                                        timeText = '120 Menit';
+                                                        break;
+                                                    default:
+                                                        timeText = 'Durasi tidak diketahui';
+                                                        break;
+                                                }
+                                                return `<li><span class="badge badge-info">${detail.description}</span> waktu foto <span class="badge badge-info"><span>&plusmn;</span> ${timeText}</span> Harga <span class="badge badge-info">Rp ${detail.price}</span></li>`;
+                                            }).join('')}
+                                        </ul>
+                                        <div class="package-label mt-2">Deskripsi Tambahan:</div>
+                                        <div class="pl-4"></div>${package.information}
+                                    </div>
+                                </div>`;
                         });
                     });
 

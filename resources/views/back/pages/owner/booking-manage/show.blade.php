@@ -132,49 +132,6 @@
                             <h5 class="text-white mb-0 text-center">Detail Jadwal Booking</h5>
                         </div>
                         <div class="card-body">
-                            {{-- <p><b>{{ ucwords($rent->name) }}</b> Telah membooking Venue
-                                <b>{{ ucwords($rent->servicePackageDetail->servicePackage->serviceEvent->venue->name) }}</b>
-                                yang berlokasi di
-                                <b>{{ ucwords(strtolower($rent->servicePackageDetail->servicePackage->serviceEvent->venue->address)) }},{{ ucwords(strtolower($rent->servicePackageDetail->servicePackage->serviceEvent->venue->village->name)) }},{{ ucwords(strtolower($rent->servicePackageDetail->servicePackage->serviceEvent->venue->village->district->name)) }}</b>
-                                <br>Pada Tanggal <b>{{ \Carbon\Carbon::parse($rent->date)->format('d M Y') }}</b> dengan
-                                Jadwal
-                                Foto dari Pukul
-                                <b>{{ date('H:i', strtotime(str_replace('.', ':', $firstOpeningHour->hour))) }}</b> Hingga
-                                Pukul
-                                <b>{{ $formattedLastOpeningHour }}</b>.<br>Untuk Paket foto
-                                yang dipesan adalah
-                                <b>{{ $rent->servicePackageDetail->servicePackage->name }}</b> dengan total Orang yang foto
-                                <b>{{ $rent->servicePackageDetail->sum_person }} Orang</b> & lama pemotretannya
-                                @if ($rent->servicePackageDetail->time_status == 0)
-                                    <b>30 Menit.</b>
-                                @elseif($rent->servicePackageDetail->time_status == 1)
-                                    <b>60 Menit.</b>
-                                @elseif($rent->servicePackageDetail->time_status == 2)
-                                    <b>90 Menit.</b>
-                                @elseif($rent->servicePackageDetail->time_status == 3)
-                                    <b>120 Menit.</b>
-                                @else
-                                    <b>Tidak Valid</b>
-                                @endif
-                                <br> Booking Foto ini
-
-                                @if ($rent->dp_payment == null)
-                                    @if ($rent->dp_price == 0)
-                                        <b class="badge badge-danger">Belum membayar Dp awal</b>
-                                    @elseif($rent->dp_price < $rent->total_price)
-                                        Baru membayar<b class="badge badge-warning">Dp awal Rp
-                                            {{ number_format($rent->dp_price) }}</b>
-                                    @elseif($rent->dp_price == $rent->total_price)
-                                        <b class="badge badge-success">Telah Lunas</b>
-                                    @else
-                                        <b>Tidak Valid</b>
-                                    @endif
-                                @else
-                                    <b class="badge badge-success">Telah Lunas</b> Pada
-                                    <b>{{ \Carbon\Carbon::parse($rent->dp_payment)->format('H:i:s d M Y') }}</b>
-                                @endif
-                                Dengan Total Harga <b>Rp{{ number_format($rent->total_price, 0, ',', '.') }}</b>
-                                <br> --}}
                             Berikut Detail Dari Jadwal Booking & Paket
                             yang dipesan :
                             </p>
@@ -596,7 +553,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.selesaiFotoBtn').forEach(button => {
                 button.addEventListener('click', function() {
-                    console.log('selesaifotoBtn clicked');
                     confirmSelesaiPemotretan();
                 });
             });
@@ -621,8 +577,11 @@
 
         function updateStatusSelesai() {
             const dpPayment = "{{ $rent->dp_payment }}";
-
-            if (dpPayment != null) {
+            const dpPrice = "{{ $rent->dp_price_date }}"
+            console.log('dpPayment:', dpPayment);
+            console.log('dpPrice:', dpPrice);
+            if (dpPayment === 'null' || dpPayment === '' || dpPayment === null) {
+                console.log('dpPayment is null, showing warning alert');
                 Swal.fire({
                     title: 'Jadwal Belum lunas',
                     text: 'Jika Ingin Menyelesaikan Jadwal Pemotretan ini, Lakukan pelunasan sekarang',
@@ -635,6 +594,7 @@
                     }
                 });
             } else {
+                console.log('dpPayment is not null, proceeding with status update');
                 fetch("{{ route('owner.booking.update-status-mulai-foto', ['booking' => $rent->id]) }}", {
                         method: 'POST',
                         headers: {

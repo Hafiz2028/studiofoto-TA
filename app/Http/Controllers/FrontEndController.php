@@ -368,11 +368,12 @@ class FrontEndController extends Controller
                     'service_packages' => $event->servicePackages->map(function ($package) {
                         return [
                             'name' => $package->name,
+                            'information' => $package->information,
                             'details' => $package->servicePackageDetails->map(function ($detail) {
                                 return [
-                                    'description' => $detail->sum_person . ' orang',
-                                    'price' => $detail->price,
-                                    'time' => $detail->time_status
+                                    'description' => $detail->sum_person . ' Orang',
+                                    'price' => number_format($detail->price, 0, ',', '.'),
+                                    'time' => $detail->time_status,
                                 ];
                             }),
                             'printPhotoDetails' => $package->printPhotoDetails->map(function ($printPhotoDetail) {

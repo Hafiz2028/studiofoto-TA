@@ -4,9 +4,11 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\FrontEndController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TransactionController;
 use App\Models\Venue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 /*
@@ -26,6 +28,7 @@ Route::get('/services/{venueId}', [BookingController::class, 'getServices']);
 Route::get('/services-and-events/{venueId}', [BookingController::class, 'getServicesAndEvents']);
 Route::get('/packages/{serviceEventId}', [BookingController::class, 'getPackageAndDetails']);
 Route::get('/package-details/{packageId}', [BookingController::class, 'getPackageDetails']);
+
 
 //not used
 Route::get('/services/{venueId}/{serviceTypeId}', [BookingController::class, 'getServicesByTypeAndVenue']);
