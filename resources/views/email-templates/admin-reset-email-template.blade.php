@@ -1,11 +1,11 @@
-<p>Dear {{$user->name}}</p>
+<p>Dear {{$admin->name}}</p>
 <br>
 <p>
     Your password on <b>FotoYuk</b> system was changed successfully.
     Here is your new login credentials:
     <br>
     <br>
-    <b>Login ID : </b>{{$user->username}} or {{$user->email}}
+    <b>Login ID : </b>{{$admin->username}} or {{$admin->email}}
     <br>
     <b>Password : </b>{{$new_password}}
 </p>

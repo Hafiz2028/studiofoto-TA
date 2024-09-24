@@ -60,35 +60,37 @@ class AdminProfileTabs extends Component
             'current_password' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!Hash::check($value, User::find(auth('admin')->id())->password)) {
+                    $user = auth()->user();
+                    if ($user->role !== 'admin') {
+                        return $fail(__('Unauthorized access.'));
+                    }
+                    if (!Hash::check($value, $user->password)) {
                         return $fail(__('The current password is incorrect'));
                     }
                 }
             ],
             'new_password' => 'required|min:5|max:45|confirmed'
         ]);
-
-        $query = User::findOrFail(auth('admin')->id())->update([
-            'password' => Hash::make($this->new_password)
-        ]);
+        $admin = auth()->user();
+        $admin->password = Hash::make($this->new_password);
+        $query = $admin->save();
         if ($query) {
             //send notification
-            $_admin = User::findOrFail($this->admin_id);
-            $data = array(
-                'admin' => $_admin,
+            $data = [
+                'admin' => $admin,
                 'new_password' => $this->new_password
-            );
+            ];
 
             $mail_body = view('email-templates.admin-reset-email-template', $data)->render();
 
-            $mailConfig = array(
+            $mailConfig = [
                 'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
                 'mail_from_name' => env('EMAIL_FROM_NAME'),
-                'mail_recipient_email' => $_admin->email,
-                'mail_recipient_name' => $_admin->name,
+                'mail_recipient_email' => $admin->email,
+                'mail_recipient_name' => $admin->name,
                 'mail_subject' => 'Password Changed',
                 'mail_body' => $mail_body
-            );
+            ];
 
             sendEmail($mailConfig);
 

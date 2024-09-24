@@ -47,7 +47,7 @@
                                     <tr>
                                         <td class="table-plus">{{ $loop->iteration }}</td>
                                         <td>{{ $item->name }}</td>
-                                        <td>{{ $item->owner->name }}</td>
+                                        <td>{{ $item->owner->user->name }}</td>
                                         <td>{{ ucwords(strtolower($item->address)) }}, {{ ucwords(strtolower($item->village->name)) }}, {{ ucwords(strtolower($item->village->district->name)) }}</td>
                                         <td>{{ $item->created_at }}</td>
                                         <td>

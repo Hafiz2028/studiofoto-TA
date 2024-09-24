@@ -72,18 +72,18 @@
 </head>
 
 <body>
-    <div class="pre-loader">
-			<div class="pre-loader-box">
-				<div class="loader-logo">
-					<img src="/back/vendors/images/logo_name.png" alt="" />
-				</div>
-				<div class="loader-progress" id="progress_div">
-					<div class="bar" id="bar1"></div>
-				</div>
-				<div class="percent" id="percent1">0%</div>
-				<div class="loading-text">Loading...</div>
-			</div>
-		</div>
+    {{-- <div class="pre-loader">
+        <div class="pre-loader-box">
+            <div class="loader-logo">
+                <img src="/back/vendors/images/logo_name.png" alt="" />
+            </div>
+            <div class="loader-progress" id="progress_div">
+                <div class="bar" id="bar1"></div>
+            </div>
+            <div class="percent" id="percent1">0%</div>
+            <div class="loading-text">Loading...</div>
+        </div>
+    </div> --}}
 
     <div class="header">
         <div class="header-left">
@@ -132,8 +132,8 @@
                 <h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
                 <div class="sidebar-radio-group pb-10 mb-10">
                     <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" id="sidebaricon-1" name="menu-dropdown-icon" class="custom-control-input"
-                            value="icon-style-1" checked="" />
+                        <input type="radio" id="sidebaricon-1" name="menu-dropdown-icon"
+                            class="custom-control-input" value="icon-style-1" checked="" />
                         <label class="custom-control-label" for="sidebaricon-1"><i
                                 class="fa fa-angle-down"></i></label>
                     </div>

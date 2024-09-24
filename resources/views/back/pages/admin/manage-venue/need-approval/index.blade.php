@@ -47,7 +47,7 @@
                                     <tr>
                                         <td class="table-plus">{{ $loop->iteration }}</td>
                                         <td>{{ $item->name }}</td>
-                                        <td>{{ $item->owner->name }}</td>
+                                        <td>{{ $item->owner->user->name }}</td>
                                         <td>{{ ucwords(strtolower($item->address)) }},
                                             {{ ucwords(strtolower($item->village->name)) }},
                                             {{ ucwords(strtolower($item->village->district->name)) }}</td>
@@ -60,9 +60,9 @@
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                                                     <a class="dropdown-item text-info"
-                                                        href="{{ route('admin.venue.show', ['venue' => $item->id]) }}"><i
-                                                            class="dw dw-eye"></i>
-                                                        View</a>
+                                                        href="{{ route('admin.venue.show', ['venue' => $item->id]) }}">
+                                                        <i class="dw dw-eye"></i> View
+                                                    </a>
                                                     <a class="dropdown-item text-success" data-toggle="modal"
                                                         data-target="#acceptModal{{ $item->id }}">
                                                         <i class="icon-copy dw dw-checked"></i> Accept
@@ -75,86 +75,91 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4">
-                                            <span class="text-danger">Tidak Ada belum dikonfirmasi</span>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                                {{-- Acc Modal --}}
-                                <div class="modal fade" id="acceptModal{{ $item->id }}" tabindex="-1" role="dialog"
-                                    aria-labelledby="acceptModalLabel{{ $item->id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-success text-white">
-                                                <h5 class="modal-title text-white"
-                                                    id="acceptModalLabel{{ $item->id }}">
-                                                    Approve Venue</h5>
-                                                <button type="button" class="close text-white" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
+
+                                    {{-- Acc Modal --}}
+                                    <div class="modal fade" id="acceptModal{{ $item->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="acceptModalLabel{{ $item->id }}"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-success text-white">
+                                                    <h5 class="modal-title text-white"
+                                                        id="acceptModalLabel{{ $item->id }}">
+                                                        Approve Venue</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Apakah anda yakin untuk Approve Venue <b>{{ $item->name }}</b> dari
+                                                    Owner
+                                                    <b>{{ $item->owner->name }}</b> ini?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-danger"
+                                                        data-dismiss="modal">Cancel</button>
+                                                    <form id="approve-form"
+                                                        action="{{ route('admin.venue.approve-venue', ['id' => $item->id]) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="btn btn-outline-success">
+                                                            Approve
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
-                                            <div class="modal-body">
-                                                Apakah anda yakin untuk Approve Venue
-                                                <b>{{ $item->name }}</b> dari Owner
-                                                <b>{{ $item->owner->name }}</b> ini?
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-danger"
-                                                    data-dismiss="modal">Cancel</button>
-                                                <form id="approve-form"
-                                                    action="{{ route('admin.venue.approve-venue', ['id' => $item->id]) }}"
+                                        </div>
+                                    </div>
+
+                                    {{-- Reject Modal --}}
+                                    <div class="modal fade" id="rejectModal{{ $item->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="rejectModalLabel{{ $item->id }}"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title text-white"
+                                                        id="rejectModalLabel{{ $item->id }}">
+                                                        Reject Venue</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form action="{{ route('admin.venue.reject-venue', ['id' => $item->id]) }}"
                                                     method="POST">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="btn btn-outline-success">
-                                                        Approve
-                                                    </button>
+                                                    <div class="modal-body">
+                                                        <p>Apakah anda yakin untuk Menolak Venue <b>{{ $item->name }}</b>
+                                                            dari Owner
+                                                            <b>{{ $item->owner->name }}</b> ini?
+                                                        </p>
+                                                        <div class="form-group">
+                                                            <label for="rejectReason{{ $item->id }}">Berikan alasan
+                                                                Venue Ditolak:</label>
+                                                            <textarea id="rejectReason{{ $item->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                            data-dismiss="modal">Cancel</button>
+                                                        <button type="submit"
+                                                            class="btn btn-outline-danger">Reject</button>
+                                                    </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                {{-- Reject Modal --}}
-                                <div class="modal fade" id="rejectModal{{ $item->id }}" tabindex="-1" role="dialog"
-                                    aria-labelledby="rejectModalLabel{{ $item->id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-danger text-white">
-                                                <h5 class="modal-title text-white"
-                                                    id="rejectModalLabel{{ $item->id }}">
-                                                    Reject Venue</h5>
-                                                <button type="button" class="close text-white" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <form action="{{ route('admin.venue.reject-venue', ['id' => $item->id]) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <div class="modal-body">
-                                                    <p>Apakah anda yakin untuk Menolak Venue
-                                                        <b>{{ $item->name }}</b> dari Owner
-                                                        <b>{{ $item->owner->name }}</b> ini?
-                                                    </p>
-                                                    <div class="form-group">
-                                                        <label for="rejectReason{{ $item->id }}">Berikan
-                                                            alasan Venue Ditolak:</label>
-                                                        <textarea id="rejectReason{{ $item->id }}" name="reject_note" class="form-control" rows="3" required></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-outline-secondary"
-                                                        data-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-outline-danger">Reject</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="6">
+                                            <span class="text-danger">Tidak Ada belum dikonfirmasi</span>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

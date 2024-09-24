@@ -29,7 +29,7 @@
         function confirmDelete(id) {
             Swal.fire({
                 title: 'Apakah yakin untuk menghapus?',
-                text: "Akun tidak bisa dikembalikan!",
+                text: "Tipe Layanan tidak bisa dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
