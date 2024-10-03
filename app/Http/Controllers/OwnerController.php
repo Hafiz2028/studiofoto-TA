@@ -105,7 +105,7 @@ class OwnerController extends Controller
         if ($saved) {
             $owner = new Owner();
             $owner->user_id = $user->id;
-            $owner->verified = 0;
+            $owner->verified = 1;
             $owner->save();
             $token = base64_encode(Str::random(64));
             VerificationToken::create([
@@ -130,7 +130,7 @@ class OwnerController extends Controller
                 'mail_body' => $mail_body,
             );
             if (sendEmail($mailConfig)) {
-                return redirect()->route('owner.register-success');
+                return redirect()->route('owner.login')->with('success', 'Selamat, akun berhasil dibuat, silahkan login.');
             } else {
                 return redirect()->route('owner.register')->with('fail', 'Something went wrong while sending verification link.');
             }

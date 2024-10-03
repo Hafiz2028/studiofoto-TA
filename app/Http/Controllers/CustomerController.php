@@ -58,7 +58,7 @@ class CustomerController extends Controller
         if ($saved) {
             $customer = new Customer();
             $customer->user_id = $user->id;
-            $customer->verified = 0;
+            $customer->verified = 1;
             $customer->save();
             $token = base64_encode(Str::random(64));
             VerificationToken::create([
@@ -83,7 +83,7 @@ class CustomerController extends Controller
                 'mail_body' => $mail_body,
             );
             if (sendEmail($mailConfig)) {
-                return redirect()->route('customer.register-success');
+                return redirect()->route('customer.login')->with('success','Akun berhasil dibuat, silahkan melakukan login');
             } else {
                 return redirect()->route('customer.register')->with('fail', 'Something went wrong while sending verification link.');
             }
