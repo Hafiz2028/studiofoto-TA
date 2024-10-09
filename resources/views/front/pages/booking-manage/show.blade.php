@@ -153,7 +153,7 @@
                                         class="btn btn-warning"><i class="icon-copy dw dw-money-1"></i>
                                         Pembayaran Awal</a>
                                 @endif
-                                @if ($rent->rent_status == 0 || $rent->rent_status == 1 || $rent->rent_status == 6)
+                                @if ($rent->rent_status == 0 || $rent->rent_status == 1 || $rent->rent_status == 6 || $rent->rent_status == 2)
                                     <a href="javascript:;" onclick="printInvoice()" class="btn btn-outline-info"><i
                                             class="icon-copy dw dw-print"></i>
                                         Cetak Invoice</a>
