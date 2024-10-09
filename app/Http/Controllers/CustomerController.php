@@ -229,20 +229,20 @@ class CustomerController extends Controller
 
                 //check if there is an existing reset password token
                 $oldToken = DB::table('password_reset_tokens')
-                    ->where(['email' => $customer->email, 'guard' => 'customer'])
+                    ->where(['email' => $customer->user->email, 'guard' => 'customer'])
                     ->first();
 
                 if ($oldToken) {
                     //update token
                     DB::table('password_reset_tokens')
-                        ->where(['email' => $customer->email, 'guard' => 'customer'])
+                        ->where(['email' => $customer->user->email, 'guard' => 'customer'])
                         ->update([
                             'token' => $token,
                             'created_at' => Carbon::now()
                         ]);
                 } else {
                     DB::table('password_reset_tokens')->insert([
-                        'email' => $customer->email,
+                        'email' => $customer->user->email,
                         'guard' => 'customer',
                         'token' => $token,
                         'created_at' => Carbon::now()

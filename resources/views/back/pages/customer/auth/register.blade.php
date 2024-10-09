@@ -75,7 +75,7 @@
                     <div class="input-group mb-0">
                         <button type="submit" class="btn btn-primary btn-lg btn-block"
                             style="background-color:#e27201; border-color:#e27201">Create Account</button>
-                    </div>
+                    </div> 
                     <div class="font-16 weight-600 pt-10 pb-10 text-center" data-color="#707373"
                         style="color:rgb(112,115,115)">OR</div>
                     <div class="input-group mb-0">
