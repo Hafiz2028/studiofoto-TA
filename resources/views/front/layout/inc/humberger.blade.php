@@ -5,7 +5,7 @@
     </div>
     <div class="humberger__menu__widget">
         <div class="header__top__right__language">
-            @if (auth()->guard('customer')->check())
+            @if (auth()->check() && auth()->user()->role === 'customer')
                 @livewire('customer-header-profile-info')
             @else
                 <a href="#"><i class="fa fa-user"></i> Login as</a>
@@ -22,7 +22,7 @@
             <li class="{{ Route::is('home') ? 'active' : '' }}"><a href="{{ route('home') }}">Home</a></li>
             <li class="{{ Route::is('search-page') ? 'active' : '' }}"><a href="{{ route('search-page') }}">Search</a>
             </li>
-            @if (auth()->guard('customer')->check())
+            @if (auth()->check() && auth()->user()->role === 'customer')
                 <li class="{{ Route::is('customer.booking.index') ? 'active' : '' }}"><a
                         href="{{ route('customer.booking.index') }}">Booking</a>
                 </li>
