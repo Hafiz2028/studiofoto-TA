@@ -24,9 +24,12 @@
             @enderror
 
             <div class="input-group custom">
-                <input type="password" class="form-control form-control-lg" placeholder="**********" name="password">
+                <input type="password" class="form-control form-control-lg" placeholder="**********" name="password"
+                    id="password">
                 <div class="input-group-append custom">
-                    <span class="input-group-text"><i class="dw dw-padlock1"></i></span>
+                    <span class="input-group-text">
+                        <i class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+                    </span>
                 </div>
             </div>
             @error('password')
@@ -46,7 +49,8 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="input-group mb-0">
-                        <input class="btn btn-primary btn-lg btn-block" style="background-color:#e27201; border-color:#e27201" type="submit" value="Sign In">
+                        <input class="btn btn-primary btn-lg btn-block"
+                            style="background-color:#e27201; border-color:#e27201" type="submit" value="Sign In">
                         {{-- <a class="btn btn-primary btn-lg btn-block" href="index.html">Sign In</a> --}}
                     </div>
 
@@ -54,4 +58,15 @@
             </div>
         </form>
     </div>
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
 @endsection

@@ -70,7 +70,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label><strong>4. Surat Izin Mendirikan Bangunan (IMB) :</strong></label>
+                                    <label><strong>4. Surat Nomor Induk Berusaha (NIB) :</strong></label>
 
                                     <input type="file" class="form-control @error('imb') is-invalid @enderror"
                                         name="imb" wire:model="imb"

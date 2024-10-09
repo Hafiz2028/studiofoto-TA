@@ -54,7 +54,7 @@
                                         <td class="table-plus">{{ $loop->iteration }}</td>
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->email }}</td>
-                                        <td>{{ $item->handphone }}</td>
+                                        <td>{{ $item->handphone ?? '-' }}</td>
                                         <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"

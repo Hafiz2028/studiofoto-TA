@@ -184,7 +184,7 @@
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-12">
                     <div class="card-box mb-2 pl-2 pr-2 pt-3 pb-4 text-center">
-                        <h5 class="mb-3">Surat Izin Mendirikan Usaha</h5>
+                        <h5 class="mb-3">Surat Nomor Induk Berusaha</h5>
                         @if ($venue->imb)
                             <div class="alert alert-success" role="alert"
                                 style="display: inline-block; padding: 0.5rem 1rem; border-width: 1px 0.2em;">

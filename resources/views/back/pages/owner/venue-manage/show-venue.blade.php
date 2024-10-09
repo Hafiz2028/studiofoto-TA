@@ -325,7 +325,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-12">
                     <div class="card card-primary shadow mb-3 text-center">
                         <div class="card-header bg-info text-white">
-                            <h5 class="text-white mb-3">Surat Izin Mendirikan Usaha</h5>
+                            <h5 class="text-white mb-3">Surat Nomor Induk Berusaha</h5>
                         </div>
                         <div class="card-body text-center">
                             <div class="photo-display">
@@ -364,7 +364,7 @@
                                     <img src="/images/users/owners/KTP_owner/ktp.png" alt="Tidak Ada KTP"
                                         style="width: 100%; max-width: 300px; height: auto;">
                                 @endif
-                                
+
                             </div>
 
                             @if ($venue->owner->ktp !== asset('/images/users/owners/KTP_owner/ktp.png'))
